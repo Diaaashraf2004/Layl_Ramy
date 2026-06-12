@@ -1927,6 +1927,13 @@ Store.on('auth-changed', () => {
   // Auto-redirect if on checkout and auth state changes? Not necessary.
 });
 
+Store.on('data-synced', () => {
+  renderNavbar();
+  renderFooter();
+  renderCartSidebar();
+  handleRoute(); // Re-render the current page with new data
+});
+
 // Hash change
 window.addEventListener('hashchange', () => {
   productsState = { categoryId: null, search: '', sort: 'newest' };

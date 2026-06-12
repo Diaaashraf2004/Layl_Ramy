@@ -78,6 +78,18 @@ function saveToStorage(key, data) {
     // Last resort fallback to memory
     _memoryStore[key] = JSON.parse(JSON.stringify(data));
   }
+
+  // Background Firebase Sync
+  if (window.FirebaseDB && window.FirebaseDB.db) {
+    // Only sync if it's not the 'currentCustomer' or 'cart' (those are per-user session)
+    if (key !== STORAGE_KEYS.currentCustomer && key !== STORAGE_KEYS.cart) {
+      try {
+        const { doc, setDoc } = window.FirebaseDB;
+        setDoc(doc(window.FirebaseDB.db, "store_data", key), { data: data })
+          .catch(e => console.error("Firebase write error for " + key + ":", e));
+      } catch (e) {}
+    }
+  }
 }
 
 // ===== SETTINGS =====
@@ -568,7 +580,7 @@ async function loginWithGoogle() {
   }
 }
 
-// Automatically sync with Firebase Auth state
+// Automatically sync with Firebase Auth state and Firestore
 document.addEventListener('DOMContentLoaded', () => {
   // Give time for firebase module to load
   setTimeout(() => {
@@ -578,6 +590,34 @@ document.addEventListener('DOMContentLoaded', () => {
           // If logged out from Firebase but local shows logged in, sync it (if it's a Google user)
           // For simplicity, we won't auto logout unless explicitly clicked
         }
+      });
+    }
+
+    if (window.FirebaseDB && window.FirebaseDB.db) {
+      const { collection, onSnapshot } = window.FirebaseDB;
+      onSnapshot(collection(window.FirebaseDB.db, "store_data"), (snapshot) => {
+        let dataLoaded = false;
+        snapshot.docChanges().forEach((change) => {
+          const key = change.doc.id;
+          const data = change.doc.data().data;
+          
+          if (data) {
+            try {
+              if (_useLocalStorage) {
+                localStorage.setItem(key, JSON.stringify(data));
+              } else {
+                _memoryStore[key] = JSON.parse(JSON.stringify(data));
+              }
+              dataLoaded = true;
+            } catch (e) {}
+          }
+        });
+        
+        if (dataLoaded) {
+          emit('data-synced', null);
+        }
+      }, (error) => {
+        console.error("Firebase onSnapshot error:", error);
       });
     }
   }, 1000);

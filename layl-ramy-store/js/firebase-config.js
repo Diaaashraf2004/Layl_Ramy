@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getFirestore, collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDH4h6Rru09navbXpvxIPW3ssbCeIpi1vg",
@@ -14,6 +15,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
 
 // Expose to global scope for store.js to use
 window.FirebaseAuth = { auth, provider, signInWithPopup, onAuthStateChanged, signOut };
+window.FirebaseDB = { db, collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot };
