@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تجربة مميزات ليل رامي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-card: #1a1a2e;
+      --text-primary: #f0f0f5;
+      --text-secondary: #9898b8;
+      --accent: #c9a04e;
+      --accent-hover: #ddb35e;
+      --whatsapp: #25D366;
+      --danger: #e74c5e;
+      --font-body: 'Cairo', sans-serif;
+      --font-heading: 'Playfair Display', serif;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      padding-bottom: 100px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* 1. Hero Carousel */
+    .hero-carousel {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+      min-height: 400px;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    
+    .carousel-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .carousel-slide.active {
+      opacity: 1;
+    }
+    
+    .carousel-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,10,15,1), rgba(10,10,15,0.4));
+    }
+    
+    .carousel-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      padding: 20px;
+    }
+    
+    .carousel-content h1 {
+      font-family: var(--font-heading);
+      font-size: 3rem;
+      color: var(--accent);
+      margin-bottom: 15px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    
+    .carousel-content p {
+      font-size: 1.2rem;
+      margin-bottom: 25px;
+    }
+    
+    .btn {
+      padding: 12px 30px;
+      background: var(--accent);
+      color: #000;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 30px;
+      transition: 0.3s;
+      display: inline-block;
+    }
+    
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-3px);
+    }
+
+    /* 2. Categories Circles */
+    .categories-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 20px 0;
+      scrollbar-width: none; /* Firefox */
+      margin-bottom: 60px;
+    }
+    
+    .categories-scroll::-webkit-scrollbar {
+      display: none; /* Chrome */
+    }
+    
+    .cat-circle-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      min-width: 100px;
+    }
+    
+    .cat-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .cat-circle-wrap:hover .cat-circle {
+      border-color: var(--accent);
+      transform: scale(1.1);
+    }
+
+    /* 3. Features Section (Why Choose Us) */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+    
+    .feature-card {
+      background: var(--bg-card);
+      padding: 30px 20px;
+      text-align: center;
+      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent);
+    }
+    
+    .feature-icon {
+      font-size: 40px;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    /* 4. Product Card with Scarcity */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .product-card {
+      background: var(--bg-card);
+      border-radius: 15px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .product-img {
+      width: 100%;
+      height: 250px;
+      background: #2a2a4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+    
+    .product-info {
+      padding: 20px;
+    }
+    
+    .scarcity-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--danger);
+      font-size: 0.85rem;
+      font-weight: bold;
+      background: rgba(231, 76, 94, 0.1);
+      padding: 5px 10px;
+      border-radius: 20px;
+      margin-top: 10px;
+      animation: pulse 2s infinite;
+    }
+
+    /* 5. Floating WhatsApp */
+    .floating-wa {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: var(--whatsapp);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 35px;
+      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+      cursor: pointer;
+      z-index: 1000;
+      text-decoration: none;
+      animation: wa-pulse 2s infinite;
+    }
+    
+    @keyframes wa-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+      70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 1. Hero Carousel -->
+  <div class="hero-carousel" id="hero-slider">
+    <!-- Slide 1 -->
+    <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop');">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-content">
+        <h1>إطارات فنية مذهلة</h1>
+        <p>اكتشف تشكيلتنا الجديدة من لوحات الحائط التي تناسب كل الأذواق</p>
+        <a href="#" class="btn">تسوق الآن</a>
+      </div>
+    </div>
+    <!-- Slide 2 -->
+    <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=2030&auto=format&fit=crop');">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-content">
+        <h1>خصومات تصل إلى 30%</h1>
+        <p>على جميع إطارات الأفلام والمسلسلات والألعاب لفترة محدودة</p>
+        <a href="#" class="btn">شاهد العروض</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 style="margin-bottom: 20px; color: var(--accent);">تصفح الأقسام</h2>
+    
+    <!-- 2. Categories Circles -->
+    <div class="categories-scroll">
+      <div class="cat-circle-wrap">
+        <div class="cat-circle" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=150');"></div>
+        <span>ألعاب</span>
+      </div>
+      <div class="cat-circle-wrap">
+        <div class="cat-circle" style="background-image: url('https://images.unsplash.com/photo-1485846234645-a62644f84728?w=150');"></div>
+        <span>أفلام</span>
+      </div>
+      <div class="cat-circle-wrap">
+        <div class="cat-circle" style="background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=150');"></div>
+        <span>سيارات</span>
+      </div>
+      <div class="cat-circle-wrap">
+        <div class="cat-circle" style="background-image: url('https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=150');"></div>
+        <span>رياضة</span>
+      </div>
+      <div class="cat-circle-wrap">
+        <div class="cat-circle" style="background-image: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150');"></div>
+        <span>موسيقى</span>
+      </div>
+      <div class="cat-circle-wrap">
+        <div class="cat-circle" style="background-image: url('https://images.unsplash.com/photo-1584286595398-a59f21d313f5?w=150');"></div>
+        <span>إسلامي</span>
+      </div>
+      <div class="cat-circle-wrap">
+        <div class="cat-circle" style="background-image: url('https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150');"></div>
+        <span>أنمي</span>
+      </div>
+    </div>
+
+    <!-- 3. Why Choose Us -->
+    <h2 style="margin-bottom: 20px; color: var(--accent); text-align: center;">لماذا تختار ليل رامي؟</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="ph ph-truck"></i></div>
+        <h3>شحن سريع</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">توصيل آمن وسريع لجميع المحافظات خلال 3 إلى 5 أيام عمل.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="ph ph-shield-check"></i></div>
+        <h3>جودة ممتازة</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">نستخدم أفضل خامات الطباعة والإطارات لضمان شكل أنيق يدوم طويلاً.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="ph ph-headset"></i></div>
+        <h3>دعم متواصل</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">فريق خدمة العملاء متواجد دائماً للرد على استفساراتك وتلبية طلباتك.</p>
+      </div>
+    </div>
+
+    <!-- 4. Scarcity on Product -->
+    <h2 style="margin-bottom: 20px; color: var(--accent);">مثال على شكل المنتج الجديد</h2>
+    <div class="products-grid">
+      <div class="product-card" style="max-width: 300px;">
+        <div class="product-img">🏎️</div>
+        <div class="product-info">
+          <h3 style="margin-bottom: 10px;">برواز سيارة فورمولا 1</h3>
+          <p style="color: var(--accent); font-weight: bold; font-size: 1.2rem;">350 ج.م</p>
+          <!-- Scarcity Badge -->
+          <div class="scarcity-badge">
+            <i class="ph-fill ph-fire"></i>
+            سارع بالشراء! متبقي 2 فقط
+          </div>
+          <button class="btn" style="width: 100%; margin-top: 20px; text-align: center;">أضف للسلة</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 5. Floating WhatsApp -->
+  <a href="#" class="floating-wa" title="تواصل معنا على واتساب">
+    <i class="ph ph-whatsapp-logo"></i>
+  </a>
+
+  <script>
+    // Simple Carousel Logic for Demo
+    const slides = document.querySelectorAll('.carousel-slide');
+    let currentSlide = 0;
+    
+    setInterval(() => {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }, 4000); // Change slide every 4 seconds
+  </script>
+</body>
+</html>

@@ -15,7 +15,9 @@ const STORAGE_KEYS = {
   coupons: 'lr_coupons_v2',
   customers: 'lr_customers_v2',
   currentCustomer: 'lr_current_customer_v2',
-  seeded: 'lr_seeded_v2'
+  seeded: 'lr_seeded_v2',
+  wishlist: 'lr_wishlist_v2',
+  recent: 'lr_recent_v2'
 };
 
 // ===== EVENT SYSTEM =====
@@ -79,7 +81,7 @@ function saveToStorage(key, data) {
     _memoryStore[key] = JSON.parse(JSON.stringify(data));
   }
 
-  // Background Firebase Sync
+// Background Firebase Sync
   if (window.FirebaseDB && window.FirebaseDB.db) {
     // Only sync if it's not the 'currentCustomer' or 'cart' (those are per-user session)
     if (key !== STORAGE_KEYS.currentCustomer && key !== STORAGE_KEYS.cart) {
@@ -90,6 +92,72 @@ function saveToStorage(key, data) {
       } catch (e) {}
     }
   }
+
+  saveHistoryState();
+}
+
+// ===== UNDO / REDO HISTORY =====
+let historyStack = [];
+let historyIndex = -1;
+let isUndoRedoAction = false;
+
+function saveHistoryState() {
+  if (isUndoRedoAction || !_useLocalStorage) return;
+  const state = {};
+  for(let i=0; i<localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if(key.startsWith('lr_')) {
+      state[key] = localStorage.getItem(key);
+    }
+  }
+  
+  // Don't save if state is identical to last state
+  if (historyIndex >= 0) {
+    const lastState = historyStack[historyIndex];
+    let identical = true;
+    for(const key in state) {
+      if(state[key] !== lastState[key]) identical = false;
+    }
+    if (identical) return;
+  }
+
+  historyStack = historyStack.slice(0, historyIndex + 1);
+  historyStack.push(state);
+  if (historyStack.length > 50) {
+    historyStack.shift();
+  } else {
+    historyIndex++;
+  }
+  emit('history-changed', { canUndo: historyIndex > 0, canRedo: historyIndex < historyStack.length - 1 });
+}
+
+function storeUndo() {
+  if (historyIndex > 0) {
+    isUndoRedoAction = true;
+    historyIndex--;
+    const state = historyStack[historyIndex];
+    Object.keys(state).forEach(key => localStorage.setItem(key, state[key]));
+    isUndoRedoAction = false;
+    emit('history-changed', { canUndo: historyIndex > 0, canRedo: historyIndex < historyStack.length - 1 });
+    // Trigger storage event so admin/app redraws
+    window.dispatchEvent(new StorageEvent('storage', { key: 'lr_history_undo' }));
+    return true;
+  }
+  return false;
+}
+
+function storeRedo() {
+  if (historyIndex < historyStack.length - 1) {
+    isUndoRedoAction = true;
+    historyIndex++;
+    const state = historyStack[historyIndex];
+    Object.keys(state).forEach(key => localStorage.setItem(key, state[key]));
+    isUndoRedoAction = false;
+    emit('history-changed', { canUndo: historyIndex > 0, canRedo: historyIndex < historyStack.length - 1 });
+    window.dispatchEvent(new StorageEvent('storage', { key: 'lr_history_redo' }));
+    return true;
+  }
+  return false;
 }
 
 // ===== SETTINGS =====
@@ -101,12 +169,49 @@ const DEFAULT_SETTINGS = {
   fontBody: 'Inter',
   fontArabicHeading: 'Tajawal',
   fontArabicBody: 'Cairo',
-  accentColor: '#c9a04e',
+  accentColor: '#000000',
+  welcomePopupActive: false,
+  welcomePopupTitle_ar: 'أهلاً بك في ليل رامي! 🌙',
+  welcomePopupTitle_en: 'Welcome to Layl Ramy! 🌙',
+  welcomePopupSubtitle_ar: 'استخدم كود الخصم WELCOME10 للحصول على خصم 10% على طلبك الأول!',
+  welcomePopupSubtitle_en: 'Use coupon code WELCOME10 to get 10% off on your first order!',
+  welcomePopupCoupon: 'WELCOME10',
+  welcomePopupImage: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop',
   contactPhone: '+20 123 456 7890',
   contactWhatsapp: '+201234567890',
   contactEmail: 'info@laylramy.com',
-  shippingCost: 50,
+  shippingCost: 150,
+  freeShippingActive: true,
   freeShippingThreshold: 500,
+  shippingRates: {
+    'القاهرة': 150,
+    'الجيزة': 150,
+    'الإسكندرية': 150,
+    'القليوبية': 150,
+    'الغربية': 65,
+    'المنوفية': 150,
+    'الدقهلية': 150,
+    'الشرقية': 150,
+    'البحيرة': 150,
+    'دمياط': 150,
+    'كفر الشيخ': 150,
+    'بورسعيد': 150,
+    'السويس': 150,
+    'الإسماعيلية': 150,
+    'الفيوم': 175,
+    'بني سويف': 175,
+    'المنيا': 175,
+    'أسيوط': 175,
+    'سوهاج': 175,
+    'قنا': 175,
+    'الأقصر': 175,
+    'أسوان': 175,
+    'البحر الأحمر': 175,
+    'الوادي الجديد': 175,
+    'مطروح': 185,
+    'شمال سيناء': 175,
+    'جنوب سيناء': 175
+  },
   aboutText_ar: 'ليل رامي - متجرك المفضل للتسوق أونلاين. نقدم لك أفضل المنتجات بأعلى جودة وأفضل الأسعار مع توصيل سريع لجميع أنحاء مصر.',
   aboutText_en: 'Layl Ramy - Your favorite online shopping destination. We offer the best products with highest quality and best prices with fast delivery across Egypt.',
   address_ar: 'القاهرة، مصر',
@@ -115,7 +220,40 @@ const DEFAULT_SETTINGS = {
   currency_en: 'EGP',
   emailjs_service_id: '',
   emailjs_template_id: '',
-  emailjs_public_key: ''
+  emailjs_public_key: '',
+  sliderInterval: 4, // in seconds
+  heroSlider: [
+    {
+      image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop',
+      title_ar: 'إطارات فنية مذهلة',
+      title_en: 'Stunning Art Frames',
+      subtitle_ar: 'اكتشف تشكيلتنا الجديدة من لوحات الحائط',
+      subtitle_en: 'Discover our new wall art collection',
+      buttonText_ar: 'تسوق الآن',
+      buttonText_en: 'Shop Now',
+      buttonLink: '#/products'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=2030&auto=format&fit=crop',
+      title_ar: 'خصومات مميزة',
+      title_en: 'Special Discounts',
+      subtitle_ar: 'تصفح أفضل الإطارات بأسعار تنافسية',
+      subtitle_en: 'Browse the best frames at competitive prices',
+      buttonText_ar: 'شاهد العروض',
+      buttonText_en: 'View Offers',
+      buttonLink: '#/products'
+    }
+  ],
+  navBgColor: '#ffffff',
+  navTextColor: '#000000',
+  btnBgColor: '#000000',
+  btnTextColor: '#ffffff',
+  footerBgColor: '#f8f8f8',
+  footerTextColor: '#333333',
+  headingColor: '#000000',
+  bodyBgColor: '#ffffff',
+  textColor: '#111111',
+  customBanners: []
 };
 
 function getSettings() {
@@ -161,6 +299,7 @@ function saveProduct(product) {
     product.ratingAvg = product.ratingAvg || 0;
     product.ratingCount = product.ratingCount || 0;
     product.status = product.status || 'active';
+    product.linkedProducts = product.linkedProducts || [];
     products.push(product);
   }
   saveToStorage(STORAGE_KEYS.products, products);
@@ -201,6 +340,9 @@ function getDiscountedProducts() {
 
 function getProductPrice(product) {
   if (!product) return 0;
+  if (product.salePrice !== undefined && product.salePrice > 0 && product.salePrice < product.price) {
+    return product.salePrice;
+  }
   if (product.discountPercentage > 0) {
     return Math.round(product.price * (1 - product.discountPercentage / 100));
   }
@@ -296,7 +438,16 @@ function clearCart() {
   emit('cart-updated', []);
 }
 
-function getCartTotal() {
+function getShippingCost(city, subtotal) {
+  const settings = getSettings();
+  if (settings.freeShippingActive && subtotal >= settings.freeShippingThreshold) return 0;
+  if (!city) return settings.shippingCost || 0;
+  return settings.shippingRates && settings.shippingRates[city] !== undefined
+    ? settings.shippingRates[city]
+    : (settings.shippingCost || 0);
+}
+
+function getCartTotal(city = '') {
   const cart = getCart();
   const settings = getSettings();
   let subtotal = 0;
@@ -310,7 +461,7 @@ function getCartTotal() {
     }
   });
 
-  const shipping = subtotal >= settings.freeShippingThreshold ? 0 : (subtotal > 0 ? settings.shippingCost : 0);
+  const shipping = subtotal > 0 ? getShippingCost(city, subtotal) : 0;
 
   return {
     subtotal,
@@ -352,7 +503,7 @@ function getOrderByNumber(orderNumber) {
 function createOrder(orderData) {
   const orders = getFromStorage(STORAGE_KEYS.orders) || [];
   const cart = getCartWithProducts();
-  const cartTotal = getCartTotal();
+  const cartTotal = getCartTotal(orderData.city);
 
   if (cart.length === 0) return null;
 
@@ -506,23 +657,65 @@ function updateProductRating(productId) {
   }
 }
 
+// ===== WISHLIST =====
+function getWishlist() {
+  return getFromStorage(STORAGE_KEYS.wishlist) || [];
+}
+
+function toggleWishlist(productId) {
+  let wishlist = getWishlist();
+  const index = wishlist.indexOf(productId);
+  let added = false;
+  if (index !== -1) {
+    wishlist.splice(index, 1);
+  } else {
+    wishlist.push(productId);
+    added = true;
+  }
+  saveToStorage(STORAGE_KEYS.wishlist, wishlist);
+  emit('wishlist-updated', wishlist);
+  return added;
+}
+
+function isInWishlist(productId) {
+  return getWishlist().includes(productId);
+}
+
+// ===== RECENTLY VIEWED =====
+function getRecentlyViewed() {
+  return getFromStorage(STORAGE_KEYS.recent) || [];
+}
+
+function addRecentlyViewed(productId) {
+  let recent = getRecentlyViewed();
+  // Remove if already exists to move to the front
+  recent = recent.filter(id => id !== productId);
+  recent.unshift(productId);
+  // Keep last 10
+  if (recent.length > 10) {
+    recent = recent.slice(0, 10);
+  }
+  saveToStorage(STORAGE_KEYS.recent, recent);
+  emit('recent-updated', recent);
+}
+
 // ===== ADMIN AUTH (Simple - will be replaced with Firebase Auth) =====
 const ADMIN_PASSWORD = 'admin123';
 
 function adminLogin(password) {
   if (password === ADMIN_PASSWORD) {
-    try { sessionStorage.setItem('lr_admin', 'true'); } catch(e) { _memoryStore['_admin'] = true; }
+    try { localStorage.setItem('lr_admin', 'true'); } catch(e) { _memoryStore['_admin'] = true; }
     return true;
   }
   return false;
 }
 
 function isAdminLoggedIn() {
-  try { return sessionStorage.getItem('lr_admin') === 'true'; } catch(e) { return _memoryStore['_admin'] === true; }
+  try { return localStorage.getItem('lr_admin') === 'true'; } catch(e) { return _memoryStore['_admin'] === true; }
 }
 
 function adminLogout() {
-  try { sessionStorage.removeItem('lr_admin'); } catch(e) {}
+  try { localStorage.removeItem('lr_admin'); } catch(e) {}
   _memoryStore['_admin'] = false;
 }
 
@@ -582,6 +775,13 @@ async function loginWithGoogle() {
 
 // Automatically sync with Firebase Auth state and Firestore
 document.addEventListener('DOMContentLoaded', () => {
+  // Listen to changes in localStorage from other tabs for instant sync
+  window.addEventListener('storage', (e) => {
+    if (Object.values(STORAGE_KEYS).includes(e.key)) {
+      emit('data-synced', null);
+    }
+  });
+
   // Give time for firebase module to load
   setTimeout(() => {
     if (window.FirebaseAuth) {
@@ -811,5 +1011,5 @@ function getStatusIcon(status) {
 }
 
 window.Store = {
-  on, off, emit, getSettings, saveSettings, getProducts, getActiveProducts, getProduct, saveProduct, deleteProduct, getFeaturedProducts, getProductsByCategory, searchProducts, getDiscountedProducts, getProductPrice, getCategories, getActiveCategories, getCategory, saveCategory, deleteCategory, getCategoryProductCount, getCart, addToCart, removeFromCart, updateCartQuantity, clearCart, getCartTotal, getCartWithProducts, getOrders, getOrder, getOrderByNumber, createOrder, updateOrderStatus, deleteOrder, getOrderStats, getReviews, getApprovedReviews, getAllReviews, addReview, approveReview, deleteReview, adminLogin, isAdminLoggedIn, adminLogout, changeAdminPassword, getCoupons, getCoupon, saveCoupon, deleteCoupon, validateCoupon, seedData, resetAllData, formatPrice, formatDate, formatDateTime, getStatusColor, getStatusIcon, getCustomers, getCurrentCustomer, registerCustomer, loginCustomer, loginWithGoogle, logoutCustomer, getCustomerOrders
+  on, off, emit, getSettings, saveSettings, getProducts, getActiveProducts, getProduct, saveProduct, deleteProduct, getFeaturedProducts, getProductsByCategory, searchProducts, getDiscountedProducts, getProductPrice, getCategories, getActiveCategories, getCategory, saveCategory, deleteCategory, getCategoryProductCount, getCart, addToCart, removeFromCart, updateCartQuantity, clearCart, getCartTotal, getCartWithProducts, getOrders, getOrder, getOrderByNumber, createOrder, updateOrderStatus, deleteOrder, getOrderStats, getReviews, getApprovedReviews, getAllReviews, addReview, approveReview, deleteReview, adminLogin, isAdminLoggedIn, adminLogout, changeAdminPassword, getCoupons, getCoupon, saveCoupon, deleteCoupon, validateCoupon, seedData, resetAllData, formatPrice, formatDate, formatDateTime, getStatusColor, getStatusIcon, getCustomers, getCurrentCustomer, registerCustomer, loginCustomer, loginWithGoogle, logoutCustomer, getCustomerOrders, storeUndo, storeRedo, getWishlist, toggleWishlist, isInWishlist, getRecentlyViewed, addRecentlyViewed, getShippingCost
 };

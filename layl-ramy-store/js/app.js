@@ -11,7 +11,7 @@ if (!Store) {
 // ============================================
 const translations = {
   ar: {
-    nav: { home: 'الرئيسية', products: 'المنتجات', cart: 'السلة', search: 'بحث' },
+    nav: { home: 'الرئيسية', products: 'المنتجات', cart: 'السلة', search: 'بحث', wishlist: 'المفضلة' },
     hero: { subtitle: 'تسوق بأناقة وراحة', shopNow: 'تسوق الآن' },
     home: {
       featured: 'منتجات مميزة', offers: 'عروض وخصومات', categories: 'التصنيفات',
@@ -79,6 +79,30 @@ const translations = {
       rights: 'جميع الحقوق محفوظة', phone: 'الهاتف', email: 'البريد', address: 'العنوان',
       categoriesTitle: 'التصنيفات'
     },
+    wishlist: {
+      title: 'المفضلة',
+      empty: 'المفضلة فارغة',
+      emptyMessage: 'لا توجد منتجات في المفضلة حالياً',
+      addToWishlist: 'إضافة للمفضلة',
+      removeFromWishlist: 'إزالة من المفضلة'
+    },
+    recentViewed: {
+      title: 'شاهدتها مؤخراً'
+    },
+    linked: {
+      title: 'أكمل إطلالتك',
+      buyTogether: 'إضافة الحزمة للسلة معاً',
+      totalSelected: 'السعر الإجمالي المختار:'
+    },
+    whyUs: {
+      title: 'لماذا تختارنا؟',
+      fastShipping: 'شحن سريع',
+      fastShippingDesc: 'توصيل آمن وسريع لجميع المحافظات خلال 3 إلى 5 أيام عمل.',
+      quality: 'جودة ممتازة',
+      qualityDesc: 'نستخدم أفضل خامات الطباعة والإطارات لضمان شكل أنيق يدوم طويلاً.',
+      support: 'دعم متواصل',
+      supportDesc: 'فريق خدمة العملاء متواجد دائماً للرد على استفساراتك وتلبية طلباتك.'
+    },
     common: {
       egp: 'ج.م', off: 'خصم', loading: 'جاري التحميل...', close: 'إغلاق', save: 'حفظ',
       cancel: 'إلغاء', delete: 'حذف', edit: 'تعديل', add: 'إضافة', noData: 'لا توجد بيانات',
@@ -89,7 +113,7 @@ const translations = {
     cities: ['القاهرة', 'الجيزة', 'الإسكندرية', 'المنصورة', 'طنطا', 'الزقازيق', 'أسيوط', 'سوهاج', 'المنيا', 'بورسعيد', 'السويس', 'الإسماعيلية', 'دمياط', 'الفيوم', 'بني سويف']
   },
   en: {
-    nav: { home: 'Home', products: 'Products', cart: 'Cart', search: 'Search' },
+    nav: { home: 'Home', products: 'Products', cart: 'Cart', search: 'Search', wishlist: 'Wishlist' },
     hero: { subtitle: 'Shop with Elegance & Comfort', shopNow: 'Shop Now' },
     home: {
       featured: 'Featured Products', offers: 'Offers & Deals', categories: 'Categories',
@@ -157,6 +181,15 @@ const translations = {
       rights: 'All rights reserved', phone: 'Phone', email: 'Email', address: 'Address',
       categoriesTitle: 'Categories'
     },
+    whyUs: {
+      title: 'Why Choose Us?',
+      fastShipping: 'Fast Shipping',
+      fastShippingDesc: 'Safe and fast delivery to all governorates within 3 to 5 business days.',
+      quality: 'Excellent Quality',
+      qualityDesc: 'We use the best printing and framing materials to ensure an elegant, long-lasting look.',
+      support: 'Ongoing Support',
+      supportDesc: 'Our customer service team is always available to answer your questions and fulfill your requests.'
+    },
     common: {
       egp: 'EGP', off: 'OFF', loading: 'Loading...', close: 'Close', save: 'Save',
       cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', noData: 'No data',
@@ -164,6 +197,21 @@ const translations = {
     },
     theme: { dark: 'Dark Mode', light: 'Light Mode' },
     lang: { switch: 'عربي', current: 'EN' },
+    wishlist: {
+      title: 'Wishlist',
+      empty: 'Wishlist is empty',
+      emptyMessage: 'No products in your wishlist yet',
+      addToWishlist: 'Add to Wishlist',
+      removeFromWishlist: 'Remove from Wishlist'
+    },
+    recentViewed: {
+      title: 'Recently Viewed'
+    },
+    linked: {
+      title: 'Complete Your Look',
+      buyTogether: 'Add Bundle to Cart',
+      totalSelected: 'Total Selected Price:'
+    },
     cities: ['Cairo', 'Giza', 'Alexandria', 'Mansoura', 'Tanta', 'Zagazig', 'Asyut', 'Sohag', 'Minya', 'Port Said', 'Suez', 'Ismailia', 'Damietta', 'Fayoum', 'Beni Suef']
   }
 };
@@ -192,7 +240,7 @@ function setLang(lang) {
   renderNavbar();
   renderFooter();
   renderCartSidebar();
-  navigateTo(getCurrentRoute());
+  handleRoute(); // Force re-render of current page content
 }
 
 function isRTL() {
@@ -215,9 +263,9 @@ function t(key) {
 // ============================================
 function getTheme() {
   try {
-    return localStorage.getItem('lr_theme') || 'dark';
+    return localStorage.getItem('lr_theme') || 'light';
   } catch (e) {
-    return 'dark';
+    return 'light';
   }
 }
 
@@ -258,6 +306,7 @@ function parseRoute(hash) {
   if (parts[0] === 'login') return { page: 'login', params: {} };
   if (parts[0] === 'register') return { page: 'register', params: {} };
   if (parts[0] === 'profile') return { page: 'profile', params: {} };
+  if (parts[0] === 'wishlist') return { page: 'wishlist', params: {} };
   return { page: 'home', params: {} };
 }
 
@@ -280,6 +329,7 @@ function handleRoute() {
     case 'login': html = renderLoginPage(); break;
     case 'register': html = renderRegisterPage(); break;
     case 'profile': html = renderProfilePage(); break;
+    case 'wishlist': html = renderWishlistPage(); break;
     default: html = renderHomePage();
   }
 
@@ -287,6 +337,22 @@ function handleRoute() {
   app.className = 'page-enter';
   updateActiveNavLink(page);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Initialize Carousel if on home page
+  if (page === 'home' || page === '') {
+    const sliderEl = document.getElementById('hero-slider');
+    const intervalSec = sliderEl ? parseFloat(sliderEl.dataset.interval) || 4 : 4;
+    const slides = document.querySelectorAll('.carousel-slide');
+    if (slides.length > 0) {
+      let currentSlide = 0;
+      if (window.carouselInterval) clearInterval(window.carouselInterval);
+      window.carouselInterval = setInterval(() => {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+      }, intervalSec * 1000);
+    }
+  }
 
   // Re-trigger animation
   void app.offsetWidth;
@@ -299,6 +365,7 @@ function updateActiveNavLink(page) {
     if (page === 'home' && href === '#/') link.classList.add('active');
     else if (page === 'products' && href === '#/products') link.classList.add('active');
     else if (page === 'category' && href === '#/products') link.classList.add('active');
+    else if (page === 'wishlist' && href === '#/wishlist') link.classList.add('active');
   });
 }
 
@@ -362,7 +429,36 @@ function renderNavbar() {
   const lastName = nameParts.slice(1).join(' ') || 'Ramy';
   const currentCustomer = Store.getCurrentCustomer();
 
+  let bannerHtml = '';
+  let bannerClosed = false;
+  try {
+    bannerClosed = sessionStorage.getItem('lr_banner_closed') === 'true';
+  } catch (e) {}
+
+  if (settings.welcomePopupActive && !bannerClosed) {
+    const title = lang === 'ar' ? settings.welcomePopupTitle_ar : settings.welcomePopupTitle_en;
+    const desc = lang === 'ar' ? settings.welcomePopupSubtitle_ar : settings.welcomePopupSubtitle_en;
+    const coupon = settings.welcomePopupCoupon;
+    bannerHtml = `
+      <div class="top-banner" id="top-banner" style="background-color: ${settings.welcomePopupBgColor || '#1a1a2e'}; color: ${settings.welcomePopupTextColor || '#f0f0f5'};">
+        <div class="top-banner-inner">
+          <div class="banner-text">
+            <strong>${escapeHtml(title)}</strong> ${desc ? `- ${escapeHtml(desc)}` : ''}
+          </div>
+          ${coupon ? `
+            <div class="banner-coupon" data-action="copy-welcome-coupon" data-code="${escapeHtml(coupon)}" title="${lang === 'ar' ? 'نسخ الكود' : 'Copy Code'}" style="color: ${settings.welcomePopupTextColor || '#f0f0f5'}; border-color: ${settings.welcomePopupTextColor || '#f0f0f5'};">
+              <strong>${escapeHtml(coupon)}</strong>
+              <i class="ph ph-copy"></i>
+            </div>
+          ` : ''}
+          <button class="btn-icon btn-close-banner" data-action="close-banner" style="color: ${settings.welcomePopupTextColor || '#f0f0f5'};"><i class="ph ph-x"></i></button>
+        </div>
+      </div>
+    `;
+  }
+
   document.getElementById('navbar-container').innerHTML = `
+    ${bannerHtml}
     <nav class="navbar" id="main-navbar">
       <div class="navbar-inner">
         <a href="#/" class="navbar-logo" id="navbar-logo">
@@ -373,13 +469,13 @@ function renderNavbar() {
         <div class="navbar-links" id="navbar-links">
           <a href="#/" class="navbar-link" id="nav-home">${t('nav.home')}</a>
           <a href="#/products" class="navbar-link" id="nav-products">${t('nav.products')}</a>
+          <a href="#/wishlist" class="navbar-link" id="nav-wishlist">${t('wishlist.title')}</a>
           <a href="#/track" class="navbar-link" id="nav-track">${t('track.title')}</a>
         </div>
         <div class="navbar-actions">
           <button class="btn-icon" data-action="open-search" id="btn-search" title="${t('nav.search')}"><i class="ph ph-magnifying-glass"></i></button>
           <a href="${currentCustomer ? '#/profile' : '#/login'}" class="btn-icon" title="${currentCustomer ? t('auth.profile') : t('auth.login')}"><i class="ph ph-user"></i></a>
           <button class="lang-toggle" data-action="toggle-lang" id="btn-lang">${t('lang.switch')}</button>
-          <button class="btn-icon" data-action="toggle-theme" id="btn-theme">${theme === 'dark' ? '<i class="ph ph-sun"></i>' : '<i class="ph ph-moon"></i>'}</button>
           <button class="btn-icon" data-action="toggle-cart" id="btn-cart" title="${t('nav.cart')}">
             <i class="ph ph-shopping-cart"></i>
             ${cartTotal.itemCount > 0 ? `<span class="cart-badge" id="cart-badge">${cartTotal.itemCount}</span>` : ''}
@@ -391,6 +487,7 @@ function renderNavbar() {
     <div class="mobile-nav" id="mobile-nav">
       <a href="#/" class="mobile-nav-link" id="mobile-nav-home">${t('nav.home')}</a>
       <a href="#/products" class="mobile-nav-link" id="mobile-nav-products">${t('nav.products')}</a>
+      <a href="#/wishlist" class="mobile-nav-link" id="mobile-nav-wishlist">${t('wishlist.title')}</a>
       <a href="#/track" class="mobile-nav-link" id="mobile-nav-track">${t('track.title')}</a>
       <div style="height:1px; background:var(--border); margin:10px 0;"></div>
       <a href="${currentCustomer ? '#/profile' : '#/login'}" class="mobile-nav-link">${currentCustomer ? t('auth.profile') : t('auth.login')}</a>
@@ -457,11 +554,15 @@ function renderFooter() {
             <p class="footer-text"><i class="ph ph-map-pin"></i> ${t('footer.address')}: ${escapeHtml(address)}</p>
           </div>
         </div>
+        <!-- Footer Bottom -->
         <div class="footer-bottom">
-          © ${year} ${escapeHtml(storeName)}. ${t('footer.rights')}.
+          <p>&copy; ${new Date().getFullYear()} ${escapeHtml(settings.storeName_en || 'Layl Ramy')}. ${t('footer.rights')}</p>
         </div>
       </div>
     </footer>
+    <a href="https://wa.me/${(settings.contactWhatsapp || '201234567890').replace(/[^0-9]/g, '')}" class="floating-wa" target="_blank" title="تواصل معنا على واتساب">
+      <i class="ph ph-whatsapp-logo"></i>
+    </a>
   `;
 }
 
@@ -471,6 +572,8 @@ function renderCartSidebar() {
   const cartTotal = Store.getCartTotal();
   const settings = Store.getSettings();
   const lang = getLang();
+
+  const wasOpen = document.getElementById('cart-sidebar')?.classList.contains('open');
 
   let itemsHtml = '';
   if (cartItems.length === 0) {
@@ -488,7 +591,10 @@ function renderCartSidebar() {
         <img src="${item.product.images?.[0] || 'https://picsum.photos/seed/placeholder/150/150'}" alt="${escapeHtml(getProductName(item.product))}" class="cart-item-image" loading="lazy">
         <div class="cart-item-info">
           <div class="cart-item-name">${escapeHtml(getProductName(item.product))}</div>
-          <div class="cart-item-price">${formatPrice(item.unitPrice)}</div>
+          <div class="cart-item-price">
+            <span>${formatPrice(item.unitPrice)}</span>
+            ${item.product.discountPercentage > 0 ? `<span style="text-decoration: line-through; color: var(--text-muted); font-size: 0.85em; margin-inline-start: 8px;">${formatPrice(item.product.price)}</span>` : ''}
+          </div>
           <div class="cart-item-actions">
             <div class="qty-selector">
               <button class="qty-btn" data-action="cart-qty-decrease" data-product-id="${item.productId}"><i class="ph ph-minus"></i></button>
@@ -502,13 +608,13 @@ function renderCartSidebar() {
     `).join('');
   }
 
-  const shippingText = cartTotal.shipping === 0 && cartTotal.subtotal > 0
+  const shippingText = (cartTotal.shipping === 0 && cartTotal.subtotal > 0 && settings.freeShippingActive)
     ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
     : formatPrice(cartTotal.shipping);
 
   document.getElementById('cart-sidebar-container').innerHTML = `
-    <div class="cart-overlay" id="cart-overlay" data-action="close-cart"></div>
-    <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-overlay ${wasOpen ? 'open' : ''}" id="cart-overlay" data-action="close-cart"></div>
+    <div class="cart-sidebar ${wasOpen ? 'open' : ''}" id="cart-sidebar">
       <div class="cart-header">
         <h3>${t('cart.title')} (${cartTotal.itemCount})</h3>
         <button class="btn-icon" data-action="close-cart" id="btn-close-cart"><i class="ph ph-x"></i></button>
@@ -652,11 +758,16 @@ function renderProductCard(product) {
     ? `${t('common.off')} ${product.discountPercentage}%`
     : `${product.discountPercentage}% ${t('common.off')}`;
 
+  const isInWishlist = Store.isInWishlist(product.id);
   return `
     <article class="product-card" data-action="go-product" data-product-id="${product.id}" id="product-card-${product.id}">
       <div class="product-card-image">
         ${hasDiscount ? `<span class="discount-badge">${discountLabel}</span>` : ''}
-        <img src="${product.images?.[0] || 'https://picsum.photos/seed/placeholder/600/800'}" alt="${escapeHtml(getProductName(product))}" loading="lazy">
+        <button class="wishlist-btn ${isInWishlist ? 'active' : ''}" data-action="toggle-wishlist" data-product-id="${product.id}" title="${t('wishlist.addToWishlist')}">
+          <i class="${isInWishlist ? 'ph-fill' : 'ph'} ph-heart"></i>
+        </button>
+        <div class="product-image-blur-bg" style="background-image: url('${product.images?.[0] || 'https://picsum.photos/seed/placeholder/600/800'}')"></div>
+        <img src="${product.images?.[0] || 'https://picsum.photos/seed/placeholder/600/800'}" alt="${escapeHtml(getProductName(product))}" class="product-image-fg" loading="lazy">
       </div>
       <div class="product-card-body">
         <div class="product-card-category">${category ? escapeHtml(getCategoryName(category)) : ''}</div>
@@ -665,8 +776,14 @@ function renderProductCard(product) {
           ${renderStars(product.ratingAvg)}
           <span style="color:var(--text-muted);font-size:0.75rem;">(${product.ratingCount})</span>
         </div>
+        ${(product.showScarcityBadge !== false && product.stock > 0 && product.stock <= (product.scarcityThreshold ?? 5)) ? `
+          <div class="scarcity-badge">
+            <i class="ph-fill ph-fire"></i>
+            ${lang === 'ar' ? `سارع بالشراء! متبقي ${product.stock} فقط` : `Hurry up! Only ${product.stock} left`}
+          </div>
+        ` : ''}
         <div class="product-card-footer">
-          <div class="price-group">
+          <div class="price-group ${hasDiscount ? 'has-discount' : ''}">
             <span class="price-current">${formatPrice(discountedPrice)}</span>
             ${hasDiscount ? `<span class="price-original">${formatPrice(product.price)}</span>` : ''}
           </div>
@@ -696,24 +813,82 @@ function renderHomePage() {
   const firstName = nameParts[0] || 'Layl';
   const lastName = nameParts.slice(1).join(' ') || 'Ramy';
 
+  const renderBannersForPosition = (pos) => {
+    return (settings.customBanners || [])
+      .filter(b => b.active && (b.position || 'top') === pos)
+      .map(b => `
+        <div class="custom-banner" style="background-color: ${b.bgColor}; color: ${b.textColor}; padding: ${b.size === 'small' ? '15px' : b.size === 'large' ? '40px' : '25px'} 0; text-align: ${b.align}; margin-bottom: 24px;">
+          <div class="container">
+            <div style="font-size: ${b.size === 'small' ? '1.1rem' : b.size === 'large' ? '2rem' : '1.5rem'}; font-weight: bold; line-height: 1.4;">
+              ${escapeHtml(lang === 'ar' ? b.text_ar : b.text_en).replace(/\\n/g, '<br>')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+  };
+
   return `
-    <section class="hero" id="hero-section">
-      <div class="hero-decoration"></div>
-      <div class="hero-decoration"></div>
-      <div class="hero-decoration"></div>
-      <div class="hero-decoration"></div>
-      <div class="hero-decoration"></div>
-      <div class="hero-line"></div>
-      <div class="hero-line"></div>
-      <div class="hero-content">
-        <h1 class="hero-title" id="hero-title">
-          ${escapeHtml(firstName)} <span class="accent">${escapeHtml(lastName)}</span>
-          <span class="hero-moon">🌙</span>
-        </h1>
-        <p class="hero-subtitle">${escapeHtml(subtitle)}</p>
-        <a href="#/products" class="btn btn-primary btn-lg" id="hero-cta">${t('hero.shopNow')}</a>
+    <div class="hero-carousel" id="hero-slider" data-interval="${settings.sliderInterval || 4}">
+      ${(settings.heroSlider || []).map((slide, i) => `
+        <div class="carousel-slide ${i === 0 ? 'active' : ''}">
+          <div class="carousel-slide-blur-bg" style="background-image: url('${slide.image || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop'}');"></div>
+          <div class="carousel-overlay"></div>
+          <div class="carousel-slide-inner">
+            <div class="carousel-content">
+              <h1 style="color: ${slide.textColor || '#c9a04e'} !important;">${escapeHtml(lang === 'ar' ? slide.title_ar : slide.title_en)}</h1>
+              <p style="color: ${slide.subtitleColor || '#ffffff'} !important;">${escapeHtml(lang === 'ar' ? slide.subtitle_ar : slide.subtitle_en)}</p>
+              ${slide.buttonLink ? `<a href="${escapeHtml(slide.buttonLink)}" class="btn btn-primary btn-lg" style="border-radius:30px !important; background: ${slide.buttonBg || '#c9a04e'} !important; color: ${slide.buttonText || '#0a0a0f'} !important; border: none !important;">${escapeHtml(lang === 'ar' ? slide.buttonText_ar : slide.buttonText_en) || t('hero.shopNow')}</a>` : ''}
+            </div>
+            <div class="carousel-slide-image-wrap">
+              <img src="${slide.image || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop'}" class="carousel-slide-img" alt="">
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- Top Banners -->
+    ${renderBannersForPosition('top')}
+
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">${t('home.categories')}</h2>
       </div>
-    </section>
+      <!-- 2. Categories Circles -->
+      <div class="categories-scroll">
+        ${categories.map(cat => `
+          <a href="#/category/${cat.id}" class="cat-circle-wrap">
+            ${cat.image ? `<div class="cat-circle" style="background-image: url('${cat.image}');"></div>` : `<div class="cat-circle" style="font-size:30px;">${cat.icon || '📦'}</div>`}
+            <span>${escapeHtml(getCategoryName(cat))}</span>
+          </a>
+        `).join('')}
+      </div>
+
+      <!-- 3. Why Choose Us -->
+      <div class="section-header">
+        <h2 class="section-title">${t('whyUs.title')}</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="ph ph-truck"></i></div>
+          <h3>${t('whyUs.fastShipping')}</h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">${t('whyUs.fastShippingDesc')}</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="ph ph-shield-check"></i></div>
+          <h3>${t('whyUs.quality')}</h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">${t('whyUs.qualityDesc')}</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="ph ph-headset"></i></div>
+          <h3>${t('whyUs.support')}</h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">${t('whyUs.supportDesc')}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Banners -->
+    ${renderBannersForPosition('middle')}
 
     <!-- Featured Products -->
     <section class="page-section" id="featured-section">
@@ -728,27 +903,6 @@ function renderHomePage() {
       </div>
     </section>
 
-    <!-- Categories -->
-    <section class="page-section" id="categories-section">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">${t('home.categories')}</h2>
-        </div>
-        <div class="categories-grid">
-          ${categories.map(cat => {
-            const count = Store.getCategoryProductCount(cat.id);
-            return `
-              <a href="#/category/${cat.id}" class="category-card" id="category-card-${cat.id}">
-                <span class="category-icon">${cat.icon || '<i class="ph ph-package"></i>'}</span>
-                <div class="category-name">${escapeHtml(getCategoryName(cat))}</div>
-                <div class="category-count">${count} ${count === 1 ? t('common.product') : t('common.products')}</div>
-              </a>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    </section>
-
     <!-- Offers -->
     ${offers.length > 0 ? `
       <section class="page-section" id="offers-section">
@@ -757,16 +911,34 @@ function renderHomePage() {
             <h2 class="section-title">${t('home.offers')}</h2>
             <a href="#/products" class="section-link">${t('home.seeAll')} →</a>
           </div>
-          <div class="offers-banner">
-            <h3>${t('home.offersBanner')} 🔥</h3>
-            <p>${t('home.offersBannerSub')}</p>
-          </div>
           <div class="products-grid">
             ${offers.map(p => renderProductCard(p)).join('')}
           </div>
         </div>
       </section>
     ` : ''}
+
+    <!-- Recently Viewed Section -->
+    ${(() => {
+      const recentIds = Store.getRecentlyViewed();
+      const recentProducts = Store.getActiveProducts().filter(p => recentIds.includes(p.id));
+      const orderedRecent = recentIds.map(id => recentProducts.find(p => p.id === id)).filter(Boolean);
+      return orderedRecent.length > 0 ? `
+        <section class="page-section recent-viewed-section">
+          <div class="container">
+            <div class="section-header">
+              <h2 class="section-title">${t('recentViewed.title')}</h2>
+            </div>
+            <div class="products-grid">
+              ${orderedRecent.map(p => renderProductCard(p)).join('')}
+            </div>
+          </div>
+        </section>
+      ` : '';
+    })()}
+
+    <!-- Bottom Banners -->
+    ${renderBannersForPosition('bottom')}
   `;
 }
 
@@ -825,6 +997,31 @@ function renderProductsPage(categoryId = null) {
   `;
 }
 
+// --- Wishlist Page ---
+function renderWishlistPage() {
+  const wishlistIds = Store.getWishlist();
+  const products = Store.getActiveProducts().filter(p => wishlistIds.includes(p.id));
+
+  return `
+    <div class="page-content">
+      <div class="container">
+        <h1 class="mb-3">${t('wishlist.title')}</h1>
+        <div class="products-grid" id="wishlist-grid">
+          ${products.length > 0
+            ? products.map(p => renderProductCard(p)).join('')
+            : `<div class="empty-state">
+                <span class="empty-icon" style="font-size: 3rem; opacity: 0.3;"><i class="ph ph-heart-break"></i></span>
+                <h3 class="empty-title">${t('wishlist.empty')}</h3>
+                <p class="empty-message">${t('wishlist.emptyMessage')}</p>
+                <a href="#/products" class="btn btn-primary mt-3">${t('cart.continueShopping')}</a>
+              </div>`
+          }
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // --- Product Detail Page ---
 function renderProductDetailPage(productId) {
   const product = Store.getProduct(productId);
@@ -854,6 +1051,12 @@ function renderProductDetailPage(productId) {
     ? `${t('common.off')} ${product.discountPercentage}%`
     : `${product.discountPercentage}% ${t('common.off')}`;
 
+  // Record recently viewed
+  setTimeout(() => Store.addRecentlyViewed(product.id), 100);
+
+  const linkedIds = product.linkedProducts || [];
+  const linkedProducts = Store.getActiveProducts().filter(p => linkedIds.includes(p.id));
+
   return `
     <div class="page-content">
       <div class="container">
@@ -872,9 +1075,29 @@ function renderProductDetailPage(productId) {
 
         <div class="product-detail-grid">
           <!-- Image -->
-          <div class="product-detail-image" id="product-detail-image">
-            ${hasDiscount ? `<span class="discount-badge">${discountLabel}</span>` : ''}
-            <img src="${product.images?.[0] || 'https://picsum.photos/seed/placeholder/600/800'}" alt="${escapeHtml(getProductName(product))}">
+          <!-- Image Gallery -->
+          <div class="product-detail-gallery">
+            <div class="product-detail-image" id="product-detail-image-viewer">
+              ${hasDiscount ? `<span class="discount-badge">${discountLabel}</span>` : ''}
+              <!-- Smart Background Ambient Blur -->
+              <div class="product-image-blur-bg" id="detail-main-image-blur" style="background-image: url('${product.images?.[0] || 'https://picsum.photos/seed/placeholder/600/800'}')"></div>
+              <img src="${product.images?.[0] || 'https://picsum.photos/seed/placeholder/600/800'}" alt="${escapeHtml(getProductName(product))}" class="product-image-fg" id="detail-main-image-fg">
+              
+              ${(product.images && product.images.length > 1) ? `
+                <button class="gallery-nav-btn prev" data-action="prev-detail-image" data-product-id="${product.id}" data-index="0" aria-label="Previous image"><i class="ph ph-caret-left"></i></button>
+                <button class="gallery-nav-btn next" data-action="next-detail-image" data-product-id="${product.id}" data-index="0" aria-label="Next image"><i class="ph ph-caret-right"></i></button>
+              ` : ''}
+            </div>
+            
+            ${(product.images && product.images.length > 1) ? `
+              <div class="product-detail-thumbnails">
+                ${product.images.map((img, idx) => `
+                  <div class="thumb-item ${idx === 0 ? 'active' : ''}" data-action="select-detail-image" data-index="${idx}" data-img-url="${escapeHtml(img)}">
+                    <img src="${img}" alt="" loading="lazy">
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
 
           <!-- Info -->
@@ -887,10 +1110,17 @@ function renderProductDetailPage(productId) {
               <span class="rating-count">(${product.ratingCount} ${t('product.reviews')})</span>
             </div>
 
-            <div class="product-detail-price">
+            <div class="product-detail-price ${hasDiscount ? 'has-discount' : ''}">
               <span class="price-current">${formatPrice(discountedPrice)}</span>
               ${hasDiscount ? `<span class="price-original">${formatPrice(product.price)}</span>` : ''}
             </div>
+
+            ${(product.showScarcityBadge !== false && product.stock > 0 && product.stock <= (product.scarcityThreshold ?? 5)) ? `
+              <div class="scarcity-badge" style="margin-bottom: 20px; display: inline-flex;">
+                <i class="ph-fill ph-fire"></i>
+                ${lang === 'ar' ? `سارع بالشراء! متبقي ${product.stock} فقط` : `Hurry up! Only ${product.stock} left`}
+              </div>
+            ` : ''}
 
             <p class="product-detail-description">${escapeHtml(getProductDesc(product))}</p>
 
@@ -908,6 +1138,37 @@ function renderProductDetailPage(productId) {
             ${outOfStock ? `<p style="color:var(--danger);font-weight:600;">${t('product.outOfStock')}</p>` : ''}
           </div>
         </div>
+
+        <!-- Linked/Upsell Products -->
+        ${linkedProducts.length > 0 ? `
+          <div class="linked-products-section">
+            <h3 class="linked-products-title">${t('linked.title')}</h3>
+            <div class="linked-products-grid">
+              ${linkedProducts.map(p => `
+                <div class="linked-product-item" id="linked-item-${p.id}">
+                  <div class="linked-product-info">
+                    <input type="checkbox" class="linked-product-check" data-action="toggle-linked-price" data-price="${Store.getProductPrice(p)}" value="${p.id}" checked style="margin: 0 10px;">
+                    <img class="linked-product-img" src="${p.images?.[0] || 'https://via.placeholder.com/50'}" alt="" loading="lazy">
+                    <div class="linked-product-details">
+                      <span class="linked-product-name">${escapeHtml(getProductName(p))}</span>
+                      <span class="linked-product-price">${formatPrice(Store.getProductPrice(p))}</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" data-action="add-to-cart" data-product-id="${p.id}">${t('product.addToCart')}</button>
+                </div>
+              `).join('')}
+            </div>
+            <div class="linked-products-action-bar">
+              <div class="linked-products-total-desc">
+                <span>${t('linked.totalSelected')} </span>
+                <strong id="linked-total-price-display">${formatPrice(discountedPrice + linkedProducts.reduce((sum, p) => sum + Store.getProductPrice(p), 0))}</strong>
+              </div>
+              <button class="btn btn-primary" data-action="add-linked-bundle" data-main-id="${product.id}">
+                <i class="ph ph-shopping-bag-open"></i> ${t('linked.buyTogether')}
+              </button>
+            </div>
+          </div>
+        ` : ''}
 
         <!-- Reviews Section -->
         <section class="page-section" id="reviews-section">
@@ -970,13 +1231,30 @@ function renderProductDetailPage(productId) {
   `;
 }
 
+function updateProductDetailViewer(imgUrl, index) {
+  const fg = document.getElementById('detail-main-image-fg');
+  const bg = document.getElementById('detail-main-image-blur');
+  if (fg) fg.src = imgUrl;
+  if (bg) bg.style.backgroundImage = `url('${imgUrl}')`;
+
+  // Update navigation buttons dataset index
+  document.querySelectorAll('[data-action=\"prev-detail-image\"], [data-action=\"next-detail-image\"]').forEach(btn => {
+    btn.dataset.index = index;
+  });
+
+  // Update thumbnails active border
+  document.querySelectorAll('.thumb-item').forEach(thumb => {
+    thumb.classList.toggle('active', parseInt(thumb.dataset.index) === index);
+  });
+}
+
 // --- Checkout Page ---
 function renderCheckoutPage() {
   const cartItems = Store.getCartWithProducts();
   const cartTotal = Store.getCartTotal();
   const settings = Store.getSettings();
   const lang = getLang();
-  const cities = t('cities');
+  const cities = Object.keys(settings.shippingRates || {});
 
   if (cartItems.length === 0) {
     return `
@@ -992,12 +1270,10 @@ function renderCheckoutPage() {
     `;
   }
 
-  const shippingText = cartTotal.shipping === 0
-    ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
-    : formatPrice(cartTotal.shipping);
+  const shippingText = 'â€”';
 
   let discountRow = '';
-  let finalTotal = cartTotal.total;
+  let finalTotal = cartTotal.subtotal;
   
   if (currentCouponCode) {
     const val = Store.validateCoupon(currentCouponCode, cartTotal.subtotal);
@@ -1091,9 +1367,18 @@ function renderCheckoutPage() {
                 <img src="${item.product.images?.[0] || 'https://picsum.photos/seed/placeholder/100/100'}" alt="" class="order-summary-item-image" loading="lazy">
                 <div class="order-summary-item-info">
                   <div class="order-summary-item-name">${escapeHtml(getProductName(item.product))}</div>
-                  <div class="order-summary-item-qty">× ${item.quantity}</div>
+                  <div class="checkout-item-actions" style="margin-top: 8px;">
+                    <div class="qty-selector" style="transform: scale(0.9); transform-origin: ${isRTL() ? 'right' : 'left'} center;">
+                      <button type="button" class="qty-btn" data-action="checkout-qty-decrease" data-product-id="${item.productId}"><i class="ph ph-minus"></i></button>
+                      <span class="qty-value">${item.quantity}</span>
+                      <button type="button" class="qty-btn" data-action="checkout-qty-increase" data-product-id="${item.productId}"><i class="ph ph-plus"></i></button>
+                    </div>
+                  </div>
                 </div>
-                <div class="order-summary-item-price">${formatPrice(item.totalPrice)}</div>
+                <div class="order-summary-item-price" style="text-align: end;">
+                  <div>${formatPrice(item.totalPrice)}</div>
+                  ${item.product.discountPercentage > 0 ? `<div style="text-decoration: line-through; color: var(--text-muted); font-size: 0.85em;">${formatPrice(item.product.price * item.quantity)}</div>` : ''}
+                </div>
               </div>
             `).join('')}
             <div class="divider"></div>
@@ -1104,11 +1389,11 @@ function renderCheckoutPage() {
             ${discountRow}
             <div class="cart-summary-row">
               <span>${t('cart.shipping')}</span>
-              <span>${shippingText}</span>
+              <span id="checkout-shipping-display">${shippingText}</span>
             </div>
             <div class="cart-summary-row total">
               <span>${t('cart.total')}</span>
-              <span>${formatPrice(finalTotal)}</span>
+              <span id="checkout-total-display">${formatPrice(finalTotal)}</span>
             </div>
             
             <div class="divider"></div>
@@ -1119,6 +1404,90 @@ function renderCheckoutPage() {
           </div>
         </div>
       </div>
+    </div>
+  `;
+}
+
+function updateCheckoutSummary() {
+  const summaryContainer = document.getElementById('checkout-summary');
+  if (!summaryContainer) return;
+
+  const cartItems = Store.getCartWithProducts();
+  if (cartItems.length === 0) {
+    handleRoute();
+    return;
+  }
+
+  const citySelect = document.getElementById('checkout-city');
+  const selectedCity = citySelect ? citySelect.value : '';
+  const settings = Store.getSettings();
+  const cartTotal = Store.getCartTotal(selectedCity);
+  const lang = getLang();
+
+  let discountRow = '';
+  let finalTotal = cartTotal.subtotal;
+  
+  if (currentCouponCode) {
+    const val = Store.validateCoupon(currentCouponCode, cartTotal.subtotal);
+    if (val.valid) {
+      currentDiscountAmount = val.discountAmount;
+      finalTotal = Math.max(0, cartTotal.total - currentDiscountAmount);
+      discountRow = `
+        <div class="cart-summary-row" style="color:var(--success)">
+          <span>${t('checkout.discount')} (${currentCouponCode})</span>
+          <span>-${formatPrice(currentDiscountAmount)}</span>
+        </div>
+      `;
+    } else {
+      currentCouponCode = '';
+      currentDiscountAmount = 0;
+    }
+  }
+
+  const shippingText = (cartTotal.shipping === 0 && settings.freeShippingActive)
+    ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
+    : formatPrice(cartTotal.shipping);
+
+  summaryContainer.innerHTML = `
+    <h3 class="mb-3">${t('checkout.orderSummary')}</h3>
+    ${cartItems.map(item => `
+      <div class="order-summary-item">
+        <img src="${item.product.images?.[0] || 'https://picsum.photos/seed/placeholder/100/100'}" alt="" class="order-summary-item-image" loading="lazy">
+        <div class="order-summary-item-info">
+          <div class="order-summary-item-name">${escapeHtml(getProductName(item.product))}</div>
+          <div class="checkout-item-actions" style="margin-top: 8px;">
+            <div class="qty-selector" style="transform: scale(0.9); transform-origin: ${isRTL() ? 'right' : 'left'} center;">
+              <button type="button" class="qty-btn" data-action="checkout-qty-decrease" data-product-id="${item.productId}"><i class="ph ph-minus"></i></button>
+              <span class="qty-value">${item.quantity}</span>
+              <button type="button" class="qty-btn" data-action="checkout-qty-increase" data-product-id="${item.productId}"><i class="ph ph-plus"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="order-summary-item-price" style="text-align: end;">
+          <div>${formatPrice(item.totalPrice)}</div>
+          ${item.product.discountPercentage > 0 ? `<div style="text-decoration: line-through; color: var(--text-muted); font-size: 0.85em;">${formatPrice(item.product.price * item.quantity)}</div>` : ''}
+        </div>
+      </div>
+    `).join('')}
+    <div class="divider"></div>
+    <div class="cart-summary-row">
+      <span>${t('cart.subtotal')}</span>
+      <span>${formatPrice(cartTotal.subtotal)}</span>
+    </div>
+    ${discountRow}
+    <div class="cart-summary-row">
+      <span>${t('cart.shipping')}</span>
+      <span id="checkout-shipping-display">${selectedCity ? shippingText : '—'}</span>
+    </div>
+    <div class="cart-summary-row total">
+      <span>${t('cart.total')}</span>
+      <span id="checkout-total-display">${formatPrice(finalTotal)}</span>
+    </div>
+    
+    <div class="divider"></div>
+    <div class="coupon-section mt-4 mb-2" style="display:flex;gap:8px;">
+      <input type="text" class="form-input" id="checkout-coupon" placeholder="${t('checkout.couponCode')}" style="text-transform:uppercase" value="${currentCouponCode}">
+      <button type="button" class="btn btn-secondary" data-action="apply-coupon">${t('checkout.applyCoupon')}</button>
     </div>
   `;
 }
@@ -1185,7 +1554,8 @@ function renderOrderDetails(order) {
   const currentIndex = statuses.indexOf(order.status);
   const isCancelled = order.status === 'cancelled';
 
-  const shippingText = order.shipping === 0
+  const trackSettings = Store.getSettings();
+  const shippingText = (order.shipping === 0 && trackSettings.freeShippingActive)
     ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
     : formatPrice(order.shipping);
 
@@ -1245,6 +1615,12 @@ function renderOrderDetails(order) {
         <span>${t('cart.subtotal')}</span>
         <span>${formatPrice(order.subtotal)}</span>
       </div>
+      ${order.discountAmount && order.discountAmount > 0 ? `
+        <div class="cart-summary-row" style="color:var(--success)">
+          <span>${t('checkout.discount')} ${order.couponCode ? `(${order.couponCode})` : ''}</span>
+          <span>-${formatPrice(order.discountAmount)}</span>
+        </div>
+      ` : ''}
       <div class="cart-summary-row">
         <span>${t('cart.shipping')}</span>
         <span>${shippingText}</span>
@@ -1282,7 +1658,7 @@ function renderLoginPage() {
           <h2 class="text-center mb-4" style="color:var(--accent); font-family:var(--font-heading);">${t('auth.loginNow')}</h2>
           
           <button type="button" class="btn btn-secondary w-100 mb-3" data-action="google-login" style="display:flex; justify-content:center; align-items:center; gap:8px; background:white; color:#333;">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
             Sign in with Google
           </button>
           
@@ -1324,7 +1700,7 @@ function renderRegisterPage() {
           <h2 class="text-center mb-4" style="color:var(--accent); font-family:var(--font-heading);">${t('auth.createAccount')}</h2>
           
           <button type="button" class="btn btn-secondary w-100 mb-3" data-action="google-login" style="display:flex; justify-content:center; align-items:center; gap:8px; background:white; color:#333;">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
             Sign up with Google
           </button>
           
@@ -1509,6 +1885,128 @@ document.addEventListener('click', (e) => {
   const categoryId = target.dataset.categoryId;
 
   switch (action) {
+    // Product Gallery
+    case 'select-detail-image': {
+      const index = parseInt(target.dataset.index);
+      const imgUrl = target.dataset.imgUrl;
+      updateProductDetailViewer(imgUrl, index);
+      break;
+    }
+    case 'prev-detail-image': {
+      const product = Store.getProduct(productId);
+      if (!product || !product.images || product.images.length === 0) return;
+      const images = product.images;
+      let index = parseInt(target.dataset.index);
+      index = (index - 1 + images.length) % images.length;
+      updateProductDetailViewer(images[index], index);
+      break;
+    }
+    case 'next-detail-image': {
+      const product = Store.getProduct(productId);
+      if (!product || !product.images || product.images.length === 0) return;
+      const images = product.images;
+      let index = parseInt(target.dataset.index);
+      index = (index + 1) % images.length;
+      updateProductDetailViewer(images[index], index);
+      break;
+    }
+    // Wishlist
+    case 'toggle-wishlist': {
+      e.preventDefault();
+      e.stopPropagation();
+      const added = Store.toggleWishlist(productId);
+      if (added) {
+        showToast(t('wishlist.addToWishlist'), 'success');
+      } else {
+        showToast(t('wishlist.removeFromWishlist'), 'info');
+      }
+      
+      // Update all hearts on screen for this product
+      document.querySelectorAll(`[data-action="toggle-wishlist"][data-product-id="${productId}"]`).forEach(btn => {
+        btn.classList.toggle('active', added);
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.className = added ? 'ph-fill ph-heart' : 'ph ph-heart';
+        }
+      });
+      
+      // If we are on wishlist page, re-render
+      const { page } = parseRoute(getCurrentRoute());
+      if (page === 'wishlist') {
+        handleRoute();
+      }
+      break;
+    }
+
+    // Linked Products
+    case 'toggle-linked-price': {
+      const mainId = document.getElementById('btn-add-to-cart')?.dataset.productId;
+      if (!mainId) return;
+      const mainProduct = Store.getProduct(mainId);
+      if (!mainProduct) return;
+      let total = Store.getProductPrice(mainProduct);
+      
+      document.querySelectorAll('.linked-product-check:checked').forEach(cb => {
+        total += parseFloat(cb.dataset.price) || 0;
+      });
+      
+      const display = document.getElementById('linked-total-price-display');
+      if (display) {
+        display.textContent = formatPrice(total);
+      }
+      break;
+    }
+
+    case 'add-linked-bundle': {
+      const mainId = target.dataset.mainId;
+      const mainQty = parseInt(document.getElementById('detail-qty-value')?.textContent) || 1;
+      
+      let addedAny = false;
+      if (Store.addToCart(mainId, mainQty)) {
+        addedAny = true;
+      }
+      
+      document.querySelectorAll('.linked-product-check:checked').forEach(cb => {
+        if (Store.addToCart(cb.value, 1)) {
+          addedAny = true;
+        }
+      });
+      
+      if (addedAny) {
+        showToast(t('product.added'), 'success');
+        openCartSidebar();
+      }
+      break;
+    }
+
+    // Top Banner
+    case 'close-banner': {
+      const banner = document.getElementById('top-banner');
+      if (banner) {
+        banner.style.display = 'none';
+      }
+      try {
+        sessionStorage.setItem('lr_banner_closed', 'true');
+      } catch (e) {}
+      break;
+    }
+    case 'copy-welcome-coupon': {
+      const code = target.dataset.code;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast(getLang() === 'ar' ? 'تم نسخ الكود!' : 'Coupon copied!', 'success');
+        const originalHTML = target.innerHTML;
+        target.innerHTML = getLang() === 'ar' ? '<i class="ph ph-check"></i> تم النسخ' : '<i class="ph ph-check"></i> Copied';
+        target.style.background = 'var(--success)';
+        target.style.color = '#fff';
+        setTimeout(() => {
+          target.innerHTML = originalHTML;
+          target.style.background = '';
+          target.style.color = '';
+        }, 2000);
+      });
+      break;
+    }
+
     // Navigation
     case 'go-product':
       e.preventDefault();
@@ -1679,12 +2177,32 @@ document.addEventListener('click', (e) => {
       if (val.valid) {
         currentCouponCode = code;
         showToast(t('checkout.couponApplied'), 'success');
-        document.getElementById('app').innerHTML = renderCheckoutPage();
+        updateCheckoutSummary();
       } else {
         currentCouponCode = '';
         currentDiscountAmount = 0;
         showToast(val.message || t('checkout.invalidCoupon'), 'error');
-        document.getElementById('app').innerHTML = renderCheckoutPage();
+        updateCheckoutSummary();
+      }
+      break;
+    }
+
+    // Checkout Quantities
+    case 'checkout-qty-increase': {
+      const item = Store.getCart().find(i => i.productId === productId);
+      if (item) Store.updateCartQuantity(productId, item.quantity + 1);
+      break;
+    }
+
+    case 'checkout-qty-decrease': {
+      const item = Store.getCart().find(i => i.productId === productId);
+      if (item && item.quantity > 1) {
+        Store.updateCartQuantity(productId, item.quantity - 1);
+      } else if (item && item.quantity <= 1) {
+        const confirmMsg = getLang() === 'ar' ? 'هل تريد إزالة هذا المنتج من الطلب؟' : 'Remove this item from order?';
+        if (confirm(confirmMsg)) {
+          Store.removeFromCart(productId);
+        }
       }
       break;
     }
@@ -1699,7 +2217,7 @@ document.addEventListener('click', (e) => {
           navigateTo('#/profile');
         } else {
           target.disabled = false;
-          target.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google"> Sign in with Google';
+          target.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg> Sign in with Google';
           showToast(res.message, 'error');
         }
       });
@@ -1772,7 +2290,48 @@ document.addEventListener('change', (e) => {
     productsState.sort = e.target.value;
     applyProductsFilters();
   }
+  if (e.target.id === 'checkout-city') {
+    updateCheckoutShipping(e.target.value);
+  }
 });
+
+function updateCheckoutShipping(city) {
+  const shippingDisplay = document.getElementById('checkout-shipping-display');
+  const totalDisplay = document.getElementById('checkout-total-display');
+
+  if (!city) {
+    if (shippingDisplay) shippingDisplay.textContent = 'â€”';
+    const cartTotal = Store.getCartTotal('');
+    let finalTotal = cartTotal.subtotal;
+    if (currentCouponCode) {
+      const val = Store.validateCoupon(currentCouponCode, cartTotal.subtotal);
+      if (val.valid) {
+        finalTotal = Math.max(0, cartTotal.subtotal - val.discountAmount);
+      }
+    }
+    if (totalDisplay) totalDisplay.textContent = formatPrice(finalTotal);
+    return;
+  }
+
+  const cartTotal = Store.getCartTotal(city);
+  let finalTotal = cartTotal.total;
+  if (currentCouponCode) {
+    const val = Store.validateCoupon(currentCouponCode, cartTotal.subtotal);
+    if (val.valid) {
+      finalTotal = Math.max(0, cartTotal.total - val.discountAmount);
+    }
+  }
+
+  if (shippingDisplay) {
+    const settings = Store.getSettings();
+    shippingDisplay.innerHTML = (cartTotal.shipping === 0 && settings.freeShippingActive)
+      ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
+      : formatPrice(cartTotal.shipping);
+  }
+  if (totalDisplay) {
+    totalDisplay.textContent = formatPrice(finalTotal);
+  }
+}
 
 // Keyboard events
 document.addEventListener('keydown', (e) => {
@@ -1853,7 +2412,7 @@ function handlePlaceOrder() {
 
         // ملخص الحساب
         subtotal:      Store.formatPrice(order.subtotal, 'ar'),
-        shipping_fee:  order.shipping === 0 ? 'مجاني 🎁' : Store.formatPrice(order.shipping, 'ar'),
+        shipping_fee:  (order.shipping === 0 && Store.getSettings().freeShippingActive) ? 'مجاني 🎁' : Store.formatPrice(order.shipping, 'ar'),
         delivery_time: '3 - 5 أيام عمل',
         total_price:   Store.formatPrice(order.total, 'ar'),
       };
@@ -1911,6 +2470,12 @@ Store.on('cart-updated', () => {
       cartBtn.appendChild(newBadge);
     }
   }
+
+  // Update checkout page summary if currently on checkout page
+  const { page } = parseRoute(getCurrentRoute());
+  if (page === 'checkout') {
+    updateCheckoutSummary();
+  }
 });
 
 Store.on('settings-updated', (settings) => {
@@ -1918,8 +2483,14 @@ Store.on('settings-updated', (settings) => {
   if (settings.accentColor) {
     document.documentElement.style.setProperty('--accent', settings.accentColor);
   }
+  if (settings.textColor) {
+    document.documentElement.style.setProperty('--text-primary', settings.textColor);
+  }
+  // applyDynamicStyles removed — styles are managed via CSS custom properties above
   renderNavbar();
   renderFooter();
+  renderCartSidebar();
+  handleRoute();
 });
 
 Store.on('auth-changed', () => {
@@ -1945,14 +2516,53 @@ window.addEventListener('hashchange', () => {
 });
 
 // ============================================
+// Welcome Popup logic
+// ============================================
+// ============================================
+// Welcome Banner logic
+// ============================================
+// (Logic handled in renderNavbar and event listeners)
+
+// ============================================
 // Initialization
 // ============================================
+function loadGoogleFont(fontFamily) {
+  if (!fontFamily) return;
+  const id = 'font-' + fontFamily.replace(/\s+/g, '-').toLowerCase();
+  if (!document.getElementById(id)) {
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/\s+/g, '+')}:wght@400;600;700&display=swap`;
+    document.head.appendChild(link);
+  }
+}
+
+function applyFonts(settings) {
+  if (settings.fontHeading) {
+    loadGoogleFont(settings.fontHeading);
+    document.documentElement.style.setProperty('--font-heading', `'${settings.fontHeading}', serif`);
+  }
+  if (settings.fontBody) {
+    loadGoogleFont(settings.fontBody);
+    document.documentElement.style.setProperty('--font-body', `'${settings.fontBody}', sans-serif`);
+  }
+  if (settings.fontArabicHeading) {
+    loadGoogleFont(settings.fontArabicHeading);
+    document.documentElement.style.setProperty('--font-ar-heading', `'${settings.fontArabicHeading}', sans-serif`);
+  }
+  if (settings.fontArabicBody) {
+    loadGoogleFont(settings.fontArabicBody);
+    document.documentElement.style.setProperty('--font-ar-body', `'${settings.fontArabicBody}', sans-serif`);
+  }
+}
+
 function init() {
   // Seed data
   Store.seedData();
 
-  // Apply saved theme
-  setTheme(getTheme());
+  // Force clean light theme
+  setTheme('light');
 
   // Apply saved language
   const lang = getLang();
@@ -1964,11 +2574,8 @@ function init() {
     document.body.style.fontFamily = "var(--font-body)";
   }
 
-  // Apply settings
   const settings = Store.getSettings();
-  if (settings.accentColor) {
-    document.documentElement.style.setProperty('--accent', settings.accentColor);
-  }
+  applyFonts(settings);
 
   // Render shell
   renderNavbar();
@@ -1984,6 +2591,21 @@ function init() {
 
   console.log('🌙 Layl Ramy Storefront initialized!');
 }
+
+// applyDynamicStyles removed as per user request for fixed professional palette
+
+// Listen for updates from Admin Panel (other tabs)
+window.addEventListener('storage', (e) => {
+  if (e.key && e.key.startsWith('lr_')) {
+    // Re-fetch data and re-render
+    const settings = Store.getSettings();
+    applyFonts(settings);
+    renderNavbar();
+    renderFooter();
+    renderCartSidebar();
+    handleRoute();
+  }
+});
 
 // Start
 init();

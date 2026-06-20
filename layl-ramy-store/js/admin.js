@@ -3,6 +3,10 @@
 // ============================================
 const Store = window.Store;
 
+// Settings History for Undo/Redo
+let settingsHistory = [];
+let settingsHistoryIndex = -1;
+
 // ===== i18n =====
 const translations = {
   ar: {
@@ -148,7 +152,8 @@ const translations = {
     'admin.deleteCoupon': 'حذف الكوبون',
     'admin.couponSaved': 'تم حفظ الكوبون',
     'admin.couponDeleted': 'تم حذف الكوبون',
-    'admin.noCoupons': 'لا توجد كوبونات'
+    'admin.noCoupons': 'لا توجد كوبونات',
+    'admin.couponDiscount': 'خصم الكوبون'
   },
   en: {
     'admin.login': 'Admin Login',
@@ -280,11 +285,26 @@ const translations = {
     'admin.loginSubtitle': 'Enter your password to access the admin panel',
     'admin.deleteOrder': 'Delete Order',
     'admin.orderDeleted': 'Order deleted',
+    'admin.coupons': 'Coupons',
+    'admin.addCoupon': 'Add Coupon',
+    'admin.editCoupon': 'Edit Coupon',
+    'admin.code': 'Coupon Code',
+    'admin.discountType': 'Discount Type',
+    'admin.discountValue': 'Discount Value',
+    'admin.percentage': 'Percentage (%)',
+    'admin.fixed': 'Fixed Amount',
+    'admin.minOrderAmount': 'Minimum Order',
+    'admin.expiryDate': 'Expiry Date',
+    'admin.deleteCoupon': 'Delete Coupon',
+    'admin.couponSaved': 'Coupon saved successfully',
+    'admin.couponDeleted': 'Coupon deleted',
+    'admin.noCoupons': 'No coupons yet',
+    'admin.couponDiscount': 'Coupon Discount'
   }
 };
 
 let currentLang = localStorage.getItem('lr_admin_lang') || 'ar';
-let currentTheme = localStorage.getItem('lr_admin_theme') || 'dark';
+let currentTheme = localStorage.getItem('lr_admin_theme') || 'light';
 
 function t(key) {
   return translations[currentLang]?.[key] || translations['en']?.[key] || key;
@@ -453,6 +473,7 @@ function renderAdminLayout(activeRoute) {
     { route: 'coupons', icon: '<i class="ph ph-ticket"></i>', label: t('admin.coupons') },
     { route: 'orders', icon: '<i class="ph ph-shopping-cart"></i>', label: t('admin.orders'), badge: stats.pendingOrders || 0 },
     { route: 'reviews', icon: '<i class="ph ph-star"></i>', label: t('admin.reviews'), badge: pendingReviews },
+    { route: 'design', icon: '<i class="ph ph-paint-brush-broad"></i>', label: currentLang === 'ar' ? 'التصميم والنصوص' : 'Design & Texts' },
     { route: 'settings', icon: '<i class="ph ph-gear"></i>', label: t('admin.settings') },
   ];
 
@@ -472,6 +493,7 @@ function renderAdminLayout(activeRoute) {
     case 'coupons': contentHTML = renderCoupons(); break;
     case 'orders': contentHTML = renderOrders(); break;
     case 'reviews': contentHTML = renderReviews(); break;
+    case 'design': contentHTML = renderDesign(); break;
     case 'settings': contentHTML = renderSettings(); break;
     default: contentHTML = renderDashboard();
   }
@@ -499,9 +521,10 @@ function renderAdminLayout(activeRoute) {
           <span class="topbar-title">${t('admin.adminPanel')}</span>
         </div>
         <div class="topbar-end">
+          <button class="topbar-btn" data-action="undo" title="Undo" id="btn-undo" disabled><i class="ph ph-arrow-u-up-left"></i></button>
+          <button class="topbar-btn" data-action="redo" title="Redo" id="btn-redo" disabled><i class="ph ph-arrow-u-up-right"></i></button>
           <a href="index.html" class="topbar-link" title="${t('admin.backToStore')}"><i class="ph ph-storefront"></i> ${t('admin.backToStore')}</a>
           <button class="topbar-btn" data-action="toggle-lang" title="AR / EN">${currentLang === 'ar' ? 'EN' : 'ع'}</button>
-          <button class="topbar-btn" data-action="toggle-theme" title="Theme">${currentTheme === 'dark' ? '<i class="ph ph-sun"></i>' : '<i class="ph ph-moon"></i>'}</button>
         </div>
       </header>
       <main class="admin-content" id="admin-content">${contentHTML}</main>
@@ -643,8 +666,13 @@ function renderProducts() {
                       <div><strong>${currentLang === 'ar' ? (p.name_ar || p.name_en) : (p.name_en || p.name_ar)}</strong></div>
                       ${p.featured ? `<span class="status-badge status-active" style="font-size:10px;padding:2px 6px;"><i class="ph-fill ph-star"></i> ${t('admin.featured')}</span>` : ''}
                     </td>
-                    <td>${p.price.toLocaleString()} ${cur}</td>
-                    <td>${p.discountPercentage > 0 ? `<span class="text-accent">${p.discountPercentage}%</span>` : '-'}</td>
+                    <td>
+                      ${(p.discountPercentage > 0 || (p.salePrice > 0 && p.salePrice < p.price)) ? `
+                        <div>${Store.getProductPrice(p).toLocaleString()} ${cur}</div>
+                        <div style="text-decoration: line-through; color: var(--text-muted); font-size: 11px;">${p.price.toLocaleString()} ${cur}</div>
+                      ` : `${p.price.toLocaleString()} ${cur}`}
+                    </td>
+                    <td>${p.discountPercentage > 0 ? `<span class="text-accent">${p.discountPercentage}%</span>` : (p.salePrice > 0 && p.salePrice < p.price ? `<span class="text-accent">${Math.round((1 - p.salePrice / p.price) * 100)}%</span>` : '-')}</td>
                     <td>${cat ? (currentLang === 'ar' ? cat.name_ar : cat.name_en) : '-'}</td>
                     <td>${p.stock}</td>
                     <td><span class="status-badge status-${p.status}">${t('admin.' + p.status)}</span></td>
@@ -715,12 +743,16 @@ function openProductModal(product = null) {
         <textarea id="prod-desc-en">${product?.description_en || ''}</textarea>
       </div>
       <div class="form-group">
-        <label for="prod-price">${t('admin.price')} *</label>
+        <label for="prod-price">${t('admin.price')} (${currentLang === 'ar' ? 'قبل الخصم' : 'Before Discount'}) *</label>
         <input type="number" id="prod-price" min="0" step="1" value="${product?.price || ''}" required>
       </div>
       <div class="form-group">
         <label for="prod-discount">${t('admin.discount')}</label>
         <input type="number" id="prod-discount" min="0" max="100" step="1" value="${product?.discountPercentage || 0}">
+      </div>
+      <div class="form-group">
+        <label for="prod-sale-price">${currentLang === 'ar' ? 'السعر بعد الخصم (سعر البيع)' : 'Sale Price (After Discount)'}</label>
+        <input type="number" id="prod-sale-price" min="0" step="1" value="${product ? Store.getProductPrice(product) : ''}">
       </div>
       <div class="form-group">
         <label for="prod-category">${t('admin.category')}</label>
@@ -732,6 +764,14 @@ function openProductModal(product = null) {
       <div class="form-group">
         <label for="prod-stock">${t('admin.stock')}</label>
         <input type="number" id="prod-stock" min="0" value="${product?.stock ?? 10}">
+      </div>
+      <div class="form-group">
+        <label for="prod-scarcity-threshold">${currentLang === 'ar' ? 'حد ظهور شارة الاستعجال (أقصى مخزون لظهورها)' : 'Scarcity Threshold'}</label>
+        <input type="number" id="prod-scarcity-threshold" min="0" value="${product?.scarcityThreshold ?? 5}">
+      </div>
+      <div class="form-group full-width checkbox-group" style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="prod-show-scarcity" ${product?.showScarcityBadge !== false ? 'checked' : ''} style="width:20px; height:20px; cursor:pointer;">
+        <label for="prod-show-scarcity" style="cursor:pointer; font-weight:bold;">${currentLang === 'ar' ? 'تفعيل شارة الاستعجال (سارع بالشراء! متبقي X فقط)' : 'Enable Scarcity Badge'}</label>
       </div>
       <div class="form-group full-width">
         <label>${t('admin.images')}</label>
@@ -761,6 +801,18 @@ function openProductModal(product = null) {
       <div class="form-group checkbox-group">
         <input type="checkbox" id="prod-featured" ${product?.featured ? 'checked' : ''}>
         <label for="prod-featured">${t('admin.featured')}</label>
+      </div>
+      <div class="form-group full-width">
+        <label>${currentLang === 'ar' ? 'المنتجات المرتبطة (إضافية اختيارية للعميل)' : 'Linked Products (Optional Upsells)'}</label>
+        <div class="linked-products-selector" style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border); padding: 10px; border-radius: var(--radius-sm); background: var(--bg-input);">
+          ${Store.getProducts().filter(p => p.id !== product?.id).map(p => `
+            <label class="linked-product-option" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;">
+              <input type="checkbox" name="prod-linked" value="${p.id}" ${product?.linkedProducts?.includes(p.id) ? 'checked' : ''}>
+              <img src="${p.images?.[0] || 'https://via.placeholder.com/32'}" alt="" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px;">
+              <span>${currentLang === 'ar' ? (p.name_ar || p.name_en) : (p.name_en || p.name_ar)} (${p.price} ${t('admin.currency')})</span>
+            </label>
+          `).join('') || `<p class="text-muted" style="font-size: 12px; margin: 0;">${currentLang === 'ar' ? 'لا توجد منتجات أخرى للربط' : 'No other products available to link'}</p>`}
+        </div>
       </div>
     </form>
   `;
@@ -819,6 +871,46 @@ function openProductModal(product = null) {
     });
   }
 
+  // Price & Discount Auto-Calculation Listeners
+  const inputPrice = document.getElementById('prod-price');
+  const inputDiscount = document.getElementById('prod-discount');
+  const inputSalePrice = document.getElementById('prod-sale-price');
+
+  if (inputPrice && inputDiscount && inputSalePrice) {
+    const updatePrices = (trigger) => {
+      const price = parseFloat(inputPrice.value) || 0;
+      if (price <= 0) return;
+
+      if (trigger === 'discount') {
+        const discount = parseFloat(inputDiscount.value) || 0;
+        if (discount > 0) {
+          inputSalePrice.value = Math.round(price * (1 - discount / 100));
+        } else {
+          inputSalePrice.value = price;
+        }
+      } else if (trigger === 'sale-price') {
+        const salePrice = parseFloat(inputSalePrice.value) || 0;
+        if (salePrice > 0 && salePrice < price) {
+          inputDiscount.value = Math.round(((price - salePrice) / price) * 100);
+        } else if (salePrice >= price) {
+          inputDiscount.value = 0;
+        }
+      } else if (trigger === 'price') {
+        const discount = parseFloat(inputDiscount.value) || 0;
+        const salePrice = parseFloat(inputSalePrice.value) || 0;
+        if (discount > 0) {
+          inputSalePrice.value = Math.round(price * (1 - discount / 100));
+        } else if (salePrice > 0 && salePrice < price) {
+          inputDiscount.value = Math.round(((price - salePrice) / price) * 100);
+        }
+      }
+    };
+
+    inputPrice.addEventListener('input', () => updatePrices('price'));
+    inputDiscount.addEventListener('input', () => updatePrices('discount'));
+    inputSalePrice.addEventListener('input', () => updatePrices('sale-price'));
+  }
+
   document.getElementById('save-product-btn').addEventListener('click', () => {
     const nameAr = document.getElementById('prod-name-ar').value.trim();
     const nameEn = document.getElementById('prod-name-en').value.trim();
@@ -832,6 +924,8 @@ function openProductModal(product = null) {
     const imagesRaw = document.getElementById('prod-images').value;
     const images = imagesRaw.split('\n').map(u => u.trim()).filter(Boolean);
 
+    const checkedLinked = Array.from(document.querySelectorAll('input[name="prod-linked"]:checked')).map(cb => cb.value);
+
     const data = {
       name_ar: nameAr,
       name_en: nameEn,
@@ -839,11 +933,15 @@ function openProductModal(product = null) {
       description_en: document.getElementById('prod-desc-en').value.trim(),
       price: price,
       discountPercentage: parseInt(document.getElementById('prod-discount').value) || 0,
+      salePrice: parseFloat(document.getElementById('prod-sale-price').value) || 0,
       categoryId: document.getElementById('prod-category').value,
       stock: parseInt(document.getElementById('prod-stock').value) || 0,
+      showScarcityBadge: document.getElementById('prod-show-scarcity').checked,
+      scarcityThreshold: parseInt(document.getElementById('prod-scarcity-threshold').value) || 5,
       images: images,
       status: document.getElementById('prod-status').value,
       featured: document.getElementById('prod-featured').checked,
+      linkedProducts: checkedLinked
     };
 
     if (isEdit) data.id = product.id;
@@ -885,7 +983,9 @@ function renderCategories() {
             ${categories.length === 0 ? `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon"><i class="ph ph-folder"></i></div><h3>${t('admin.noCategories')}</h3></div></td></tr>` :
               categories.map(c => `
                 <tr>
-                  <td style="font-size:24px">${c.icon || '<i class="ph ph-folder"></i>'}</td>
+                  <td>
+                    ${c.image ? `<img src="${c.image}" alt="Category" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : `<div style="width:40px;height:40px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:20px;">${c.icon || '<i class="ph ph-folder"></i>'}</div>`}
+                  </td>
                   <td>${c.name_ar}</td>
                   <td>${c.name_en}</td>
                   <td>${Store.getCategoryProductCount(c.id)}</td>
@@ -920,9 +1020,22 @@ function openCategoryModal(category = null) {
         <label for="cat-name-en">${t('admin.categoryName_en')} *</label>
         <input type="text" id="cat-name-en" value="${category?.name_en || ''}" required>
       </div>
-      <div class="form-group">
-        <label for="cat-icon">${t('admin.icon')}</label>
-        <input type="text" id="cat-icon" value="${category?.icon || ''}" placeholder='<i class="ph ph-folder"></i>' style="font-size:18px">
+      <div class="form-group full-width">
+        <label>${t('admin.icon')} (صورة التصنيف)</label>
+        <div class="file-upload-wrapper" style="margin-bottom:8px; display:flex; align-items:center; gap:12px;">
+          <input type="file" id="cat-image-upload" accept="image/*" style="display:none">
+          <label for="cat-image-upload" class="btn btn-secondary" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+            <i class="ph ph-upload-simple"></i> ${currentLang === 'ar' ? 'رفع صورة' : 'Upload Image'}
+          </label>
+        </div>
+        <textarea id="cat-icon" placeholder="Base64 Image Data or URL" rows="2" style="display:none;">${category?.image || category?.icon || ''}</textarea>
+        <div class="image-preview-grid" id="cat-img-preview">
+          ${(category?.image || category?.icon) ? `
+            <div class="image-preview-item" style="width:80px;height:80px;">
+              <img src="${category.image || category.icon}" alt="Preview" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+            </div>
+          ` : ''}
+        </div>
       </div>
       <div class="form-group">
         <label for="cat-order">${t('admin.order')}</label>
@@ -945,6 +1058,26 @@ function openCategoryModal(category = null) {
 
   openModal(title, body, footer);
 
+  // Handle file uploads for category
+  const catImgUpload = document.getElementById('cat-image-upload');
+  const catImgTextarea = document.getElementById('cat-icon');
+  const catImgPreview = document.getElementById('cat-img-preview');
+  
+  if (catImgUpload && catImgTextarea) {
+    catImgUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      compressImage(file, 400, (base64) => {
+        catImgTextarea.value = base64;
+        catImgPreview.innerHTML = `
+          <div class="image-preview-item" style="width:80px;height:80px;">
+            <img src="${base64}" alt="Preview" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+          </div>
+        `;
+      });
+    });
+  }
+
   document.getElementById('save-category-btn').addEventListener('click', () => {
     const nameAr = document.getElementById('cat-name-ar').value.trim();
     const nameEn = document.getElementById('cat-name-en').value.trim();
@@ -957,7 +1090,8 @@ function openCategoryModal(category = null) {
     const data = {
       name_ar: nameAr,
       name_en: nameEn,
-      icon: document.getElementById('cat-icon').value.trim() || '<i class="ph ph-folder"></i>',
+      image: document.getElementById('cat-icon').value.trim(),
+      icon: document.getElementById('cat-icon').value.trim(), // fallback
       order: parseInt(document.getElementById('cat-order').value) || 0,
       status: document.getElementById('cat-status').value,
     };
@@ -1096,6 +1230,12 @@ function openOrderDetailModal(orderId) {
           <span>${t('admin.subtotal')}</span>
           <span>${order.subtotal.toLocaleString()} ${cur}</span>
         </div>
+        ${order.discountAmount && order.discountAmount > 0 ? `
+          <div class="total-row" style="color: var(--success);">
+            <span>${t('admin.couponDiscount')} ${order.couponCode ? `(${order.couponCode})` : ''}</span>
+            <span>-${order.discountAmount.toLocaleString()} ${cur}</span>
+          </div>
+        ` : ''}
         <div class="total-row">
           <span>${t('admin.shippingFee')}</span>
           <span>${order.shipping === 0 ? t('admin.free') : order.shipping.toLocaleString() + ' ' + cur}</span>
@@ -1337,9 +1477,22 @@ function renderSettings() {
     </select>
   `;
 
+  if (settingsHistory.length === 0) {
+    settingsHistory = [JSON.parse(JSON.stringify(settings))];
+    settingsHistoryIndex = 0;
+  }
+
   return `
-    <div class="page-header">
+    <div class="page-header" style="flex-direction: row; align-items: center; justify-content: space-between;">
       <h1>${t('admin.settings')}</h1>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary btn-sm" id="settings-undo-btn" ${settingsHistoryIndex <= 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'تراجع' : 'Undo'}">
+          <i class="ph ph-arrow-u-up-left"></i> ${currentLang === 'ar' ? 'تراجع' : 'Undo'}
+        </button>
+        <button class="btn btn-secondary btn-sm" id="settings-redo-btn" ${settingsHistoryIndex >= settingsHistory.length - 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'إعادة' : 'Redo'}">
+          <i class="ph ph-arrow-u-up-right"></i> ${currentLang === 'ar' ? 'إعادة' : 'Redo'}
+        </button>
+      </div>
     </div>
 
     <!-- Store Identity -->
@@ -1373,65 +1526,217 @@ function renderSettings() {
         </div>
       </div>
     </div>
+    ${renderSettingsPart2()}
+  `;
+}
 
-    <!-- Typography -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <span class="section-icon"><i class="ph ph-text-t"></i></span>
-        <span>${t('admin.typography')}</span>
-      </div>
-      <div class="settings-section-body">
-        <div class="admin-form">
-          <div class="form-group">
-            <label for="set-font-heading">${t('admin.fontHeading')}</label>
-            ${fontSelect('set-font-heading', headingFonts, settings.fontHeading)}
-          </div>
-          <div class="form-group">
-            <label for="set-font-body">${t('admin.fontBody')}</label>
-            ${fontSelect('set-font-body', bodyFonts, settings.fontBody)}
-          </div>
-          <div class="form-group">
-            <label for="set-font-ar-heading">${t('admin.fontArHeading')}</label>
-            ${fontSelect('set-font-ar-heading', arHeadingFonts, settings.fontArabicHeading)}
-          </div>
-          <div class="form-group">
-            <label for="set-font-ar-body">${t('admin.fontArBody')}</label>
-            ${fontSelect('set-font-ar-body', arBodyFonts, settings.fontArabicBody)}
-          </div>
-        </div>
-        <div class="font-preview mt-16" id="font-preview">
-          <div class="preview-heading" id="font-preview-heading" style="font-family:'${settings.fontHeading}',serif">${t('admin.headingSample')}</div>
-          <div class="preview-body" id="font-preview-body" style="font-family:'${settings.fontBody}',sans-serif">${t('admin.bodySample')}</div>
-        </div>
-        <p class="text-muted mt-8" style="font-size:12px"><i class="ph ph-arrows-clockwise"></i> ${t('admin.livePreview')}</p>
+// ===== DESIGN PAGE =====
+function renderDesign() {
+  const settings = Store.getSettings();
+  const fontSelect = (id, options, selected) => `
+    <select id="${id}" class="form-select">
+      ${options.map(f => `<option value="${f}" ${selected === f ? 'selected' : ''}>${f}</option>`).join('')}
+    </select>
+  `;
+
+  return `
+    <div class="page-header" style="flex-direction: row; align-items: center; justify-content: space-between;">
+      <h1>${currentLang === 'ar' ? 'التصميم والنصوص' : 'Design & Texts'}</h1>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary btn-sm" id="design-undo-btn" ${settingsHistoryIndex <= 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'تراجع' : 'Undo'}">
+          <i class="ph ph-arrow-u-up-left"></i> ${currentLang === 'ar' ? 'تراجع' : 'Undo'}
+        </button>
+        <button class="btn btn-secondary btn-sm" id="design-redo-btn" ${settingsHistoryIndex >= settingsHistory.length - 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'إعادة' : 'Redo'}">
+          <i class="ph ph-arrow-u-up-right"></i> ${currentLang === 'ar' ? 'إعادة' : 'Redo'}
+        </button>
       </div>
     </div>
 
-    <!-- Colors -->
+
+
+    <!-- Image Dimension Tips -->
+    <div class="settings-section" style="border-left: 4px solid var(--accent); background: rgba(201,160,78,0.05);">
+      <div class="settings-section-body" style="padding: 15px;">
+        <h4 style="margin-bottom: 10px; color: var(--accent);"><i class="ph ph-info"></i> ${currentLang === 'ar' ? 'نصيحة حول أبعاد الصور' : 'Image Dimensions Tip'}</h4>
+        <p style="margin-bottom: 5px; font-size: 0.95rem;">${currentLang === 'ar' ? 'للحصول على أفضل مظهر للبنرات وصور السلايدر بدون تشوه:' : 'For the best appearance of banners and slider images without distortion:'}</p>
+        <ul style="list-style-type: disc; margin-inline-start: 20px; font-size: 0.9rem; color: var(--text-secondary);">
+          <li><b>${currentLang === 'ar' ? 'السلايدر الرئيسي:' : 'Hero Slider:'}</b> ${currentLang === 'ar' ? 'يفضل استخدام صور أفقية عريضة (مثال: 1920 بيكسل عرض × 800 بيكسل طول).' : 'Prefer wide horizontal images (e.g. 1920px width × 800px height).'}</li>
+          <li><b>${currentLang === 'ar' ? 'البنرات الحرة:' : 'Custom Banners:'}</b> ${currentLang === 'ar' ? 'يفضل استخدام صور بأبعاد 1200 عرض × 400 طول.' : 'Prefer dimensions of 1200 width × 400 height.'}</li>
+          <li>${currentLang === 'ar' ? 'الصور يتم ضبطها تلقائياً لتغطية المساحة المتاحة (Cover) مع التركيز على وسط الصورة.' : 'Images are automatically adjusted to cover the available area, keeping the center focused.'}</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Hero Slider -->
     <div class="settings-section">
       <div class="settings-section-header">
-        <span class="section-icon"><i class="ph ph-palette"></i></span>
-        <span>${t('admin.colors')}</span>
+        <span class="section-icon"><i class="ph ph-images"></i></span>
+        <span>${currentLang === 'ar' ? 'السلايدر الرئيسي (Hero)' : 'Hero Slider'}</span>
       </div>
       <div class="settings-section-body">
-        <div class="admin-form">
+        <div class="admin-form mb-16">
           <div class="form-group">
-            <label for="set-accent-color">${t('admin.accentColor')}</label>
-            <input type="color" id="set-accent-color" value="${settings.accentColor}">
+            <label>${currentLang === 'ar' ? 'مدة التبديل بين الصور (بالثواني)' : 'Slider Interval (seconds)'}</label>
+            <input type="number" id="set-slider-interval" value="${settings.sliderInterval || 4}" min="1" max="10">
           </div>
-          <div class="form-group">
-            <label>${t('admin.livePreview')}</label>
-            <div class="color-preview">
-              <div class="color-swatch" id="color-swatch" style="background:${settings.accentColor}"></div>
-              <div class="color-buttons">
-                <button class="color-btn-sample" id="color-btn-sample" style="background:${settings.accentColor};color:#0a0a0f">${currentLang === 'ar' ? 'زر تجريبي' : 'Sample Button'}</button>
+        </div>
+        <div id="slider-settings-container">
+          ${(settings.heroSlider || []).map((slide, i) => `
+            <div class="slide-setting-item" style="border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 8px; position:relative;">
+              <h5 style="margin-bottom: 10px;">Slide ${i + 1}</h5>
+              <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">${currentLang === 'ar' ? 'حذف' : 'Delete'}</button>
+              
+              <div class="admin-form">
+                <div class="form-group full-width">
+                  <label>${currentLang === 'ar' ? 'الصورة (URL)' : 'Image (URL)'}</label>
+                  <input type="text" class="slide-img" value="${slide.image || ''}">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}</label>
+                  <input type="text" class="slide-title-ar" value="${slide.title_ar || ''}">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'العنوان (إنجليزي)' : 'Title (English)'}</label>
+                  <input type="text" class="slide-title-en" value="${slide.title_en || ''}">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'النص الفرعي (عربي)' : 'Subtitle (Arabic)'}</label>
+                  <input type="text" class="slide-sub-ar" value="${slide.subtitle_ar || ''}">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'النص الفرعي (إنجليزي)' : 'Subtitle (English)'}</label>
+                  <input type="text" class="slide-sub-en" value="${slide.subtitle_en || ''}">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'لون العنوان' : 'Title Color'}</label>
+                  <input type="color" class="slide-text-color" value="${slide.textColor || '#c9a04e'}" style="height:40px;padding:2px;">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'لون النص الفرعي' : 'Subtitle Color'}</label>
+                  <input type="color" class="slide-subtitle-color" value="${slide.subtitleColor || '#ffffff'}" style="height:40px;padding:2px;">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'لون خلفية الزر' : 'Button Background'}</label>
+                  <input type="color" class="slide-btn-bg" value="${slide.buttonBg || '#c9a04e'}" style="height:40px;padding:2px;">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'لون نص الزر' : 'Button Text Color'}</label>
+                  <input type="color" class="slide-btn-text" value="${slide.buttonText || '#0a0a0f'}" style="height:40px;padding:2px;">
+                </div>
+              </div>
+              
+              <!-- Slide Live Preview -->
+              <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة السلايدر:' : 'Slide Preview:'}</h6>
+              <div class="slide-preview-box" style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; background: #000;">
+                <img src="${slide.image || ''}" class="prev-slide-img" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
+                <div style="position: relative; z-index: 1; text-align: center; padding: 20px;">
+                  <h3 class="prev-slide-title" style="color:${slide.textColor || '#c9a04e'}; margin-bottom: 5px; font-size: 1.5rem; margin-top: 0;">${(currentLang === 'ar' ? slide.title_ar : slide.title_en) || (currentLang === 'ar' ? 'العنوان التجريبي' : 'Sample Title')}</h3>
+                  <p class="prev-slide-sub" style="color:${slide.subtitleColor || '#ffffff'}; margin-bottom: 15px; font-size: 1rem;">${(currentLang === 'ar' ? slide.subtitle_ar : slide.subtitle_en) || (currentLang === 'ar' ? 'النص الفرعي التجريبي' : 'Sample Subtitle')}</p>
+                  <button class="prev-slide-btn" style="background:${slide.buttonBg || '#c9a04e'}; color:${slide.buttonText || '#0a0a0f'}; border: 1px solid rgba(128,128,128,0.25); padding:8px 20px; border-radius:6px; font-weight:bold;">${currentLang === 'ar' ? 'تسوق الآن' : 'Shop Now'}</button>
+                </div>
               </div>
             </div>
-          </div>
+          `).join('')}
+        </div>
+        <div style="text-align: start; margin-top: 15px; margin-bottom: 15px;">
+          <button class="btn btn-secondary" id="add-slide-btn" type="button">
+            <i class="ph ph-plus"></i> ${currentLang === 'ar' ? 'إضافة صورة جديدة' : 'Add Slide'}
+          </button>
         </div>
       </div>
     </div>
 
+    <!-- Custom Promotional Banners -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <span class="section-icon"><i class="ph ph-flag-banner"></i></span>
+        <span>${currentLang === 'ar' ? 'النصوص والبنرات الحرة' : 'Custom Banners'}</span>
+      </div>
+      <div class="settings-section-body">
+        <div id="custom-banners-container">
+          ${(settings.customBanners || []).map((banner, i) => `
+            <div class="banner-setting-item admin-form" style="padding:16px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <h5 style="margin:0">${currentLang === 'ar' ? 'بنر' : 'Banner'} ${i + 1}</h5>
+                <button class="btn-icon btn-danger btn-sm" data-action="delete-custom-banner"><i class="ph ph-trash"></i></button>
+              </div>
+              <div class="form-row">
+                <div class="form-group checkbox-group" style="display:flex; align-items:center; gap:8px;">
+                  <input type="checkbox" class="banner-active" ${banner.active ? 'checked' : ''}>
+                  <label>${currentLang === 'ar' ? 'تفعيل' : 'Active'}</label>
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'الحجم' : 'Size'}</label>
+                  <select class="banner-size">
+                    <option value="small" ${banner.size === 'small' ? 'selected' : ''}>${currentLang === 'ar' ? 'صغير' : 'Small'}</option>
+                    <option value="medium" ${banner.size === 'medium' ? 'selected' : ''}>${currentLang === 'ar' ? 'متوسط' : 'Medium'}</option>
+                    <option value="large" ${banner.size === 'large' ? 'selected' : ''}>${currentLang === 'ar' ? 'كبير' : 'Large'}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'المحاذاة' : 'Alignment'}</label>
+                  <select class="banner-align">
+                    <option value="center" ${banner.align === 'center' ? 'selected' : ''}>${currentLang === 'ar' ? 'وسط' : 'Center'}</option>
+                    <option value="right" ${banner.align === 'right' ? 'selected' : ''}>${currentLang === 'ar' ? 'يمين' : 'Right'}</option>
+                    <option value="left" ${banner.align === 'left' ? 'selected' : ''}>${currentLang === 'ar' ? 'يسار' : 'Left'}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'مكان الظهور' : 'Position'}</label>
+                  <select class="banner-position">
+                    <option value="top" ${banner.position === 'top' ? 'selected' : ''}>${currentLang === 'ar' ? 'أعلى الصفحة (تحت السلايدر)' : 'Top (Below Slider)'}</option>
+                    <option value="middle" ${banner.position === 'middle' ? 'selected' : ''}>${currentLang === 'ar' ? 'وسط الصفحة (فوق المنتجات)' : 'Middle (Above Products)'}</option>
+                    <option value="bottom" ${banner.position === 'bottom' ? 'selected' : ''}>${currentLang === 'ar' ? 'أسفل الصفحة (فوق الفوتر)' : 'Bottom (Above Footer)'}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'النص (عربي)' : 'Text (Arabic)'}</label>
+                  <textarea class="banner-text-ar" rows="2">${banner.text_ar || ''}</textarea>
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'النص (إنجليزي)' : 'Text (English)'}</label>
+                  <textarea class="banner-text-en" rows="2">${banner.text_en || ''}</textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'لون الخلفية' : 'Background Color'}</label>
+                  <input type="color" class="banner-bg-color" value="${banner.bgColor || '#1a1a2e'}" style="height:40px;padding:2px;">
+                </div>
+                <div class="form-group">
+                  <label>${currentLang === 'ar' ? 'لون النص' : 'Text Color'}</label>
+                  <input type="color" class="banner-text-color" value="${banner.textColor || '#f0f0f5'}" style="height:40px;padding:2px;">
+                </div>
+              </div>
+              
+              <!-- Banner Live Preview -->
+              <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة البنر:' : 'Banner Preview:'}</h6>
+              <div class="banner-preview-box" style="padding: 20px; text-align: ${banner.align || 'center'}; background:${banner.bgColor || '#1a1a2e'}; color:${banner.textColor || '#f0f0f5'}; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2);">
+                <span class="prev-banner-text" style="font-size: 1.1rem; font-weight: bold;">${(currentLang === 'ar' ? banner.text_ar : banner.text_en) || (currentLang === 'ar' ? 'نص البنر التجريبي' : 'Sample Banner Text')}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="text-align: start; margin-top: 15px; margin-bottom: 15px;">
+          <button class="btn btn-secondary" id="add-custom-banner-btn" type="button">
+            <i class="ph ph-plus"></i> ${currentLang === 'ar' ? 'إضافة بنر جديد' : 'Add New Banner'}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:20px 0">
+      <button class="btn btn-primary" id="save-design-btn" style="padding:14px 40px;font-size:16px">
+        <i class="ph ph-floppy-disk"></i> ${currentLang === 'ar' ? 'حفظ التصميم' : 'Save Design'}
+      </button>
+    </div>
+  `;
+}
+
+function renderSettingsPart2() {
+  const settings = Store.getSettings();
+  return `
     <!-- Contact -->
     <div class="settings-section">
       <div class="settings-section-header">
@@ -1472,6 +1777,12 @@ function renderSettings() {
       </div>
       <div class="settings-section-body">
         <div class="admin-form">
+          <div class="form-group checkbox-group" style="display:flex; align-items:center; gap:8px; grid-column: 1 / -1; margin-bottom:16px;">
+            <input type="checkbox" id="set-free-shipping-active" ${settings.freeShippingActive ? 'checked' : ''} style="width:20px; height:20px; cursor:pointer;">
+            <label for="set-free-shipping-active" style="font-weight:bold; cursor:pointer; font-size:15px;">
+              ${currentLang === 'ar' ? 'تفعيل الشحن المجاني عند الوصول للحد الأدنى' : 'Enable Free Shipping when reaching threshold'}
+            </label>
+          </div>
           <div class="form-group">
             <label for="set-shipping-cost">${t('admin.shippingCost')} (${t('admin.currency')})</label>
             <input type="number" id="set-shipping-cost" min="0" value="${settings.shippingCost}">
@@ -1479,6 +1790,18 @@ function renderSettings() {
           <div class="form-group">
             <label for="set-free-threshold">${t('admin.freeShippingThreshold')} (${t('admin.currency')})</label>
             <input type="number" id="set-free-threshold" min="0" value="${settings.freeShippingThreshold}">
+          </div>
+        </div>
+        
+        <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+          <h4 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); font-family:var(--font-ar-heading);">${currentLang === 'ar' ? 'أسعار الشحن التفصيلية للمحافظات' : 'Detailed Shipping Rates by City'}</h4>
+          <div class="shipping-rates-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; max-height:280px; overflow-y:auto; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-input);">
+            ${Object.entries(settings.shippingRates || {}).map(([city, rate]) => `
+              <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:12px; color:var(--text-secondary);">${city}</label>
+                <input type="number" class="city-shipping-rate" data-city="${city}" value="${rate}" min="0" style="padding:6px 10px; font-size:14px; border-radius:4px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-primary);">
+              </div>
+            `).join('')}
           </div>
         </div>
       </div>
@@ -1520,32 +1843,6 @@ function renderSettings() {
 }
 
 function attachSettingsListeners() {
-  // Font live preview
-  const headingSelect = document.getElementById('set-font-heading');
-  const bodySelect = document.getElementById('set-font-body');
-  const arHeadingSelect = document.getElementById('set-font-ar-heading');
-  const arBodySelect = document.getElementById('set-font-ar-body');
-  const previewHeading = document.getElementById('font-preview-heading');
-  const previewBody = document.getElementById('font-preview-body');
-
-  if (headingSelect && previewHeading) {
-    const updateFontPreview = () => {
-      const hFont = currentLang === 'ar' ? arHeadingSelect?.value : headingSelect?.value;
-      const bFont = currentLang === 'ar' ? arBodySelect?.value : bodySelect?.value;
-      if (hFont) {
-        loadGoogleFont(hFont);
-        previewHeading.style.fontFamily = `'${hFont}', serif`;
-      }
-      if (bFont) {
-        loadGoogleFont(bFont);
-        previewBody.style.fontFamily = `'${bFont}', sans-serif`;
-      }
-    };
-    headingSelect.addEventListener('change', updateFontPreview);
-    bodySelect?.addEventListener('change', updateFontPreview);
-    arHeadingSelect?.addEventListener('change', updateFontPreview);
-    arBodySelect?.addEventListener('change', updateFontPreview);
-  }
 
   // Color live preview
   const colorInput = document.getElementById('set-accent-color');
@@ -1557,7 +1854,6 @@ function attachSettingsListeners() {
       const color = colorInput.value;
       if (colorSwatch) colorSwatch.style.background = color;
       if (colorBtn) colorBtn.style.background = color;
-      document.documentElement.style.setProperty('--accent', color);
     });
   }
 
@@ -1565,44 +1861,497 @@ function attachSettingsListeners() {
   const saveBtn = document.getElementById('save-settings-btn');
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
+      const shippingRates = {};
+      document.querySelectorAll('.city-shipping-rate').forEach(input => {
+        const city = input.getAttribute('data-city');
+        const rate = parseFloat(input.value) || 0;
+        if (city) {
+          shippingRates[city] = rate;
+        }
+      });
+
       const newSettings = {
         storeName: document.getElementById('set-store-name')?.value || 'Layl Ramy',
         subtitle_ar: document.getElementById('set-subtitle-ar')?.value || '',
         subtitle_en: document.getElementById('set-subtitle-en')?.value || '',
         aboutText_ar: document.getElementById('set-about-ar')?.value || '',
         aboutText_en: document.getElementById('set-about-en')?.value || '',
-        fontHeading: document.getElementById('set-font-heading')?.value || 'Playfair Display',
-        fontBody: document.getElementById('set-font-body')?.value || 'Inter',
-        fontArabicHeading: document.getElementById('set-font-ar-heading')?.value || 'Tajawal',
-        fontArabicBody: document.getElementById('set-font-ar-body')?.value || 'Cairo',
-        accentColor: document.getElementById('set-accent-color')?.value || '#c9a04e',
         contactPhone: document.getElementById('set-phone')?.value || '',
         contactWhatsapp: document.getElementById('set-whatsapp')?.value || '',
         contactEmail: document.getElementById('set-email')?.value || '',
         address_ar: document.getElementById('set-address-ar')?.value || '',
         address_en: document.getElementById('set-address-en')?.value || '',
         shippingCost: parseFloat(document.getElementById('set-shipping-cost')?.value) || 0,
+        freeShippingActive: document.getElementById('set-free-shipping-active')?.checked || false,
         freeShippingThreshold: parseFloat(document.getElementById('set-free-threshold')?.value) || 0,
+        shippingRates: shippingRates,
         emailjs_service_id: document.getElementById('set-email-service')?.value.trim() || '',
         emailjs_template_id: document.getElementById('set-email-template')?.value.trim() || '',
         emailjs_public_key: document.getElementById('set-email-key')?.value.trim() || ''
       };
 
-      // Apply fonts to CSS properties
-      document.documentElement.style.setProperty('--font-heading', `'${newSettings.fontHeading}', serif`);
-      document.documentElement.style.setProperty('--font-body', `'${newSettings.fontBody}', sans-serif`);
-      document.documentElement.style.setProperty('--font-ar-heading', `'${newSettings.fontArabicHeading}', sans-serif`);
-      document.documentElement.style.setProperty('--font-ar-body', `'${newSettings.fontArabicBody}', sans-serif`);
-      document.documentElement.style.setProperty('--accent', newSettings.accentColor);
+      // Add to settings history
+      if (settingsHistoryIndex === -1) {
+        const current = Store.getSettings();
+        settingsHistory = [JSON.parse(JSON.stringify(current))];
+        settingsHistoryIndex = 0;
+      }
+      settingsHistory = settingsHistory.slice(0, settingsHistoryIndex + 1);
+      settingsHistory.push(JSON.parse(JSON.stringify({...Store.getSettings(), ...newSettings})));
+      settingsHistoryIndex = settingsHistory.length - 1;
 
-      // Load the fonts
+      Store.saveSettings(newSettings);
+      showToast(t('admin.settingsSaved'), 'success');
+      renderContentArea('settings');
+    });
+  }
+
+  // Undo / Redo Click Handlers
+  const undoBtn = document.getElementById('settings-undo-btn');
+  const redoBtn = document.getElementById('settings-redo-btn');
+
+  if (undoBtn) {
+    undoBtn.addEventListener('click', () => {
+      if (settingsHistoryIndex > 0) {
+        settingsHistoryIndex--;
+        const prevSettings = settingsHistory[settingsHistoryIndex];
+        Store.saveSettings(prevSettings);
+        showToast(currentLang === 'ar' ? 'تم التراجع عن التعديل' : 'Undo successful', 'info');
+        renderContentArea('settings');
+      }
+    });
+  }
+
+  if (redoBtn) {
+    redoBtn.addEventListener('click', () => {
+      if (settingsHistoryIndex < settingsHistory.length - 1) {
+        settingsHistoryIndex++;
+        const nextSettings = settingsHistory[settingsHistoryIndex];
+        Store.saveSettings(nextSettings);
+        showToast(currentLang === 'ar' ? 'تم إعادة تطبيق التعديل' : 'Redo successful', 'info');
+        renderContentArea('settings');
+      }
+    });
+  }
+}
+
+function attachDesignListeners() {
+  // --- Live Previews ---
+  const headingSelect = document.getElementById('set-font-heading');
+  const bodySelect = document.getElementById('set-font-body');
+  const arHeadingSelect = document.getElementById('set-font-ar-heading');
+  const arBodySelect = document.getElementById('set-font-ar-body');
+  
+  const prevArHeading = document.getElementById('font-preview-ar-heading');
+  const prevArBody = document.getElementById('font-preview-ar-body');
+  const prevEnHeading = document.getElementById('font-preview-en-heading');
+  const prevEnBody = document.getElementById('font-preview-en-body');
+
+  if (headingSelect) {
+    headingSelect.addEventListener('change', () => {
+      loadGoogleFont(headingSelect.value);
+      if (prevEnHeading) prevEnHeading.style.fontFamily = `'${headingSelect.value}', serif`;
+    });
+  }
+  if (bodySelect) {
+    bodySelect.addEventListener('change', () => {
+      loadGoogleFont(bodySelect.value);
+      if (prevEnBody) prevEnBody.style.fontFamily = `'${bodySelect.value}', sans-serif`;
+    });
+  }
+  if (arHeadingSelect) {
+    arHeadingSelect.addEventListener('change', () => {
+      loadGoogleFont(arHeadingSelect.value);
+      if (prevArHeading) prevArHeading.style.fontFamily = `'${arHeadingSelect.value}', sans-serif`;
+    });
+  }
+  if (arBodySelect) {
+    arBodySelect.addEventListener('change', () => {
+      loadGoogleFont(arBodySelect.value);
+      if (prevArBody) prevArBody.style.fontFamily = `'${arBodySelect.value}', sans-serif`;
+    });
+  }
+
+  const colorInput = document.getElementById('set-accent-color');
+  const colorSwatch = document.getElementById('color-swatch');
+  const colorBtn = document.getElementById('color-btn-sample');
+
+  if (colorInput) {
+    colorInput.addEventListener('input', () => {
+      const color = colorInput.value;
+      if (colorSwatch) colorSwatch.style.background = color;
+      if (colorBtn) colorBtn.style.background = color;
+    });
+  }
+  // --- Sliders Live Preview Delegation ---
+  const sliderContainerEl = document.getElementById('slider-settings-container');
+  if (sliderContainerEl) {
+    sliderContainerEl.addEventListener('input', (e) => {
+      const item = e.target.closest('.slide-setting-item');
+      if (!item) return;
+      
+      const img = item.querySelector('.prev-slide-img');
+      const title = item.querySelector('.prev-slide-title');
+      const sub = item.querySelector('.prev-slide-sub');
+      const btn = item.querySelector('.prev-slide-btn');
+      
+      if (e.target.classList.contains('slide-img') && img) {
+        img.src = e.target.value;
+      }
+      if (e.target.classList.contains('slide-title-ar') && currentLang === 'ar' && title) {
+        title.textContent = e.target.value || 'العنوان التجريبي';
+      }
+      if (e.target.classList.contains('slide-title-en') && currentLang === 'en' && title) {
+        title.textContent = e.target.value || 'Sample Title';
+      }
+      if (e.target.classList.contains('slide-sub-ar') && currentLang === 'ar' && sub) {
+        sub.textContent = e.target.value || 'النص الفرعي التجريبي';
+      }
+      if (e.target.classList.contains('slide-sub-en') && currentLang === 'en' && sub) {
+        sub.textContent = e.target.value || 'Sample Subtitle';
+      }
+      if (e.target.classList.contains('slide-text-color') && title) {
+        title.style.color = e.target.value;
+      }
+      if (e.target.classList.contains('slide-subtitle-color') && sub) {
+        sub.style.color = e.target.value;
+      }
+      if (e.target.classList.contains('slide-btn-bg') && btn) {
+        btn.style.background = e.target.value;
+      }
+      if (e.target.classList.contains('slide-btn-text') && btn) {
+        btn.style.color = e.target.value;
+      }
+    });
+  }
+
+  // --- Custom Banners Live Preview Delegation ---
+  const bannersContainerEl = document.getElementById('custom-banners-container');
+  if (bannersContainerEl) {
+    bannersContainerEl.addEventListener('input', (e) => {
+      const item = e.target.closest('.banner-setting-item');
+      if (!item) return;
+      
+      const previewBox = item.querySelector('.banner-preview-box');
+      const previewText = item.querySelector('.prev-banner-text');
+      if (!previewBox || !previewText) return;
+      
+      if (e.target.classList.contains('banner-text-ar') && currentLang === 'ar') {
+        previewText.textContent = e.target.value || 'نص البنر التجريبي';
+      }
+      if (e.target.classList.contains('banner-text-en') && currentLang === 'en') {
+        previewText.textContent = e.target.value || 'Sample Banner Text';
+      }
+      if (e.target.classList.contains('banner-bg-color')) {
+        previewBox.style.background = e.target.value;
+      }
+      if (e.target.classList.contains('banner-text-color')) {
+        previewBox.style.color = e.target.value;
+      }
+      if (e.target.classList.contains('banner-align')) {
+        previewBox.style.textAlign = e.target.value;
+      }
+    });
+  }
+
+  // Save design settings
+  const saveBtn = document.getElementById('save-design-btn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const slideItems = document.querySelectorAll('.slide-setting-item');
+      const heroSlider = [];
+      slideItems.forEach(item => {
+        heroSlider.push({
+          image: item.querySelector('.slide-img').value,
+          title_ar: item.querySelector('.slide-title-ar').value,
+          title_en: item.querySelector('.slide-title-en').value,
+          subtitle_ar: item.querySelector('.slide-sub-ar').value,
+          subtitle_en: item.querySelector('.slide-sub-en').value,
+          buttonText_ar: 'تسوق الآن',
+          buttonText_en: 'Shop Now',
+          buttonLink: '#/products',
+          textColor: item.querySelector('.slide-text-color')?.value || '#c9a04e',
+          subtitleColor: item.querySelector('.slide-subtitle-color')?.value || '#ffffff',
+          buttonBg: item.querySelector('.slide-btn-bg')?.value || '#c9a04e',
+          buttonText: item.querySelector('.slide-btn-text')?.value || '#0a0a0f'
+        });
+      });
+
+      const bannerItems = document.querySelectorAll('.banner-setting-item');
+      const customBanners = [];
+      bannerItems.forEach(item => {
+        customBanners.push({
+          active: item.querySelector('.banner-active')?.checked || false,
+          size: item.querySelector('.banner-size')?.value || 'medium',
+          align: item.querySelector('.banner-align')?.value || 'center',
+          position: item.querySelector('.banner-position')?.value || 'top',
+          text_ar: item.querySelector('.banner-text-ar')?.value || '',
+          text_en: item.querySelector('.banner-text-en')?.value || '',
+          bgColor: item.querySelector('.banner-bg-color')?.value || '#1a1a2e',
+          textColor: item.querySelector('.banner-text-color')?.value || '#f0f0f5'
+        });
+      });
+
+      // Only save values for DOM elements that actually exist on the page
+      // This prevents wiping font/color/welcome settings when those sections aren't rendered
+      const currentSettings = Store.getSettings();
+      const getVal = (id, fallback) => {
+        const el = document.getElementById(id);
+        return el ? el.value : fallback;
+      };
+      const getChecked = (id, fallback) => {
+        const el = document.getElementById(id);
+        return el ? el.checked : fallback;
+      };
+
+      const newSettings = {
+        fontHeading: getVal('set-font-heading', currentSettings.fontHeading),
+        fontBody: getVal('set-font-body', currentSettings.fontBody),
+        fontArabicHeading: getVal('set-font-ar-heading', currentSettings.fontArabicHeading),
+        fontArabicBody: getVal('set-font-ar-body', currentSettings.fontArabicBody),
+        sliderInterval: parseFloat(document.getElementById('set-slider-interval')?.value) || currentSettings.sliderInterval || 4,
+        heroSlider: heroSlider,
+        customBanners: customBanners,
+        welcomePopupActive: getChecked('set-welcome-active', currentSettings.welcomePopupActive),
+        welcomePopupTitle_ar: getVal('set-welcome-title-ar', currentSettings.welcomePopupTitle_ar),
+        welcomePopupTitle_en: getVal('set-welcome-title-en', currentSettings.welcomePopupTitle_en),
+        welcomePopupSubtitle_ar: getVal('set-welcome-sub-ar', currentSettings.welcomePopupSubtitle_ar),
+        welcomePopupSubtitle_en: getVal('set-welcome-sub-en', currentSettings.welcomePopupSubtitle_en),
+        welcomePopupCoupon: getVal('set-welcome-coupon', currentSettings.welcomePopupCoupon),
+        welcomePopupBgColor: getVal('set-welcome-bg-color', currentSettings.welcomePopupBgColor),
+        welcomePopupTextColor: getVal('set-welcome-text-color', currentSettings.welcomePopupTextColor),
+        welcomePopupImage: getVal('set-welcome-image', currentSettings.welcomePopupImage),
+        bodyBgColor: getVal('set-body-bg', currentSettings.bodyBgColor),
+        textColor: getVal('set-text-color', currentSettings.textColor),
+        accentColor: getVal('set-accent-color', currentSettings.accentColor),
+        navBgColor: getVal('set-nav-bg', currentSettings.navBgColor),
+        navTextColor: getVal('set-nav-text', currentSettings.navTextColor),
+        btnBgColor: getVal('set-accent-color', currentSettings.btnBgColor),
+        btnTextColor: getVal('set-btn-text', currentSettings.btnTextColor),
+        headingColor: getVal('set-text-color', currentSettings.headingColor),
+        footerBgColor: getVal('set-footer-bg', currentSettings.footerBgColor),
+        footerTextColor: getVal('set-footer-text', currentSettings.footerTextColor)
+      };
+
       loadGoogleFont(newSettings.fontHeading);
       loadGoogleFont(newSettings.fontBody);
       loadGoogleFont(newSettings.fontArabicHeading);
       loadGoogleFont(newSettings.fontArabicBody);
 
+      if (settingsHistoryIndex === -1) {
+        const current = Store.getSettings();
+        settingsHistory = [JSON.parse(JSON.stringify(current))];
+        settingsHistoryIndex = 0;
+      }
+      settingsHistory = settingsHistory.slice(0, settingsHistoryIndex + 1);
+      settingsHistory.push(JSON.parse(JSON.stringify({...Store.getSettings(), ...newSettings})));
+      settingsHistoryIndex = settingsHistory.length - 1;
+
       Store.saveSettings(newSettings);
-      showToast(t('admin.settingsSaved'), 'success');
+      showToast(currentLang === 'ar' ? 'تم حفظ التصميم' : 'Design saved', 'success');
+      renderContentArea('design');
+    });
+  }
+
+  // Undo / Redo Click Handlers for Design
+  const undoBtn = document.getElementById('design-undo-btn');
+  const redoBtn = document.getElementById('design-redo-btn');
+
+  if (undoBtn) {
+    undoBtn.addEventListener('click', () => {
+      if (settingsHistoryIndex > 0) {
+        settingsHistoryIndex--;
+        const prevSettings = settingsHistory[settingsHistoryIndex];
+        Store.saveSettings(prevSettings);
+        showToast(currentLang === 'ar' ? 'تم التراجع عن التعديل' : 'Undo successful', 'info');
+        renderContentArea('design');
+      }
+    });
+  }
+
+  if (redoBtn) {
+    redoBtn.addEventListener('click', () => {
+      if (settingsHistoryIndex < settingsHistory.length - 1) {
+        settingsHistoryIndex++;
+        const nextSettings = settingsHistory[settingsHistoryIndex];
+        Store.saveSettings(nextSettings);
+        showToast(currentLang === 'ar' ? 'تم إعادة تطبيق التعديل' : 'Redo successful', 'info');
+        renderContentArea('design');
+      }
+    });
+  }
+
+  // Add slide button
+  const addSlideBtn = document.getElementById('add-slide-btn');
+  const sliderContainer = document.getElementById('slider-settings-container');
+  if (addSlideBtn && sliderContainer) {
+    addSlideBtn.addEventListener('click', () => {
+      const slideIndex = sliderContainer.querySelectorAll('.slide-setting-item').length + 1;
+      const slideHTML = `
+        <div class="slide-setting-item" style="border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 8px; position:relative;">
+          <h5 style="margin-bottom: 10px;">Slide ${slideIndex}</h5>
+          <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">${currentLang === 'ar' ? 'حذف' : 'Delete'}</button>
+          <div class="admin-form">
+            <div class="form-group full-width">
+              <label>${currentLang === 'ar' ? 'الصورة (URL)' : 'Image (URL)'}</label>
+              <input type="text" class="slide-img" value="">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}</label>
+              <input type="text" class="slide-title-ar" value="">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'العنوان (إنجليزي)' : 'Title (English)'}</label>
+              <input type="text" class="slide-title-en" value="">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'النص الفرعي (عربي)' : 'Subtitle (Arabic)'}</label>
+              <input type="text" class="slide-sub-ar" value="">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'النص الفرعي (إنجليزي)' : 'Subtitle (English)'}</label>
+              <input type="text" class="slide-sub-en" value="">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'لون العنوان' : 'Title Color'}</label>
+              <input type="color" class="slide-text-color" value="#c9a04e" style="height:40px;padding:2px;">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'لون النص الفرعي' : 'Subtitle Color'}</label>
+              <input type="color" class="slide-subtitle-color" value="#ffffff" style="height:40px;padding:2px;">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'لون خلفية الزر' : 'Button Background'}</label>
+              <input type="color" class="slide-btn-bg" value="#c9a04e" style="height:40px;padding:2px;">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'لون نص الزر' : 'Button Text Color'}</label>
+              <input type="color" class="slide-btn-text" value="#0a0a0f" style="height:40px;padding:2px;">
+            </div>
+          </div>
+          
+          <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة السلايدر:' : 'Slide Preview:'}</h6>
+          <div class="slide-preview-box" style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; background: #000;">
+            <img src="" class="prev-slide-img" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
+            <div style="position: relative; z-index: 1; text-align: center; padding: 20px;">
+              <h3 class="prev-slide-title" style="color:#c9a04e; margin-bottom: 5px; font-size: 1.5rem; margin-top: 0;">${currentLang === 'ar' ? 'العنوان' : 'Title'}</h3>
+              <p class="prev-slide-sub" style="color:#ffffff; margin-bottom: 15px; font-size: 1rem;">${currentLang === 'ar' ? 'النص الفرعي' : 'Subtitle'}</p>
+              <button class="prev-slide-btn" style="background:#c9a04e; color:#0a0a0f; border:none; padding:8px 20px; border-radius:6px; font-weight:bold;">${currentLang === 'ar' ? 'تسوق الآن' : 'Shop Now'}</button>
+            </div>
+          </div>
+        </div>
+      `;
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = slideHTML;
+      sliderContainer.appendChild(tempDiv.firstElementChild);
+    });
+  }
+
+  // Add Custom Banner button
+  const addCustomBannerBtn = document.getElementById('add-custom-banner-btn');
+  const customBannersContainer = document.getElementById('custom-banners-container');
+  if (addCustomBannerBtn && customBannersContainer) {
+    addCustomBannerBtn.addEventListener('click', () => {
+      const bannerIndex = customBannersContainer.querySelectorAll('.banner-setting-item').length + 1;
+      const bannerHTML = `
+        <div class="banner-setting-item admin-form" style="padding:16px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <h5 style="margin:0">${currentLang === 'ar' ? 'بنر' : 'Banner'} ${bannerIndex}</h5>
+            <button class="btn-icon btn-danger btn-sm" data-action="delete-custom-banner" type="button"><i class="ph ph-trash"></i></button>
+          </div>
+          <div class="form-row">
+            <div class="form-group checkbox-group" style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" class="banner-active" checked>
+              <label>${currentLang === 'ar' ? 'تفعيل' : 'Active'}</label>
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'الحجم' : 'Size'}</label>
+              <select class="banner-size">
+                <option value="small">${currentLang === 'ar' ? 'صغير' : 'Small'}</option>
+                <option value="medium" selected>${currentLang === 'ar' ? 'متوسط' : 'Medium'}</option>
+                <option value="large">${currentLang === 'ar' ? 'كبير' : 'Large'}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'المحاذاة' : 'Alignment'}</label>
+              <select class="banner-align">
+                <option value="center" selected>${currentLang === 'ar' ? 'وسط' : 'Center'}</option>
+                <option value="right">${currentLang === 'ar' ? 'يمين' : 'Right'}</option>
+                <option value="left">${currentLang === 'ar' ? 'يسار' : 'Left'}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'مكان الظهور' : 'Position'}</label>
+              <select class="banner-position">
+                <option value="top" selected>${currentLang === 'ar' ? 'أعلى الصفحة (تحت السلايدر)' : 'Top (Below Slider)'}</option>
+                <option value="middle">${currentLang === 'ar' ? 'وسط الصفحة (فوق المنتجات)' : 'Middle (Above Products)'}</option>
+                <option value="bottom">${currentLang === 'ar' ? 'أسفل الصفحة (فوق الفوتر)' : 'Bottom (Above Footer)'}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'النص (عربي)' : 'Text (Arabic)'}</label>
+              <textarea class="banner-text-ar" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'النص (إنجليزي)' : 'Text (English)'}</label>
+              <textarea class="banner-text-en" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'لون الخلفية' : 'Background Color'}</label>
+              <input type="color" class="banner-bg-color" value="#1a1a2e" style="height:40px;padding:2px;">
+            </div>
+            <div class="form-group">
+              <label>${currentLang === 'ar' ? 'لون النص' : 'Text Color'}</label>
+              <input type="color" class="banner-text-color" value="#f0f0f5" style="height:40px;padding:2px;">
+            </div>
+          </div>
+          
+          <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة البنر:' : 'Banner Preview:'}</h6>
+          <div class="banner-preview-box" style="padding: 20px; text-align: center; background:#1a1a2e; color:#f0f0f5; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2);">
+            <span class="prev-banner-text" style="font-size: 1.1rem; font-weight: bold;">${currentLang === 'ar' ? 'نص البنر' : 'Banner Text'}</span>
+          </div>
+        </div>
+      `;
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = bannerHTML;
+      customBannersContainer.appendChild(tempDiv.firstElementChild);
+    });
+  }
+
+  // Live Preview Event Delegation for dynamic items (Slides and Banners)
+  const designContent = document.getElementById('admin-content');
+  if (designContent) {
+    designContent.addEventListener('input', (e) => {
+      const target = e.target;
+      
+      // Handle Slide Previews
+      const slideItem = target.closest('.slide-setting-item');
+      if (slideItem) {
+        if (target.classList.contains('slide-img')) slideItem.querySelector('.prev-slide-img').src = target.value;
+        if (target.classList.contains('slide-title-ar') && currentLang === 'ar') slideItem.querySelector('.prev-slide-title').textContent = target.value || 'العنوان';
+        if (target.classList.contains('slide-title-en') && currentLang === 'en') slideItem.querySelector('.prev-slide-title').textContent = target.value || 'Title';
+        if (target.classList.contains('slide-sub-ar') && currentLang === 'ar') slideItem.querySelector('.prev-slide-sub').textContent = target.value || 'النص الفرعي';
+        if (target.classList.contains('slide-sub-en') && currentLang === 'en') slideItem.querySelector('.prev-slide-sub').textContent = target.value || 'Subtitle';
+        if (target.classList.contains('slide-text-color')) slideItem.querySelector('.prev-slide-title').style.color = target.value;
+        if (target.classList.contains('slide-subtitle-color')) slideItem.querySelector('.prev-slide-sub').style.color = target.value;
+        if (target.classList.contains('slide-btn-bg')) slideItem.querySelector('.prev-slide-btn').style.background = target.value;
+        if (target.classList.contains('slide-btn-text')) slideItem.querySelector('.prev-slide-btn').style.color = target.value;
+      }
+      
+      // Handle Banner Previews
+      const bannerItem = target.closest('.banner-setting-item');
+      if (bannerItem) {
+        const previewBox = bannerItem.querySelector('.banner-preview-box');
+        if (target.classList.contains('banner-align')) previewBox.style.textAlign = target.value;
+        if (target.classList.contains('banner-bg-color')) previewBox.style.background = target.value;
+        if (target.classList.contains('banner-text-color')) previewBox.style.color = target.value;
+        if (target.classList.contains('banner-text-ar') && currentLang === 'ar') bannerItem.querySelector('.prev-banner-text').textContent = target.value || 'نص البنر';
+        if (target.classList.contains('banner-text-en') && currentLang === 'en') bannerItem.querySelector('.prev-banner-text').textContent = target.value || 'Banner Text';
+      }
     });
   }
 }
@@ -1622,6 +2371,10 @@ function renderContentArea(route) {
     case 'settings':
       content.innerHTML = renderSettings();
       attachSettingsListeners();
+      break;
+    case 'design':
+      content.innerHTML = renderDesign();
+      attachDesignListeners();
       break;
     default: content.innerHTML = renderDashboard();
   }
@@ -1661,6 +2414,20 @@ document.addEventListener('click', (e) => {
       renderCurrentPage();
       break;
 
+    case 'undo':
+      if (Store.storeUndo()) {
+        showToast(currentLang === 'ar' ? 'تم التراجع' : 'Undo successful', 'info');
+        renderContentArea(getRoute());
+      }
+      break;
+
+    case 'redo':
+      if (Store.storeRedo()) {
+        showToast(currentLang === 'ar' ? 'تم إعادة التطبيق' : 'Redo successful', 'info');
+        renderContentArea(getRoute());
+      }
+      break;
+
     // Products
     case 'add-product':
       openProductModal();
@@ -1689,6 +2456,35 @@ document.addEventListener('click', (e) => {
         showToast(t('admin.categoryDeleted'), 'success');
         renderCurrentPage();
       });
+      break;
+
+    // Slide settings
+    case 'delete-slide':
+      if (confirm(t('admin.confirmDelete'))) {
+        target.closest('.slide-setting-item').remove();
+        // Recalculate slide numbers
+        const container = document.getElementById('slider-settings-container');
+        if (container) {
+          container.querySelectorAll('.slide-setting-item').forEach((slide, i) => {
+            const h5 = slide.querySelector('h5');
+            if (h5) h5.textContent = `Slide ${i + 1}`;
+          });
+        }
+      }
+      break;
+
+    case 'delete-custom-banner':
+      if (confirm(t('admin.confirmDelete'))) {
+        target.closest('.banner-setting-item').remove();
+        // Recalculate banner numbers
+        const bannerContainer = document.getElementById('custom-banners-container');
+        if (bannerContainer) {
+          bannerContainer.querySelectorAll('.banner-setting-item').forEach((b, i) => {
+            const h5 = b.querySelector('h5');
+            if (h5) h5.textContent = (currentLang === 'ar' ? 'بنر ' : 'Banner ') + (i + 1);
+          });
+        }
+      }
       break;
 
     // Coupons
@@ -1815,7 +2611,8 @@ window.addEventListener('hashchange', () => {
     renderContentArea(route);
     // Attach settings listeners when navigating to settings
     if (route === 'settings') {
-      setTimeout(attachSettingsListeners, 50);
+      // Intentionally not re-attaching listeners with setTimeout
+      // renderContentArea already attaches them
     }
   }
 });
@@ -1845,11 +2642,29 @@ Store.on('categories-updated', () => {
   }
 });
 
+Store.on('data-synced', () => {
+  renderContentArea(getRoute());
+});
+
+Store.on('history-changed', (data) => {
+  const undoBtn = document.getElementById('btn-undo');
+  const redoBtn = document.getElementById('btn-redo');
+  if (undoBtn) undoBtn.disabled = !data.canUndo;
+  if (redoBtn) redoBtn.disabled = !data.canRedo;
+});
+
 // ===== INITIALIZATION =====
 function init() {
   Store.seedData();
-  applyTheme(currentTheme);
+  applyTheme('light');
   applyLanguage(currentLang);
+  
+  let currentSettings = Store.getSettings();
+  
+  // Initialize settings history
+  settingsHistory = [JSON.parse(JSON.stringify(currentSettings))];
+  settingsHistoryIndex = 0;
+  
   renderCurrentPage();
 
   // Attach settings listeners if we're on settings page
