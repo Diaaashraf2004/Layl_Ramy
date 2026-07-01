@@ -1,6 +1,6 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
-const path = 'C:\\Users\\Mass\\.gemini\\antigravity\\scratch\\layl-ramy-store\\js\\admin.js';
+const path = 'C:\\Users\\Mass\\.gemini\\antigravity\\scratch\\ميدكس-Medix-store\\js\\admin.js';
 const lines = fs.readFileSync(path, 'utf8').split('\n');
 
 const renderSettingsStart = lines.findIndex(l => l.includes('function renderSettings() {'));
@@ -26,7 +26,7 @@ newRenderDesign.push('// ===== DESIGN PAGE =====');
 newRenderDesign.push(...lines.slice(renderDesignStart, contactStart));
 newRenderDesign.push('    <div style="text-align:center;padding:20px 0">');
 newRenderDesign.push('      <button class="btn btn-primary" id="save-design-btn" style="padding:14px 40px;font-size:16px">');
-newRenderDesign.push('        <i class="ph ph-floppy-disk"></i> ${currentLang === \'ar\' ? \'حفظ التصميم\' : \'Save Design\'}');
+newRenderDesign.push('        <i class="ph ph-floppy-disk"></i> ${currentLang === \'ar\' ? \'Ø­ÙØ¸ Ø§Ù„ØªØµÙ…ÙŠÙ…\' : \'Save Design\'}');
 newRenderDesign.push('      </button>');
 newRenderDesign.push('    </div>');
 newRenderDesign.push('  `;');
@@ -39,7 +39,7 @@ let newAttachSettings = `function attachSettingsListeners() {
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
       const newSettings = {
-        storeName: document.getElementById('set-store-name')?.value || 'Layl Ramy',
+        storeName: document.getElementById('set-store-name')?.value || 'Medix',
         subtitle_ar: document.getElementById('set-subtitle-ar')?.value || '',
         subtitle_en: document.getElementById('set-subtitle-en')?.value || '',
         aboutText_ar: document.getElementById('set-about-ar')?.value || '',
@@ -77,7 +77,7 @@ let newAttachSettings = `function attachSettingsListeners() {
       if (settingsHistoryIndex > 0) {
         settingsHistoryIndex--;
         Store.saveSettings(settingsHistory[settingsHistoryIndex]);
-        showToast(currentLang === 'ar' ? 'تم التراجع' : 'Undo successful', 'info');
+        showToast(currentLang === 'ar' ? 'ØªÙ… Ø§Ù„ØªØ±Ø§Ø¬Ø¹' : 'Undo successful', 'info');
         renderContentArea('settings');
       }
     });
@@ -87,7 +87,7 @@ let newAttachSettings = `function attachSettingsListeners() {
       if (settingsHistoryIndex < settingsHistory.length - 1) {
         settingsHistoryIndex++;
         Store.saveSettings(settingsHistory[settingsHistoryIndex]);
-        showToast(currentLang === 'ar' ? 'تم إعادة التطبيق' : 'Redo successful', 'info');
+        showToast(currentLang === 'ar' ? 'ØªÙ… Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„ØªØ·Ø¨ÙŠÙ‚' : 'Redo successful', 'info');
         renderContentArea('settings');
       }
     });
@@ -143,42 +143,42 @@ let newAttachDesign = `function attachDesignListeners() {
       const slideHTML = \`
         <div class="slide-setting-item" style="border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 8px; position:relative;">
           <h5 style="margin-bottom: 10px;">Slide \${slideIndex}</h5>
-          <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">\${currentLang === 'ar' ? 'حذف' : 'Delete'}</button>
+          <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">\${currentLang === 'ar' ? 'Ø­Ø°Ù' : 'Delete'}</button>
           <div class="admin-form">
             <div class="form-group full-width">
-              <label>\${currentLang === 'ar' ? 'الصورة (URL)' : 'Image (URL)'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„ØµÙˆØ±Ø© (URL)' : 'Image (URL)'}</label>
               <input type="text" class="slide-img" value="">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¹Ø±Ø¨ÙŠ)' : 'Title (Arabic)'}</label>
               <input type="text" class="slide-title-ar" value="">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'العنوان (إنجليزي)' : 'Title (English)'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Title (English)'}</label>
               <input type="text" class="slide-title-en" value="">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'النص الفرعي (عربي)' : 'Subtitle (Arabic)'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¹Ø±Ø¨ÙŠ)' : 'Subtitle (Arabic)'}</label>
               <input type="text" class="slide-sub-ar" value="">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'النص الفرعي (إنجليزي)' : 'Subtitle (English)'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Subtitle (English)'}</label>
               <input type="text" class="slide-sub-en" value="">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'لون العنوان' : 'Title Color'}</label>
+              <label>\${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ø¹Ù†ÙˆØ§Ù†' : 'Title Color'}</label>
               <input type="color" class="slide-text-color" value="#c9a04e" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'لون النص الفرعي' : 'Subtitle Color'}</label>
+              <label>\${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ' : 'Subtitle Color'}</label>
               <input type="color" class="slide-subtitle-color" value="#ffffff" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'لون خلفية الزر' : 'Button Background'}</label>
+              <label>\${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø®Ù„ÙÙŠØ© Ø§Ù„Ø²Ø±' : 'Button Background'}</label>
               <input type="color" class="slide-btn-bg" value="#c9a04e" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'لون نص الزر' : 'Button Text Color'}</label>
+              <label>\${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ù†Øµ Ø§Ù„Ø²Ø±' : 'Button Text Color'}</label>
               <input type="color" class="slide-btn-text" value="#0a0a0f" style="height:40px;padding:2px;">
             </div>
           </div>
@@ -198,48 +198,48 @@ let newAttachDesign = `function attachDesignListeners() {
       const bannerHTML = \`
         <div class="banner-setting-item admin-form" style="padding:16px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-            <h5 style="margin:0">\${currentLang === 'ar' ? 'بنر' : 'Banner'} \${bannerIndex}</h5>
+            <h5 style="margin:0">\${currentLang === 'ar' ? 'Ø¨Ù†Ø±' : 'Banner'} \${bannerIndex}</h5>
             <button class="btn-icon btn-danger btn-sm" data-action="delete-custom-banner" type="button"><i class="ph ph-trash"></i></button>
           </div>
           <div class="form-row">
             <div class="form-group checkbox-group" style="display:flex; align-items:center; gap:8px;">
               <input type="checkbox" class="banner-active" checked>
-              <label>\${currentLang === 'ar' ? 'تفعيل' : 'Active'}</label>
+              <label>\${currentLang === 'ar' ? 'ØªÙØ¹ÙŠÙ„' : 'Active'}</label>
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'الحجم' : 'Size'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ø­Ø¬Ù…' : 'Size'}</label>
               <select class="banner-size">
-                <option value="small">\${currentLang === 'ar' ? 'صغير' : 'Small'}</option>
-                <option value="medium" selected>\${currentLang === 'ar' ? 'متوسط' : 'Medium'}</option>
-                <option value="large">\${currentLang === 'ar' ? 'كبير' : 'Large'}</option>
+                <option value="small">\${currentLang === 'ar' ? 'ØµØºÙŠØ±' : 'Small'}</option>
+                <option value="medium" selected>\${currentLang === 'ar' ? 'Ù…ØªÙˆØ³Ø·' : 'Medium'}</option>
+                <option value="large">\${currentLang === 'ar' ? 'ÙƒØ¨ÙŠØ±' : 'Large'}</option>
               </select>
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'المحاذاة' : 'Alignment'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ù…Ø­Ø§Ø°Ø§Ø©' : 'Alignment'}</label>
               <select class="banner-align">
-                <option value="center" selected>\${currentLang === 'ar' ? 'وسط' : 'Center'}</option>
-                <option value="right">\${currentLang === 'ar' ? 'يمين' : 'Right'}</option>
-                <option value="left">\${currentLang === 'ar' ? 'يسار' : 'Left'}</option>
+                <option value="center" selected>\${currentLang === 'ar' ? 'ÙˆØ³Ø·' : 'Center'}</option>
+                <option value="right">\${currentLang === 'ar' ? 'ÙŠÙ…ÙŠÙ†' : 'Right'}</option>
+                <option value="left">\${currentLang === 'ar' ? 'ÙŠØ³Ø§Ø±' : 'Left'}</option>
               </select>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'النص (عربي)' : 'Text (Arabic)'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ (Ø¹Ø±Ø¨ÙŠ)' : 'Text (Arabic)'}</label>
               <textarea class="banner-text-ar" rows="2"></textarea>
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'النص (إنجليزي)' : 'Text (English)'}</label>
+              <label>\${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Text (English)'}</label>
               <textarea class="banner-text-en" rows="2"></textarea>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'لون الخلفية' : 'Background Color'}</label>
+              <label>\${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ø®Ù„ÙÙŠØ©' : 'Background Color'}</label>
               <input type="color" class="banner-bg-color" value="#1a1a2e" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>\${currentLang === 'ar' ? 'لون النص' : 'Text Color'}</label>
+              <label>\${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ù†Øµ' : 'Text Color'}</label>
               <input type="color" class="banner-text-color" value="#f0f0f5" style="height:40px;padding:2px;">
             </div>
           </div>
@@ -263,7 +263,7 @@ let newAttachDesign = `function attachDesignListeners() {
           title_en: item.querySelector('.slide-title-en').value,
           subtitle_ar: item.querySelector('.slide-sub-ar').value,
           subtitle_en: item.querySelector('.slide-sub-en').value,
-          buttonText_ar: 'تسوق الآن',
+          buttonText_ar: 'ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù†',
           buttonText_en: 'Shop Now',
           buttonLink: '#/products',
           textColor: item.querySelector('.slide-text-color')?.value || '#c9a04e',
@@ -329,7 +329,7 @@ let newAttachDesign = `function attachDesignListeners() {
       settingsHistoryIndex = settingsHistory.length - 1;
 
       Store.saveSettings(newSettings);
-      showToast(currentLang === 'ar' ? 'تم حفظ التصميم' : 'Design saved', 'success');
+      showToast(currentLang === 'ar' ? 'ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªØµÙ…ÙŠÙ…' : 'Design saved', 'success');
       renderContentArea('design');
     });
   }
@@ -379,3 +379,4 @@ let finalLines = [
 
 fs.writeFileSync(path, finalLines.join('\\n'), 'utf8');
 console.log('Done!');
+
