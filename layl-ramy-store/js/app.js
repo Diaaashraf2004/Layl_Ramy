@@ -2644,5 +2644,18 @@ window.addEventListener('storage', (e) => {
   }
 });
 
+// Listen for updates from Firebase sync locally
+window.addEventListener('firebase-data-synced', (e) => {
+  const key = e.detail.key;
+  if (key && key.startsWith('lr_')) {
+    const settings = Store.getSettings();
+    applyFonts(settings);
+    renderNavbar();
+    renderFooter();
+    renderCartSidebar();
+    handleRoute();
+  }
+});
+
 // Start
 init();

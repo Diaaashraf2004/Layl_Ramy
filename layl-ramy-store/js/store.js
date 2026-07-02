@@ -784,45 +784,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Give time for firebase module to load
-  setTimeout(() => {
-    if (window.FirebaseAuth) {
-      window.FirebaseAuth.onAuthStateChanged(window.FirebaseAuth.auth, (user) => {
-        if (!user && getCurrentCustomer()) {
-          // If logged out from Firebase but local shows logged in, sync it (if it's a Google user)
-          // For simplicity, we won't auto logout unless explicitly clicked
-        }
-      });
-    }
-
-    if (window.FirebaseDB && window.FirebaseDB.db) {
-      const { collection, onSnapshot } = window.FirebaseDB;
-      onSnapshot(collection(window.FirebaseDB.db, "store_data"), (snapshot) => {
-        let dataLoaded = false;
-        snapshot.docChanges().forEach((change) => {
-          const key = change.doc.id;
-          const data = change.doc.data().data;
-          
-          if (data) {
-            try {
-              if (_useLocalStorage) {
-                localStorage.setItem(key, JSON.stringify(data));
-              } else {
-                _memoryStore[key] = JSON.parse(JSON.stringify(data));
-              }
-              dataLoaded = true;
-            } catch (e) {}
-          }
-        });
-        
-        if (dataLoaded) {
-          emit('data-synced', null);
-        }
-      }, (error) => {
-        console.error("Firebase onSnapshot error:", error);
-      });
-    }
-  }, 1000);
+  if (window.FirebaseAuth) {
+    window.FirebaseAuth.onAuthStateChanged(window.FirebaseAuth.auth, (user) => {
+      if (!user && getCurrentCustomer()) {
+        // If logged out from Firebase but local shows logged in, sync it (if it's a Google user)
+        // For simplicity, we won't auto logout unless explicitly clicked
+      }
+    });
+  }
 });
 // ------------------------------------
 
@@ -946,6 +915,12 @@ function validateCoupon(code, cartSubtotal) {
 function seedData() {
   if (getFromStorage(STORAGE_KEYS.seeded)) return;
 
+  // If Firebase is available, DO NOT seed empty data.
+  // Wait for Firestore to populate the store!
+  if (window.FirebaseDB && window.FirebaseDB.db) {
+    return;
+  }
+
   saveToStorage(STORAGE_KEYS.categories, []);
   saveToStorage(STORAGE_KEYS.products, []);
   saveToStorage(STORAGE_KEYS.reviews, []);
@@ -987,7 +962,8 @@ function initFirebaseSync() {
 
   keysToSync.forEach(key => {
     onSnapshot(doc(db, "store_data", key), (docSnap) => {
-      if (docSnap.exists()) {
+      const exists = typeof docSnap.exists === 'function' ? docSnap.exists() : docSnap.exists;
+      if (exists) {
         const payload = docSnap.data().data;
         if (payload) {
           isFirebaseSyncing = true;
@@ -999,8 +975,11 @@ function initFirebaseSync() {
           }
           isFirebaseSyncing = false;
           
-          // Trigger a global event to refresh the UI immediately
-          window.dispatchEvent(new StorageEvent('storage', { key: key }));
+          // Trigger a global event to refresh the UI immediately (using CustomEvent to avoid StorageEvent strict CORS/Tracking blocks)
+          try {
+            window.dispatchEvent(new StorageEvent('storage', { key: key }));
+          } catch(e) {}
+          window.dispatchEvent(new CustomEvent('firebase-data-synced', { detail: { key: key } }));
         }
       }
     });

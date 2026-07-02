@@ -2690,4 +2690,23 @@ function init() {
   }
 }
 
+// Listen for updates from Firebase sync or other tabs
+window.addEventListener('storage', (e) => {
+  if (e.key && e.key.startsWith('lr_')) {
+    const currentSettings = Store.getSettings();
+    document.title = `${currentSettings.storeName || 'Medix'} - Admin Panel | لوحة التحكم`;
+    renderCurrentPage();
+  }
+});
+
+// Listen for updates from Firebase sync locally
+window.addEventListener('firebase-data-synced', (e) => {
+  const key = e.detail.key;
+  if (key && key.startsWith('lr_')) {
+    const currentSettings = Store.getSettings();
+    document.title = `${currentSettings.storeName || 'Medix'} - Admin Panel | لوحة التحكم`;
+    renderCurrentPage();
+  }
+});
+
 init();
