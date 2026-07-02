@@ -1,7 +1,19 @@
-﻿// ============================================
+// ============================================
 // Medix - Admin Panel
 // ============================================
+// ============================================
 const Store = window.Store;
+
+// ===== UTILS =====
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 // Settings History for Undo/Redo
 let settingsHistory = [];
@@ -10,150 +22,150 @@ let settingsHistoryIndex = -1;
 // ===== i18n =====
 const translations = {
   ar: {
-    'admin.login': 'ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„',
-    'admin.password': 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±',
-    'admin.loginBtn': 'Ø¯Ø®ÙˆÙ„',
-    'admin.wrongPassword': 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙŠØ± ØµØ­ÙŠØ­Ø©',
-    'admin.dashboard': 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
-    'admin.products': 'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª',
-    'admin.categories': 'Ø§Ù„ØªØµÙ†ÙŠÙØ§Øª',
-    'admin.orders': 'Ø§Ù„Ø·Ù„Ø¨Ø§Øª',
-    'admin.settings': 'Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª',
-    'admin.reviews': 'Ø§Ù„ØªÙ‚ÙŠÙŠÙ…Ø§Øª',
-    'admin.logout': 'ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬',
-    'admin.totalProducts': 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª',
-    'admin.totalOrders': 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø·Ù„Ø¨Ø§Øª',
-    'admin.revenue': 'Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª',
-    'admin.pendingOrders': 'Ø·Ù„Ø¨Ø§Øª Ù…Ø¹Ù„Ù‚Ø©',
-    'admin.addProduct': 'Ø¥Ø¶Ø§ÙØ© Ù…Ù†ØªØ¬',
-    'admin.editProduct': 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù†ØªØ¬',
-    'admin.deleteProduct': 'Ø­Ø°Ù Ø§Ù„Ù…Ù†ØªØ¬',
-    'admin.confirmDelete': 'Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ø­Ø°ÙØŸ',
-    'admin.confirmDeleteDesc': 'Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡.',
-    'admin.productName_ar': 'Ø§Ø³Ù… Ø§Ù„Ù…Ù†ØªØ¬ (Ø¹Ø±Ø¨ÙŠ)',
-    'admin.productName_en': 'Ø§Ø³Ù… Ø§Ù„Ù…Ù†ØªØ¬ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)',
-    'admin.description_ar': 'Ø§Ù„ÙˆØµÙ (Ø¹Ø±Ø¨ÙŠ)',
-    'admin.description_en': 'Ø§Ù„ÙˆØµÙ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)',
-    'admin.price': 'Ø§Ù„Ø³Ø¹Ø±',
-    'admin.discount': 'Ù†Ø³Ø¨Ø© Ø§Ù„Ø®ØµÙ… %',
-    'admin.category': 'Ø§Ù„ØªØµÙ†ÙŠÙ',
-    'admin.stock': 'Ø§Ù„Ù…Ø®Ø²ÙˆÙ†',
-    'admin.images': 'ØµÙˆØ± Ø§Ù„Ù…Ù†ØªØ¬ (Ø±ÙˆØ§Ø¨Ø·)',
-    'admin.featured': 'Ù…Ù†ØªØ¬ Ù…Ù…ÙŠØ²',
-    'admin.status': 'Ø§Ù„Ø­Ø§Ù„Ø©',
-    'admin.addCategory': 'Ø¥Ø¶Ø§ÙØ© ØªØµÙ†ÙŠÙ',
-    'admin.editCategory': 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ØªØµÙ†ÙŠÙ',
-    'admin.categoryName_ar': 'Ø§Ø³Ù… Ø§Ù„ØªØµÙ†ÙŠÙ (Ø¹Ø±Ø¨ÙŠ)',
-    'admin.categoryName_en': 'Ø§Ø³Ù… Ø§Ù„ØªØµÙ†ÙŠÙ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)',
-    'admin.icon': 'Ø§Ù„Ø£ÙŠÙ‚ÙˆÙ†Ø©',
-    'admin.order': 'Ø§Ù„ØªØ±ØªÙŠØ¨',
-    'admin.orderNumber': 'Ø±Ù‚Ù… Ø§Ù„Ø·Ù„Ø¨',
-    'admin.customer': 'Ø§Ù„Ø¹Ù…ÙŠÙ„',
-    'admin.phone': 'Ø§Ù„Ù‡Ø§ØªÙ',
-    'admin.address': 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†',
-    'admin.total': 'Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ',
-    'admin.date': 'Ø§Ù„ØªØ§Ø±ÙŠØ®',
-    'admin.updateStatus': 'ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©',
-    'admin.viewDetails': 'Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„',
-    'admin.storeName': 'Ø§Ø³Ù… Ø§Ù„Ù…ØªØ¬Ø±',
-    'admin.subtitle': 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„ÙØ±Ø¹ÙŠ',
-    'admin.fontHeading': 'Ø®Ø· Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ†',
-    'admin.fontBody': 'Ø®Ø· Ø§Ù„Ù†ØµÙˆØµ',
-    'admin.accentColor': 'Ø§Ù„Ù„ÙˆÙ† Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ',
-    'admin.contactPhone': 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ',
-    'admin.contactWhatsapp': 'Ø±Ù‚Ù… Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨',
-    'admin.contactEmail': 'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ',
-    'admin.shippingCost': 'ØªÙƒÙ„ÙØ© Ø§Ù„Ø´Ø­Ù†',
-    'admin.freeShippingThreshold': 'Ø­Ø¯ Ø§Ù„Ø´Ø­Ù† Ø§Ù„Ù…Ø¬Ø§Ù†ÙŠ',
-    'admin.saveSettings': 'Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª',
-    'admin.approve': 'Ù…ÙˆØ§ÙÙ‚Ø©',
-    'admin.pending': 'Ù…Ø¹Ù„Ù‚',
-    'admin.approved': 'ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©',
-    'admin.storeIdentity': 'Ù‡ÙˆÙŠØ© Ø§Ù„Ù…ØªØ¬Ø±',
-    'admin.typography': 'Ø§Ù„Ø®Ø·ÙˆØ·',
-    'admin.colors': 'Ø§Ù„Ø£Ù„ÙˆØ§Ù†',
-    'admin.contactInfo': 'Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ØªÙˆØ§ØµÙ„',
-    'admin.shipping': 'Ø§Ù„Ø´Ø­Ù†',
-    'admin.subtitleAr': 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¹Ø±Ø¨ÙŠ)',
-    'admin.subtitleEn': 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)',
-    'admin.aboutAr': 'Ø¹Ù† Ø§Ù„Ù…ØªØ¬Ø± (Ø¹Ø±Ø¨ÙŠ)',
-    'admin.aboutEn': 'Ø¹Ù† Ø§Ù„Ù…ØªØ¬Ø± (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)',
-    'admin.fontArHeading': 'Ø®Ø· Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ† Ø§Ù„Ø¹Ø±Ø¨ÙŠ',
-    'admin.fontArBody': 'Ø®Ø· Ø§Ù„Ù†ØµÙˆØµ Ø§Ù„Ø¹Ø±Ø¨ÙŠ',
-    'admin.addressAr': 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¹Ø±Ø¨ÙŠ)',
-    'admin.addressEn': 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)',
-    'admin.livePreview': 'Ù…Ø¹Ø§ÙŠÙ†Ø© Ù…Ø¨Ø§Ø´Ø±Ø©',
-    'admin.headingSample': 'Ù†Øµ Ø¹Ù†ÙˆØ§Ù† ØªØ¬Ø±ÙŠØ¨ÙŠ',
-    'admin.bodySample': 'Ù‡Ø°Ø§ Ù†Øµ ØªØ¬Ø±ÙŠØ¨ÙŠ Ù„Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø®Ø· Ø§Ù„Ù…Ø®ØªØ§Ø±. ÙŠÙ…ÙƒÙ†Ùƒ Ø±Ø¤ÙŠØ© ÙƒÙŠÙ Ø³ÙŠØ¨Ø¯Ùˆ Ø§Ù„Ø®Ø· ÙÙŠ Ø§Ù„Ù…ØªØ¬Ø±.',
-    'admin.recentOrders': 'Ø£Ø­Ø¯Ø« Ø§Ù„Ø·Ù„Ø¨Ø§Øª',
-    'admin.quickActions': 'Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø³Ø±ÙŠØ¹Ø©',
-    'admin.viewAllOrders': 'Ø¹Ø±Ø¶ ÙƒÙ„ Ø§Ù„Ø·Ù„Ø¨Ø§Øª',
-    'admin.backToStore': 'Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ù…ØªØ¬Ø±',
-    'admin.product': 'Ø§Ù„Ù…Ù†ØªØ¬',
-    'admin.rating': 'Ø§Ù„ØªÙ‚ÙŠÙŠÙ…',
-    'admin.comment': 'Ø§Ù„ØªØ¹Ù„ÙŠÙ‚',
-    'admin.noReviews': 'Ù„Ø§ ØªÙˆØ¬Ø¯ ØªÙ‚ÙŠÙŠÙ…Ø§Øª',
-    'admin.noProducts': 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†ØªØ¬Ø§Øª',
-    'admin.noCategories': 'Ù„Ø§ ØªÙˆØ¬Ø¯ ØªØµÙ†ÙŠÙØ§Øª',
-    'admin.noOrders': 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª',
-    'admin.selectCategory': 'Ø§Ø®ØªØ± Ø§Ù„ØªØµÙ†ÙŠÙ',
-    'admin.all': 'Ø§Ù„ÙƒÙ„',
-    'admin.new': 'Ø¬Ø¯ÙŠØ¯',
-    'admin.confirmed': 'Ù…Ø¤ÙƒØ¯',
-    'admin.preparing': 'Ù‚ÙŠØ¯ Ø§Ù„ØªØ­Ø¶ÙŠØ±',
-    'admin.shipping': 'Ù‚ÙŠØ¯ Ø§Ù„Ø´Ø­Ù†',
-    'admin.delivered': 'ØªÙ… Ø§Ù„ØªÙˆØµÙŠÙ„',
-    'admin.cancelled': 'Ù…Ù„ØºÙŠ',
-    'admin.orderDetails': 'ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø·Ù„Ø¨',
-    'admin.customerInfo': 'Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¹Ù…ÙŠÙ„',
-    'admin.orderItems': 'Ø¹Ù†Ø§ØµØ± Ø§Ù„Ø·Ù„Ø¨',
-    'admin.subtotal': 'Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„ÙØ±Ø¹ÙŠ',
-    'admin.shippingFee': 'Ø±Ø³ÙˆÙ… Ø§Ù„Ø´Ø­Ù†',
-    'admin.grandTotal': 'Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ',
-    'admin.notes': 'Ù…Ù„Ø§Ø­Ø¸Ø§Øª',
-    'admin.messageOnWhatsapp': 'Ù…Ø±Ø§Ø³Ù„Ø© ÙˆØ§ØªØ³Ø§Ø¨',
-    'admin.city': 'Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©',
-    'admin.email': 'Ø§Ù„Ø¨Ø±ÙŠØ¯',
-    'admin.qty': 'Ø§Ù„ÙƒÙ…ÙŠØ©',
-    'admin.unitPrice': 'Ø³Ø¹Ø± Ø§Ù„ÙˆØ­Ø¯Ø©',
-    'admin.free': 'Ù…Ø¬Ø§Ù†ÙŠ',
-    'admin.imageUrls': 'Ø£Ø¯Ø®Ù„ Ø±Ø§Ø¨Ø· ØµÙˆØ±Ø© ÙˆØ§Ø­Ø¯ ÙÙŠ ÙƒÙ„ Ø³Ø·Ø±',
-    'admin.active': 'Ù†Ø´Ø·',
-    'admin.inactive': 'ØºÙŠØ± Ù†Ø´Ø·',
-    'admin.name': 'Ø§Ù„Ø§Ø³Ù…',
-    'admin.productCount': 'Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª',
-    'admin.deleteCategory': 'Ø­Ø°Ù Ø§Ù„ØªØµÙ†ÙŠÙ',
-    'admin.deleteReview': 'Ø­Ø°Ù Ø§Ù„ØªÙ‚ÙŠÙŠÙ…',
-    'admin.settingsSaved': 'ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¨Ù†Ø¬Ø§Ø­',
-    'admin.productSaved': 'ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ù†ØªØ¬ Ø¨Ù†Ø¬Ø§Ø­',
-    'admin.productDeleted': 'ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…Ù†ØªØ¬',
-    'admin.categorySaved': 'ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªØµÙ†ÙŠÙ Ø¨Ù†Ø¬Ø§Ø­',
-    'admin.categoryDeleted': 'ØªÙ… Ø­Ø°Ù Ø§Ù„ØªØµÙ†ÙŠÙ',
-    'admin.orderUpdated': 'ØªÙ… ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ø·Ù„Ø¨',
-    'admin.reviewApproved': 'ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„ØªÙ‚ÙŠÙŠÙ…',
-    'admin.reviewDeleted': 'ØªÙ… Ø­Ø°Ù Ø§Ù„ØªÙ‚ÙŠÙŠÙ…',
-    'admin.fillRequired': 'ÙŠØ±Ø¬Ù‰ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©',
-    'admin.currency': 'Ø¬.Ù…',
-    'admin.adminPanel': 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
-    'admin.welcomeBack': 'Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨Ùƒ Ù…Ø¬Ø¯Ø¯Ø§Ù‹',
-    'admin.loginSubtitle': 'Ø£Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù„Ù„Ø¯Ø®ÙˆÙ„ Ø¥Ù„Ù‰ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
-    'admin.deleteOrder': 'Ø­Ø°Ù Ø§Ù„Ø·Ù„Ø¨',
-    'admin.orderDeleted': 'ØªÙ… Ø­Ø°Ù Ø§Ù„Ø·Ù„Ø¨',
-    'admin.coupons': 'Ø§Ù„ÙƒÙˆØ¨ÙˆÙ†Ø§Øª',
-    'admin.addCoupon': 'Ø¥Ø¶Ø§ÙØ© ÙƒÙˆØ¨ÙˆÙ†',
-    'admin.editCoupon': 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ÙƒÙˆØ¨ÙˆÙ†',
-    'admin.code': 'ÙƒÙˆØ¯ Ø§Ù„Ø®ØµÙ…',
-    'admin.discountType': 'Ù†ÙˆØ¹ Ø§Ù„Ø®ØµÙ…',
-    'admin.discountValue': 'Ù‚ÙŠÙ…Ø© Ø§Ù„Ø®ØµÙ…',
-    'admin.percentage': 'Ù†Ø³Ø¨Ø© Ù…Ø¦ÙˆÙŠØ© (%)',
-    'admin.fixed': 'Ù…Ø¨Ù„Øº Ø«Ø§Ø¨Øª',
-    'admin.minOrderAmount': 'Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ø¯Ù†Ù‰ Ù„Ù„Ø·Ù„Ø¨',
-    'admin.expiryDate': 'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡',
-    'admin.deleteCoupon': 'Ø­Ø°Ù Ø§Ù„ÙƒÙˆØ¨ÙˆÙ†',
-    'admin.couponSaved': 'ØªÙ… Ø­ÙØ¸ Ø§Ù„ÙƒÙˆØ¨ÙˆÙ†',
-    'admin.couponDeleted': 'ØªÙ… Ø­Ø°Ù Ø§Ù„ÙƒÙˆØ¨ÙˆÙ†',
-    'admin.noCoupons': 'Ù„Ø§ ØªÙˆØ¬Ø¯ ÙƒÙˆØ¨ÙˆÙ†Ø§Øª',
-    'admin.couponDiscount': 'Ø®ØµÙ… Ø§Ù„ÙƒÙˆØ¨ÙˆÙ†'
+    'admin.login': 'تسجيل الدخول',
+    'admin.password': 'كلمة المرور',
+    'admin.loginBtn': 'دخول',
+    'admin.wrongPassword': 'كلمة المرور غير صحيحة',
+    'admin.dashboard': 'لوحة التحكم',
+    'admin.products': 'المنتجات',
+    'admin.categories': 'التصنيفات',
+    'admin.orders': 'الطلبات',
+    'admin.settings': 'الإعدادات',
+    'admin.reviews': 'التقييمات',
+    'admin.logout': 'تسجيل الخروج',
+    'admin.totalProducts': 'إجمالي المنتجات',
+    'admin.totalOrders': 'إجمالي الطلبات',
+    'admin.revenue': 'الإيرادات',
+    'admin.pendingOrders': 'طلبات معلقة',
+    'admin.addProduct': 'إضافة منتج',
+    'admin.editProduct': 'تعديل المنتج',
+    'admin.deleteProduct': 'حذف المنتج',
+    'admin.confirmDelete': 'هل أنت متأكد من الحذف؟',
+    'admin.confirmDeleteDesc': 'لا يمكن التراجع عن هذا الإجراء.',
+    'admin.productName_ar': 'اسم المنتج (عربي)',
+    'admin.productName_en': 'اسم المنتج (إنجليزي)',
+    'admin.description_ar': 'الوصف (عربي)',
+    'admin.description_en': 'الوصف (إنجليزي)',
+    'admin.price': 'السعر',
+    'admin.discount': 'نسبة الخصم %',
+    'admin.category': 'التصنيف',
+    'admin.stock': 'المخزون',
+    'admin.images': 'صور المنتج (روابط)',
+    'admin.featured': 'منتج مميز',
+    'admin.status': 'الحالة',
+    'admin.addCategory': 'إضافة تصنيف',
+    'admin.editCategory': 'تعديل التصنيف',
+    'admin.categoryName_ar': 'اسم التصنيف (عربي)',
+    'admin.categoryName_en': 'اسم التصنيف (إنجليزي)',
+    'admin.icon': 'الأيقونة',
+    'admin.order': 'الترتيب',
+    'admin.orderNumber': 'رقم الطلب',
+    'admin.customer': 'العميل',
+    'admin.phone': 'الهاتف',
+    'admin.address': 'العنوان',
+    'admin.total': 'الإجمالي',
+    'admin.date': 'التاريخ',
+    'admin.updateStatus': 'تحديث الحالة',
+    'admin.viewDetails': 'عرض التفاصيل',
+    'admin.storeName': 'اسم المتجر',
+    'admin.subtitle': 'العنوان الفرعي',
+    'admin.fontHeading': 'خط العناوين',
+    'admin.fontBody': 'خط النصوص',
+    'admin.accentColor': 'اللون الأساسي',
+    'admin.contactPhone': 'رقم الهاتف',
+    'admin.contactWhatsapp': 'رقم الواتساب',
+    'admin.contactEmail': 'البريد الإلكتروني',
+    'admin.shippingCost': 'تكلفة الشحن',
+    'admin.freeShippingThreshold': 'حد الشحن المجاني',
+    'admin.saveSettings': 'حفظ الإعدادات',
+    'admin.approve': 'موافقة',
+    'admin.pending': 'معلق',
+    'admin.approved': 'تم الموافقة',
+    'admin.storeIdentity': 'هوية المتجر',
+    'admin.typography': 'الخطوط',
+    'admin.colors': 'الألوان',
+    'admin.contactInfo': 'معلومات التواصل',
+    'admin.shipping': 'الشحن',
+    'admin.subtitleAr': 'العنوان الفرعي (عربي)',
+    'admin.subtitleEn': 'العنوان الفرعي (إنجليزي)',
+    'admin.aboutAr': 'عن المتجر (عربي)',
+    'admin.aboutEn': 'عن المتجر (إنجليزي)',
+    'admin.fontArHeading': 'خط العناوين العربي',
+    'admin.fontArBody': 'خط النصوص العربي',
+    'admin.addressAr': 'العنوان (عربي)',
+    'admin.addressEn': 'العنوان (إنجليزي)',
+    'admin.livePreview': 'معاينة مباشرة',
+    'admin.headingSample': 'نص عنوان تجريبي',
+    'admin.bodySample': 'هذا نص تجريبي لمعاينة الخط المختار. يمكنك رؤية كيف سيبدو الخط في المتجر.',
+    'admin.recentOrders': 'أحدث الطلبات',
+    'admin.quickActions': 'إجراءات سريعة',
+    'admin.viewAllOrders': 'عرض كل الطلبات',
+    'admin.backToStore': 'العودة للمتجر',
+    'admin.product': 'المنتج',
+    'admin.rating': 'التقييم',
+    'admin.comment': 'التعليق',
+    'admin.noReviews': 'لا توجد تقييمات',
+    'admin.noProducts': 'لا توجد منتجات',
+    'admin.noCategories': 'لا توجد تصنيفات',
+    'admin.noOrders': 'لا توجد طلبات',
+    'admin.selectCategory': 'اختر التصنيف',
+    'admin.all': 'الكل',
+    'admin.new': 'جديد',
+    'admin.confirmed': 'مؤكد',
+    'admin.preparing': 'قيد التحضير',
+    'admin.shipping': 'قيد الشحن',
+    'admin.delivered': 'تم التوصيل',
+    'admin.cancelled': 'ملغي',
+    'admin.orderDetails': 'تفاصيل الطلب',
+    'admin.customerInfo': 'معلومات العميل',
+    'admin.orderItems': 'عناصر الطلب',
+    'admin.subtotal': 'المجموع الفرعي',
+    'admin.shippingFee': 'رسوم الشحن',
+    'admin.grandTotal': 'الإجمالي',
+    'admin.notes': 'ملاحظات',
+    'admin.messageOnWhatsapp': 'مراسلة واتساب',
+    'admin.city': 'المدينة',
+    'admin.email': 'البريد',
+    'admin.qty': 'الكمية',
+    'admin.unitPrice': 'سعر الوحدة',
+    'admin.free': 'مجاني',
+    'admin.imageUrls': 'أدخل رابط صورة واحد في كل سطر',
+    'admin.active': 'نشط',
+    'admin.inactive': 'غير نشط',
+    'admin.name': 'الاسم',
+    'admin.productCount': 'عدد المنتجات',
+    'admin.deleteCategory': 'حذف التصنيف',
+    'admin.deleteReview': 'حذف التقييم',
+    'admin.settingsSaved': 'تم حفظ الإعدادات بنجاح',
+    'admin.productSaved': 'تم حفظ المنتج بنجاح',
+    'admin.productDeleted': 'تم حذف المنتج',
+    'admin.categorySaved': 'تم حفظ التصنيف بنجاح',
+    'admin.categoryDeleted': 'تم حذف التصنيف',
+    'admin.orderUpdated': 'تم تحديث حالة الطلب',
+    'admin.reviewApproved': 'تم الموافقة على التقييم',
+    'admin.reviewDeleted': 'تم حذف التقييم',
+    'admin.fillRequired': 'يرجى ملء جميع الحقول المطلوبة',
+    'admin.currency': 'ج.م',
+    'admin.adminPanel': 'لوحة التحكم',
+    'admin.welcomeBack': 'مرحباً بك مجدداً',
+    'admin.loginSubtitle': 'أدخل كلمة المرور للدخول إلى لوحة التحكم',
+    'admin.deleteOrder': 'حذف الطلب',
+    'admin.orderDeleted': 'تم حذف الطلب',
+    'admin.coupons': 'الكوبونات',
+    'admin.addCoupon': 'إضافة كوبون',
+    'admin.editCoupon': 'تعديل الكوبون',
+    'admin.code': 'كود الخصم',
+    'admin.discountType': 'نوع الخصم',
+    'admin.discountValue': 'قيمة الخصم',
+    'admin.percentage': 'نسبة مئوية (%)',
+    'admin.fixed': 'مبلغ ثابت',
+    'admin.minOrderAmount': 'الحد الأدنى للطلب',
+    'admin.expiryDate': 'تاريخ الانتهاء',
+    'admin.deleteCoupon': 'حذف الكوبون',
+    'admin.couponSaved': 'تم حفظ الكوبون',
+    'admin.couponDeleted': 'تم حذف الكوبون',
+    'admin.noCoupons': 'لا توجد كوبونات',
+    'admin.couponDiscount': 'خصم الكوبون'
   },
   en: {
     'admin.login': 'Admin Login',
@@ -384,7 +396,7 @@ function showToast(message, type = 'success') {
   toast.innerHTML = `
     <span class="toast-icon">${icons[type] || icons.info}</span>
     <span class="toast-message">${message}</span>
-    <button class="toast-close" onclick="this.parentElement.classList.add('leaving');setTimeout(()=>this.parentElement.remove(),300)">âœ•</button>
+    <button class="toast-close" onclick="this.parentElement.classList.add('leaving');setTimeout(()=>this.parentElement.remove(),300)">✕</button>
   `;
   container.appendChild(toast);
   setTimeout(() => {
@@ -401,7 +413,7 @@ function openModal(title, bodyHTML, footerHTML = '') {
       <div class="admin-modal">
         <div class="modal-header">
           <h2>${title}</h2>
-          <button class="modal-close" data-action="close-modal">âœ•</button>
+          <button class="modal-close" data-action="close-modal">✕</button>
         </div>
         <div class="modal-body">${bodyHTML}</div>
         ${footerHTML ? `<div class="modal-footer">${footerHTML}</div>` : ''}
@@ -427,8 +439,8 @@ function confirmDialog(title, message, onConfirm) {
       <h3>${title}</h3>
       <p>${message}</p>
       <div class="confirm-actions">
-        <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'}</button>
-        <button class="btn btn-danger" id="confirm-yes-btn">${currentLang === 'ar' ? 'Ø­Ø°Ù' : 'Delete'}</button>
+        <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+        <button class="btn btn-danger" id="confirm-yes-btn">${currentLang === 'ar' ? 'حذف' : 'Delete'}</button>
       </div>
     </div>
   `);
@@ -440,18 +452,20 @@ function confirmDialog(title, message, onConfirm) {
 
 // ===== LOGIN PAGE =====
 function renderLoginPage() {
+  const settings = Store.getSettings();
+  const storeName = settings.storeName || 'Medix';
   return `
     <div class="login-page">
       <div class="login-card">
         <div class="login-logo">
           <span class="logo-icon"><i class="ph ph-moon"></i></span>
-          <div class="logo-text">Medix</div>
+          <div class="logo-text">${escapeHtml(storeName)}</div>
           <div class="logo-subtitle">${t('admin.loginSubtitle')}</div>
         </div>
         <form class="login-form" id="login-form">
           <div class="input-group">
             <label for="login-password">${t('admin.password')}</label>
-            <input type="password" id="login-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" autofocus>
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" autofocus>
           </div>
           <div class="login-error" id="login-error">${t('admin.wrongPassword')}</div>
           <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;">${t('admin.loginBtn')}</button>
@@ -465,6 +479,8 @@ function renderLoginPage() {
 function renderAdminLayout(activeRoute) {
   const pendingReviews = Store.getAllReviews().filter(r => !r.approved).length;
   const stats = Store.getOrderStats();
+  const settings = Store.getSettings();
+  const storeName = settings.storeName || 'Medix';
 
   const navItems = [
     { route: 'dashboard', icon: '<i class="ph ph-chart-bar"></i>', label: t('admin.dashboard') },
@@ -473,7 +489,7 @@ function renderAdminLayout(activeRoute) {
     { route: 'coupons', icon: '<i class="ph ph-ticket"></i>', label: t('admin.coupons') },
     { route: 'orders', icon: '<i class="ph ph-shopping-cart"></i>', label: t('admin.orders'), badge: stats.pendingOrders || 0 },
     { route: 'reviews', icon: '<i class="ph ph-star"></i>', label: t('admin.reviews'), badge: pendingReviews },
-    { route: 'design', icon: '<i class="ph ph-paint-brush-broad"></i>', label: currentLang === 'ar' ? 'Ø§Ù„ØªØµÙ…ÙŠÙ… ÙˆØ§Ù„Ù†ØµÙˆØµ' : 'Design & Texts' },
+    { route: 'design', icon: '<i class="ph ph-paint-brush-broad"></i>', label: currentLang === 'ar' ? 'التصميم والنصوص' : 'Design & Texts' },
     { route: 'settings', icon: '<i class="ph ph-gear"></i>', label: t('admin.settings') },
   ];
 
@@ -504,7 +520,7 @@ function renderAdminLayout(activeRoute) {
       <aside class="admin-sidebar" id="admin-sidebar">
         <div class="sidebar-header">
           <span class="sidebar-logo"><i class="ph ph-moon"></i></span>
-          <span class="sidebar-title">Medix</span>
+          <span class="sidebar-title">${escapeHtml(storeName)}</span>
           <span class="sidebar-badge">Admin</span>
         </div>
         <nav class="sidebar-nav">${navHTML}</nav>
@@ -524,7 +540,7 @@ function renderAdminLayout(activeRoute) {
           <button class="topbar-btn" data-action="undo" title="Undo" id="btn-undo" disabled><i class="ph ph-arrow-u-up-left"></i></button>
           <button class="topbar-btn" data-action="redo" title="Redo" id="btn-redo" disabled><i class="ph ph-arrow-u-up-right"></i></button>
           <a href="index.html" class="topbar-link" title="${t('admin.backToStore')}"><i class="ph ph-storefront"></i> ${t('admin.backToStore')}</a>
-          <button class="topbar-btn" data-action="toggle-lang" title="AR / EN">${currentLang === 'ar' ? 'EN' : 'Ø¹'}</button>
+          <button class="topbar-btn" data-action="toggle-lang" title="AR / EN">${currentLang === 'ar' ? 'EN' : 'ع'}</button>
         </div>
       </header>
       <main class="admin-content" id="admin-content">${contentHTML}</main>
@@ -638,7 +654,7 @@ function renderProducts() {
         <h2>${t('admin.products')} (${products.length})</h2>
         <div class="search-input-wrap">
           <span class="search-icon"><i class="ph ph-magnifying-glass"></i></span>
-          <input type="text" id="product-search" placeholder="${currentLang === 'ar' ? 'Ø¨Ø­Ø«...' : 'Search...'}" value="${productSearchQuery}">
+          <input type="text" id="product-search" placeholder="${currentLang === 'ar' ? 'بحث...' : 'Search...'}" value="${productSearchQuery}">
         </div>
       </div>
       <div class="table-scroll">
@@ -743,7 +759,7 @@ function openProductModal(product = null) {
         <textarea id="prod-desc-en">${product?.description_en || ''}</textarea>
       </div>
       <div class="form-group">
-        <label for="prod-price">${t('admin.price')} (${currentLang === 'ar' ? 'Ù‚Ø¨Ù„ Ø§Ù„Ø®ØµÙ…' : 'Before Discount'}) *</label>
+        <label for="prod-price">${t('admin.price')} (${currentLang === 'ar' ? 'قبل الخصم' : 'Before Discount'}) *</label>
         <input type="number" id="prod-price" min="0" step="1" value="${product?.price || ''}" required>
       </div>
       <div class="form-group">
@@ -751,7 +767,7 @@ function openProductModal(product = null) {
         <input type="number" id="prod-discount" min="0" max="100" step="1" value="${product?.discountPercentage || 0}">
       </div>
       <div class="form-group">
-        <label for="prod-sale-price">${currentLang === 'ar' ? 'Ø§Ù„Ø³Ø¹Ø± Ø¨Ø¹Ø¯ Ø§Ù„Ø®ØµÙ… (Ø³Ø¹Ø± Ø§Ù„Ø¨ÙŠØ¹)' : 'Sale Price (After Discount)'}</label>
+        <label for="prod-sale-price">${currentLang === 'ar' ? 'السعر بعد الخصم (سعر البيع)' : 'Sale Price (After Discount)'}</label>
         <input type="number" id="prod-sale-price" min="0" step="1" value="${product ? Store.getProductPrice(product) : ''}">
       </div>
       <div class="form-group">
@@ -766,21 +782,21 @@ function openProductModal(product = null) {
         <input type="number" id="prod-stock" min="0" value="${product?.stock ?? 10}">
       </div>
       <div class="form-group">
-        <label for="prod-scarcity-threshold">${currentLang === 'ar' ? 'Ø­Ø¯ Ø¸Ù‡ÙˆØ± Ø´Ø§Ø±Ø© Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„ (Ø£Ù‚ØµÙ‰ Ù…Ø®Ø²ÙˆÙ† Ù„Ø¸Ù‡ÙˆØ±Ù‡Ø§)' : 'Scarcity Threshold'}</label>
+        <label for="prod-scarcity-threshold">${currentLang === 'ar' ? 'حد ظهور شارة الاستعجال (أقصى مخزون لظهورها)' : 'Scarcity Threshold'}</label>
         <input type="number" id="prod-scarcity-threshold" min="0" value="${product?.scarcityThreshold ?? 5}">
       </div>
       <div class="form-group full-width checkbox-group" style="display:flex; align-items:center; gap:8px;">
         <input type="checkbox" id="prod-show-scarcity" ${product?.showScarcityBadge !== false ? 'checked' : ''} style="width:20px; height:20px; cursor:pointer;">
-        <label for="prod-show-scarcity" style="cursor:pointer; font-weight:bold;">${currentLang === 'ar' ? 'ØªÙØ¹ÙŠÙ„ Ø´Ø§Ø±Ø© Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„ (Ø³Ø§Ø±Ø¹ Ø¨Ø§Ù„Ø´Ø±Ø§Ø¡! Ù…ØªØ¨Ù‚ÙŠ X ÙÙ‚Ø·)' : 'Enable Scarcity Badge'}</label>
+        <label for="prod-show-scarcity" style="cursor:pointer; font-weight:bold;">${currentLang === 'ar' ? 'تفعيل شارة الاستعجال (سارع بالشراء! متبقي X فقط)' : 'Enable Scarcity Badge'}</label>
       </div>
       <div class="form-group full-width">
         <label>${t('admin.images')}</label>
         <div class="file-upload-wrapper" style="margin-bottom:8px; display:flex; align-items:center; gap:12px;">
           <input type="file" id="prod-image-upload" accept="image/*" multiple style="display:none">
           <label for="prod-image-upload" class="btn btn-secondary" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-            <i class="ph ph-upload-simple"></i> ${currentLang === 'ar' ? 'Ø±ÙØ¹ ØµÙˆØ± Ù…Ù† Ø§Ù„Ø¬Ù‡Ø§Ø²' : 'Upload Images'}
+            <i class="ph ph-upload-simple"></i> ${currentLang === 'ar' ? 'رفع صور من الجهاز' : 'Upload Images'}
           </label>
-          <span class="text-muted" style="font-size:12px">${currentLang === 'ar' ? 'ÙŠØªÙ… Ø¶ØºØ· Ø§Ù„ØµÙˆØ± ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ù„Ù„Ø­ÙØ§Ø¸ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø³Ø§Ø­Ø©' : 'Images are auto-compressed'}</span>
+          <span class="text-muted" style="font-size:12px">${currentLang === 'ar' ? 'يتم ضغط الصور تلقائياً للحفاظ على المساحة' : 'Images are auto-compressed'}</span>
         </div>
         <textarea id="prod-images" placeholder="${t('admin.imageUrls')}" rows="3">${product?.images?.join('\n') || ''}</textarea>
         <div class="image-preview-grid" id="img-preview-grid">
@@ -803,7 +819,7 @@ function openProductModal(product = null) {
         <label for="prod-featured">${t('admin.featured')}</label>
       </div>
       <div class="form-group full-width">
-        <label>${currentLang === 'ar' ? 'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„Ù…Ø±ØªØ¨Ø·Ø© (Ø¥Ø¶Ø§ÙÙŠØ© Ø§Ø®ØªÙŠØ§Ø±ÙŠØ© Ù„Ù„Ø¹Ù…ÙŠÙ„)' : 'Linked Products (Optional Upsells)'}</label>
+        <label>${currentLang === 'ar' ? 'المنتجات المرتبطة (إضافية اختيارية للعميل)' : 'Linked Products (Optional Upsells)'}</label>
         <div class="linked-products-selector" style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border); padding: 10px; border-radius: var(--radius-sm); background: var(--bg-input);">
           ${Store.getProducts().filter(p => p.id !== product?.id).map(p => `
             <label class="linked-product-option" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;">
@@ -811,15 +827,15 @@ function openProductModal(product = null) {
               <img src="${p.images?.[0] || 'https://via.placeholder.com/32'}" alt="" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px;">
               <span>${currentLang === 'ar' ? (p.name_ar || p.name_en) : (p.name_en || p.name_ar)} (${p.price} ${t('admin.currency')})</span>
             </label>
-          `).join('') || `<p class="text-muted" style="font-size: 12px; margin: 0;">${currentLang === 'ar' ? 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†ØªØ¬Ø§Øª Ø£Ø®Ø±Ù‰ Ù„Ù„Ø±Ø¨Ø·' : 'No other products available to link'}</p>`}
+          `).join('') || `<p class="text-muted" style="font-size: 12px; margin: 0;">${currentLang === 'ar' ? 'لا توجد منتجات أخرى للربط' : 'No other products available to link'}</p>`}
         </div>
       </div>
     </form>
   `;
 
   const footer = `
-    <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'}</button>
-    <button class="btn btn-primary" id="save-product-btn">${currentLang === 'ar' ? 'Ø­ÙØ¸' : 'Save'}</button>
+    <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+    <button class="btn btn-primary" id="save-product-btn">${currentLang === 'ar' ? 'حفظ' : 'Save'}</button>
   `;
 
   openModal(title, body, footer);
@@ -1021,11 +1037,11 @@ function openCategoryModal(category = null) {
         <input type="text" id="cat-name-en" value="${category?.name_en || ''}" required>
       </div>
       <div class="form-group full-width">
-        <label>${t('admin.icon')} (ØµÙˆØ±Ø© Ø§Ù„ØªØµÙ†ÙŠÙ)</label>
+        <label>${t('admin.icon')} (صورة التصنيف)</label>
         <div class="file-upload-wrapper" style="margin-bottom:8px; display:flex; align-items:center; gap:12px;">
           <input type="file" id="cat-image-upload" accept="image/*" style="display:none">
           <label for="cat-image-upload" class="btn btn-secondary" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-            <i class="ph ph-upload-simple"></i> ${currentLang === 'ar' ? 'Ø±ÙØ¹ ØµÙˆØ±Ø©' : 'Upload Image'}
+            <i class="ph ph-upload-simple"></i> ${currentLang === 'ar' ? 'رفع صورة' : 'Upload Image'}
           </label>
         </div>
         <textarea id="cat-icon" placeholder="Base64 Image Data or URL" rows="2" style="display:none;">${category?.image || category?.icon || ''}</textarea>
@@ -1052,8 +1068,8 @@ function openCategoryModal(category = null) {
   `;
 
   const footer = `
-    <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'}</button>
-    <button class="btn btn-primary" id="save-category-btn">${currentLang === 'ar' ? 'Ø­ÙØ¸' : 'Save'}</button>
+    <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+    <button class="btn btn-primary" id="save-category-btn">${currentLang === 'ar' ? 'حفظ' : 'Save'}</button>
   `;
 
   openModal(title, body, footer);
@@ -1432,8 +1448,8 @@ function openCouponModal(coupon = null) {
   `;
   
   const footer = `
-    <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'Ø¥Ù„ØºØ§Ø¡' : 'Cancel'}</button>
-    <button class="btn btn-primary" id="save-coupon-btn">${currentLang === 'ar' ? 'Ø­ÙØ¸' : 'Save'}</button>
+    <button class="btn btn-secondary" data-action="close-modal">${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+    <button class="btn btn-primary" id="save-coupon-btn">${currentLang === 'ar' ? 'حفظ' : 'Save'}</button>
   `;
   
   openModal(title, body, footer);
@@ -1486,11 +1502,11 @@ function renderSettings() {
     <div class="page-header" style="flex-direction: row; align-items: center; justify-content: space-between;">
       <h1>${t('admin.settings')}</h1>
       <div style="display: flex; gap: 8px;">
-        <button class="btn btn-secondary btn-sm" id="settings-undo-btn" ${settingsHistoryIndex <= 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'ØªØ±Ø§Ø¬Ø¹' : 'Undo'}">
-          <i class="ph ph-arrow-u-up-left"></i> ${currentLang === 'ar' ? 'ØªØ±Ø§Ø¬Ø¹' : 'Undo'}
+        <button class="btn btn-secondary btn-sm" id="settings-undo-btn" ${settingsHistoryIndex <= 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'تراجع' : 'Undo'}">
+          <i class="ph ph-arrow-u-up-left"></i> ${currentLang === 'ar' ? 'تراجع' : 'Undo'}
         </button>
-        <button class="btn btn-secondary btn-sm" id="settings-redo-btn" ${settingsHistoryIndex >= settingsHistory.length - 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'Ø¥Ø¹Ø§Ø¯Ø©' : 'Redo'}">
-          <i class="ph ph-arrow-u-up-right"></i> ${currentLang === 'ar' ? 'Ø¥Ø¹Ø§Ø¯Ø©' : 'Redo'}
+        <button class="btn btn-secondary btn-sm" id="settings-redo-btn" ${settingsHistoryIndex >= settingsHistory.length - 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'إعادة' : 'Redo'}">
+          <i class="ph ph-arrow-u-up-right"></i> ${currentLang === 'ar' ? 'إعادة' : 'Redo'}
         </button>
       </div>
     </div>
@@ -1541,13 +1557,13 @@ function renderDesign() {
 
   return `
     <div class="page-header" style="flex-direction: row; align-items: center; justify-content: space-between;">
-      <h1>${currentLang === 'ar' ? 'Ø§Ù„ØªØµÙ…ÙŠÙ… ÙˆØ§Ù„Ù†ØµÙˆØµ' : 'Design & Texts'}</h1>
+      <h1>${currentLang === 'ar' ? 'التصميم والنصوص' : 'Design & Texts'}</h1>
       <div style="display: flex; gap: 8px;">
-        <button class="btn btn-secondary btn-sm" id="design-undo-btn" ${settingsHistoryIndex <= 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'ØªØ±Ø§Ø¬Ø¹' : 'Undo'}">
-          <i class="ph ph-arrow-u-up-left"></i> ${currentLang === 'ar' ? 'ØªØ±Ø§Ø¬Ø¹' : 'Undo'}
+        <button class="btn btn-secondary btn-sm" id="design-undo-btn" ${settingsHistoryIndex <= 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'تراجع' : 'Undo'}">
+          <i class="ph ph-arrow-u-up-left"></i> ${currentLang === 'ar' ? 'تراجع' : 'Undo'}
         </button>
-        <button class="btn btn-secondary btn-sm" id="design-redo-btn" ${settingsHistoryIndex >= settingsHistory.length - 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'Ø¥Ø¹Ø§Ø¯Ø©' : 'Redo'}">
-          <i class="ph ph-arrow-u-up-right"></i> ${currentLang === 'ar' ? 'Ø¥Ø¹Ø§Ø¯Ø©' : 'Redo'}
+        <button class="btn btn-secondary btn-sm" id="design-redo-btn" ${settingsHistoryIndex >= settingsHistory.length - 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} title="${currentLang === 'ar' ? 'إعادة' : 'Redo'}">
+          <i class="ph ph-arrow-u-up-right"></i> ${currentLang === 'ar' ? 'إعادة' : 'Redo'}
         </button>
       </div>
     </div>
@@ -1557,12 +1573,12 @@ function renderDesign() {
     <!-- Image Dimension Tips -->
     <div class="settings-section" style="border-left: 4px solid var(--accent); background: rgba(201,160,78,0.05);">
       <div class="settings-section-body" style="padding: 15px;">
-        <h4 style="margin-bottom: 10px; color: var(--accent);"><i class="ph ph-info"></i> ${currentLang === 'ar' ? 'Ù†ØµÙŠØ­Ø© Ø­ÙˆÙ„ Ø£Ø¨Ø¹Ø§Ø¯ Ø§Ù„ØµÙˆØ±' : 'Image Dimensions Tip'}</h4>
-        <p style="margin-bottom: 5px; font-size: 0.95rem;">${currentLang === 'ar' ? 'Ù„Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø£ÙØ¶Ù„ Ù…Ø¸Ù‡Ø± Ù„Ù„Ø¨Ù†Ø±Ø§Øª ÙˆØµÙˆØ± Ø§Ù„Ø³Ù„Ø§ÙŠØ¯Ø± Ø¨Ø¯ÙˆÙ† ØªØ´ÙˆÙ‡:' : 'For the best appearance of banners and slider images without distortion:'}</p>
+        <h4 style="margin-bottom: 10px; color: var(--accent);"><i class="ph ph-info"></i> ${currentLang === 'ar' ? 'نصيحة حول أبعاد الصور' : 'Image Dimensions Tip'}</h4>
+        <p style="margin-bottom: 5px; font-size: 0.95rem;">${currentLang === 'ar' ? 'للحصول على أفضل مظهر للبنرات وصور السلايدر بدون تشوه:' : 'For the best appearance of banners and slider images without distortion:'}</p>
         <ul style="list-style-type: disc; margin-inline-start: 20px; font-size: 0.9rem; color: var(--text-secondary);">
-          <li><b>${currentLang === 'ar' ? 'Ø§Ù„Ø³Ù„Ø§ÙŠØ¯Ø± Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ:' : 'Hero Slider:'}</b> ${currentLang === 'ar' ? 'ÙŠÙØ¶Ù„ Ø§Ø³ØªØ®Ø¯Ø§Ù… ØµÙˆØ± Ø£ÙÙ‚ÙŠØ© Ø¹Ø±ÙŠØ¶Ø© (Ù…Ø«Ø§Ù„: 1920 Ø¨ÙŠÙƒØ³Ù„ Ø¹Ø±Ø¶ Ã— 800 Ø¨ÙŠÙƒØ³Ù„ Ø·ÙˆÙ„).' : 'Prefer wide horizontal images (e.g. 1920px width Ã— 800px height).'}</li>
-          <li><b>${currentLang === 'ar' ? 'Ø§Ù„Ø¨Ù†Ø±Ø§Øª Ø§Ù„Ø­Ø±Ø©:' : 'Custom Banners:'}</b> ${currentLang === 'ar' ? 'ÙŠÙØ¶Ù„ Ø§Ø³ØªØ®Ø¯Ø§Ù… ØµÙˆØ± Ø¨Ø£Ø¨Ø¹Ø§Ø¯ 1200 Ø¹Ø±Ø¶ Ã— 400 Ø·ÙˆÙ„.' : 'Prefer dimensions of 1200 width Ã— 400 height.'}</li>
-          <li>${currentLang === 'ar' ? 'Ø§Ù„ØµÙˆØ± ÙŠØªÙ… Ø¶Ø¨Ø·Ù‡Ø§ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ù„ØªØºØ·ÙŠØ© Ø§Ù„Ù…Ø³Ø§Ø­Ø© Ø§Ù„Ù…ØªØ§Ø­Ø© (Cover) Ù…Ø¹ Ø§Ù„ØªØ±ÙƒÙŠØ² Ø¹Ù„Ù‰ ÙˆØ³Ø· Ø§Ù„ØµÙˆØ±Ø©.' : 'Images are automatically adjusted to cover the available area, keeping the center focused.'}</li>
+          <li><b>${currentLang === 'ar' ? 'السلايدر الرئيسي:' : 'Hero Slider:'}</b> ${currentLang === 'ar' ? 'يفضل استخدام صور أفقية عريضة (مثال: 1920 بيكسل عرض × 800 بيكسل طول).' : 'Prefer wide horizontal images (e.g. 1920px width × 800px height).'}</li>
+          <li><b>${currentLang === 'ar' ? 'البنرات الحرة:' : 'Custom Banners:'}</b> ${currentLang === 'ar' ? 'يفضل استخدام صور بأبعاد 1200 عرض × 400 طول.' : 'Prefer dimensions of 1200 width × 400 height.'}</li>
+          <li>${currentLang === 'ar' ? 'الصور يتم ضبطها تلقائياً لتغطية المساحة المتاحة (Cover) مع التركيز على وسط الصورة.' : 'Images are automatically adjusted to cover the available area, keeping the center focused.'}</li>
         </ul>
       </div>
     </div>
@@ -1571,12 +1587,12 @@ function renderDesign() {
     <div class="settings-section">
       <div class="settings-section-header">
         <span class="section-icon"><i class="ph ph-images"></i></span>
-        <span>${currentLang === 'ar' ? 'Ø§Ù„Ø³Ù„Ø§ÙŠØ¯Ø± Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Hero)' : 'Hero Slider'}</span>
+        <span>${currentLang === 'ar' ? 'السلايدر الرئيسي (Hero)' : 'Hero Slider'}</span>
       </div>
       <div class="settings-section-body">
         <div class="admin-form mb-16">
           <div class="form-group">
-            <label>${currentLang === 'ar' ? 'Ù…Ø¯Ø© Ø§Ù„ØªØ¨Ø¯ÙŠÙ„ Ø¨ÙŠÙ† Ø§Ù„ØµÙˆØ± (Ø¨Ø§Ù„Ø«ÙˆØ§Ù†ÙŠ)' : 'Slider Interval (seconds)'}</label>
+            <label>${currentLang === 'ar' ? 'مدة التبديل بين الصور (بالثواني)' : 'Slider Interval (seconds)'}</label>
             <input type="number" id="set-slider-interval" value="${settings.sliderInterval || 4}" min="1" max="10">
           </div>
         </div>
@@ -1584,55 +1600,55 @@ function renderDesign() {
           ${(settings.heroSlider || []).map((slide, i) => `
             <div class="slide-setting-item" style="border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 8px; position:relative;">
               <h5 style="margin-bottom: 10px;">Slide ${i + 1}</h5>
-              <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">${currentLang === 'ar' ? 'Ø­Ø°Ù' : 'Delete'}</button>
+              <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">${currentLang === 'ar' ? 'حذف' : 'Delete'}</button>
               
               <div class="admin-form">
                 <div class="form-group full-width">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„ØµÙˆØ±Ø© (URL)' : 'Image (URL)'}</label>
+                  <label>${currentLang === 'ar' ? 'الصورة (URL)' : 'Image (URL)'}</label>
                   <input type="text" class="slide-img" value="${slide.image || ''}">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¹Ø±Ø¨ÙŠ)' : 'Title (Arabic)'}</label>
+                  <label>${currentLang === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}</label>
                   <input type="text" class="slide-title-ar" value="${slide.title_ar || ''}">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Title (English)'}</label>
+                  <label>${currentLang === 'ar' ? 'العنوان (إنجليزي)' : 'Title (English)'}</label>
                   <input type="text" class="slide-title-en" value="${slide.title_en || ''}">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¹Ø±Ø¨ÙŠ)' : 'Subtitle (Arabic)'}</label>
+                  <label>${currentLang === 'ar' ? 'النص الفرعي (عربي)' : 'Subtitle (Arabic)'}</label>
                   <input type="text" class="slide-sub-ar" value="${slide.subtitle_ar || ''}">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Subtitle (English)'}</label>
+                  <label>${currentLang === 'ar' ? 'النص الفرعي (إنجليزي)' : 'Subtitle (English)'}</label>
                   <input type="text" class="slide-sub-en" value="${slide.subtitle_en || ''}">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ø¹Ù†ÙˆØ§Ù†' : 'Title Color'}</label>
+                  <label>${currentLang === 'ar' ? 'لون العنوان' : 'Title Color'}</label>
                   <input type="color" class="slide-text-color" value="${slide.textColor || '#c9a04e'}" style="height:40px;padding:2px;">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ' : 'Subtitle Color'}</label>
+                  <label>${currentLang === 'ar' ? 'لون النص الفرعي' : 'Subtitle Color'}</label>
                   <input type="color" class="slide-subtitle-color" value="${slide.subtitleColor || '#ffffff'}" style="height:40px;padding:2px;">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø®Ù„ÙÙŠØ© Ø§Ù„Ø²Ø±' : 'Button Background'}</label>
+                  <label>${currentLang === 'ar' ? 'لون خلفية الزر' : 'Button Background'}</label>
                   <input type="color" class="slide-btn-bg" value="${slide.buttonBg || '#c9a04e'}" style="height:40px;padding:2px;">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ù†Øµ Ø§Ù„Ø²Ø±' : 'Button Text Color'}</label>
+                  <label>${currentLang === 'ar' ? 'لون نص الزر' : 'Button Text Color'}</label>
                   <input type="color" class="slide-btn-text" value="${slide.buttonText || '#0a0a0f'}" style="height:40px;padding:2px;">
                 </div>
               </div>
               
               <!-- Slide Live Preview -->
-              <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø³Ù„Ø§ÙŠØ¯Ø±:' : 'Slide Preview:'}</h6>
+              <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة السلايدر:' : 'Slide Preview:'}</h6>
               <div class="slide-preview-box" style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; background: #000;">
                 <img src="${slide.image || ''}" class="prev-slide-img" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
                 <div style="position: relative; z-index: 1; text-align: center; padding: 20px;">
-                  <h3 class="prev-slide-title" style="color:${slide.textColor || '#c9a04e'}; margin-bottom: 5px; font-size: 1.5rem; margin-top: 0;">${(currentLang === 'ar' ? slide.title_ar : slide.title_en) || (currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠ' : 'Sample Title')}</h3>
-                  <p class="prev-slide-sub" style="color:${slide.subtitleColor || '#ffffff'}; margin-bottom: 15px; font-size: 1rem;">${(currentLang === 'ar' ? slide.subtitle_ar : slide.subtitle_en) || (currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠ' : 'Sample Subtitle')}</p>
-                  <button class="prev-slide-btn" style="background:${slide.buttonBg || '#c9a04e'}; color:${slide.buttonText || '#0a0a0f'}; border: 1px solid rgba(128,128,128,0.25); padding:8px 20px; border-radius:6px; font-weight:bold;">${currentLang === 'ar' ? 'ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù†' : 'Shop Now'}</button>
+                  <h3 class="prev-slide-title" style="color:${slide.textColor || '#c9a04e'}; margin-bottom: 5px; font-size: 1.5rem; margin-top: 0;">${(currentLang === 'ar' ? slide.title_ar : slide.title_en) || (currentLang === 'ar' ? 'العنوان التجريبي' : 'Sample Title')}</h3>
+                  <p class="prev-slide-sub" style="color:${slide.subtitleColor || '#ffffff'}; margin-bottom: 15px; font-size: 1rem;">${(currentLang === 'ar' ? slide.subtitle_ar : slide.subtitle_en) || (currentLang === 'ar' ? 'النص الفرعي التجريبي' : 'Sample Subtitle')}</p>
+                  <button class="prev-slide-btn" style="background:${slide.buttonBg || '#c9a04e'}; color:${slide.buttonText || '#0a0a0f'}; border: 1px solid rgba(128,128,128,0.25); padding:8px 20px; border-radius:6px; font-weight:bold;">${currentLang === 'ar' ? 'تسوق الآن' : 'Shop Now'}</button>
                 </div>
               </div>
             </div>
@@ -1640,7 +1656,7 @@ function renderDesign() {
         </div>
         <div style="text-align: start; margin-top: 15px; margin-bottom: 15px;">
           <button class="btn btn-secondary" id="add-slide-btn" type="button">
-            <i class="ph ph-plus"></i> ${currentLang === 'ar' ? 'Ø¥Ø¶Ø§ÙØ© ØµÙˆØ±Ø© Ø¬Ø¯ÙŠØ¯Ø©' : 'Add Slide'}
+            <i class="ph ph-plus"></i> ${currentLang === 'ar' ? 'إضافة صورة جديدة' : 'Add Slide'}
           </button>
         </div>
       </div>
@@ -1650,85 +1666,85 @@ function renderDesign() {
     <div class="settings-section">
       <div class="settings-section-header">
         <span class="section-icon"><i class="ph ph-flag-banner"></i></span>
-        <span>${currentLang === 'ar' ? 'Ø§Ù„Ù†ØµÙˆØµ ÙˆØ§Ù„Ø¨Ù†Ø±Ø§Øª Ø§Ù„Ø­Ø±Ø©' : 'Custom Banners'}</span>
+        <span>${currentLang === 'ar' ? 'النصوص والبنرات الحرة' : 'Custom Banners'}</span>
       </div>
       <div class="settings-section-body">
         <div id="custom-banners-container">
           ${(settings.customBanners || []).map((banner, i) => `
             <div class="banner-setting-item admin-form" style="padding:16px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; margin-bottom:16px;">
               <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                <h5 style="margin:0">${currentLang === 'ar' ? 'Ø¨Ù†Ø±' : 'Banner'} ${i + 1}</h5>
+                <h5 style="margin:0">${currentLang === 'ar' ? 'بنر' : 'Banner'} ${i + 1}</h5>
                 <button class="btn-icon btn-danger btn-sm" data-action="delete-custom-banner"><i class="ph ph-trash"></i></button>
               </div>
               <div class="form-row">
                 <div class="form-group checkbox-group" style="display:flex; align-items:center; gap:8px;">
                   <input type="checkbox" class="banner-active" ${banner.active ? 'checked' : ''}>
-                  <label>${currentLang === 'ar' ? 'ØªÙØ¹ÙŠÙ„' : 'Active'}</label>
+                  <label>${currentLang === 'ar' ? 'تفعيل' : 'Active'}</label>
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ø­Ø¬Ù…' : 'Size'}</label>
+                  <label>${currentLang === 'ar' ? 'الحجم' : 'Size'}</label>
                   <select class="banner-size">
-                    <option value="small" ${banner.size === 'small' ? 'selected' : ''}>${currentLang === 'ar' ? 'ØµØºÙŠØ±' : 'Small'}</option>
-                    <option value="medium" ${banner.size === 'medium' ? 'selected' : ''}>${currentLang === 'ar' ? 'Ù…ØªÙˆØ³Ø·' : 'Medium'}</option>
-                    <option value="large" ${banner.size === 'large' ? 'selected' : ''}>${currentLang === 'ar' ? 'ÙƒØ¨ÙŠØ±' : 'Large'}</option>
+                    <option value="small" ${banner.size === 'small' ? 'selected' : ''}>${currentLang === 'ar' ? 'صغير' : 'Small'}</option>
+                    <option value="medium" ${banner.size === 'medium' ? 'selected' : ''}>${currentLang === 'ar' ? 'متوسط' : 'Medium'}</option>
+                    <option value="large" ${banner.size === 'large' ? 'selected' : ''}>${currentLang === 'ar' ? 'كبير' : 'Large'}</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ù…Ø­Ø§Ø°Ø§Ø©' : 'Alignment'}</label>
+                  <label>${currentLang === 'ar' ? 'المحاذاة' : 'Alignment'}</label>
                   <select class="banner-align">
-                    <option value="center" ${banner.align === 'center' ? 'selected' : ''}>${currentLang === 'ar' ? 'ÙˆØ³Ø·' : 'Center'}</option>
-                    <option value="right" ${banner.align === 'right' ? 'selected' : ''}>${currentLang === 'ar' ? 'ÙŠÙ…ÙŠÙ†' : 'Right'}</option>
-                    <option value="left" ${banner.align === 'left' ? 'selected' : ''}>${currentLang === 'ar' ? 'ÙŠØ³Ø§Ø±' : 'Left'}</option>
+                    <option value="center" ${banner.align === 'center' ? 'selected' : ''}>${currentLang === 'ar' ? 'وسط' : 'Center'}</option>
+                    <option value="right" ${banner.align === 'right' ? 'selected' : ''}>${currentLang === 'ar' ? 'يمين' : 'Right'}</option>
+                    <option value="left" ${banner.align === 'left' ? 'selected' : ''}>${currentLang === 'ar' ? 'يسار' : 'Left'}</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ù…ÙƒØ§Ù† Ø§Ù„Ø¸Ù‡ÙˆØ±' : 'Position'}</label>
+                  <label>${currentLang === 'ar' ? 'مكان الظهور' : 'Position'}</label>
                   <select class="banner-position">
-                    <option value="top" ${banner.position === 'top' ? 'selected' : ''}>${currentLang === 'ar' ? 'Ø£Ø¹Ù„Ù‰ Ø§Ù„ØµÙØ­Ø© (ØªØ­Øª Ø§Ù„Ø³Ù„Ø§ÙŠØ¯Ø±)' : 'Top (Below Slider)'}</option>
-                    <option value="middle" ${banner.position === 'middle' ? 'selected' : ''}>${currentLang === 'ar' ? 'ÙˆØ³Ø· Ø§Ù„ØµÙØ­Ø© (ÙÙˆÙ‚ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª)' : 'Middle (Above Products)'}</option>
-                    <option value="bottom" ${banner.position === 'bottom' ? 'selected' : ''}>${currentLang === 'ar' ? 'Ø£Ø³ÙÙ„ Ø§Ù„ØµÙØ­Ø© (ÙÙˆÙ‚ Ø§Ù„ÙÙˆØªØ±)' : 'Bottom (Above Footer)'}</option>
+                    <option value="top" ${banner.position === 'top' ? 'selected' : ''}>${currentLang === 'ar' ? 'أعلى الصفحة (تحت السلايدر)' : 'Top (Below Slider)'}</option>
+                    <option value="middle" ${banner.position === 'middle' ? 'selected' : ''}>${currentLang === 'ar' ? 'وسط الصفحة (فوق المنتجات)' : 'Middle (Above Products)'}</option>
+                    <option value="bottom" ${banner.position === 'bottom' ? 'selected' : ''}>${currentLang === 'ar' ? 'أسفل الصفحة (فوق الفوتر)' : 'Bottom (Above Footer)'}</option>
                   </select>
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ (Ø¹Ø±Ø¨ÙŠ)' : 'Text (Arabic)'}</label>
+                  <label>${currentLang === 'ar' ? 'النص (عربي)' : 'Text (Arabic)'}</label>
                   <textarea class="banner-text-ar" rows="2">${banner.text_ar || ''}</textarea>
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Text (English)'}</label>
+                  <label>${currentLang === 'ar' ? 'النص (إنجليزي)' : 'Text (English)'}</label>
                   <textarea class="banner-text-en" rows="2">${banner.text_en || ''}</textarea>
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ø®Ù„ÙÙŠØ©' : 'Background Color'}</label>
+                  <label>${currentLang === 'ar' ? 'لون الخلفية' : 'Background Color'}</label>
                   <input type="color" class="banner-bg-color" value="${banner.bgColor || '#1a1a2e'}" style="height:40px;padding:2px;">
                 </div>
                 <div class="form-group">
-                  <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ù†Øµ' : 'Text Color'}</label>
+                  <label>${currentLang === 'ar' ? 'لون النص' : 'Text Color'}</label>
                   <input type="color" class="banner-text-color" value="${banner.textColor || '#f0f0f5'}" style="height:40px;padding:2px;">
                 </div>
               </div>
               
               <!-- Banner Live Preview -->
-              <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø¨Ù†Ø±:' : 'Banner Preview:'}</h6>
+              <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة البنر:' : 'Banner Preview:'}</h6>
               <div class="banner-preview-box" style="padding: 20px; text-align: ${banner.align || 'center'}; background:${banner.bgColor || '#1a1a2e'}; color:${banner.textColor || '#f0f0f5'}; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2);">
-                <span class="prev-banner-text" style="font-size: 1.1rem; font-weight: bold;">${(currentLang === 'ar' ? banner.text_ar : banner.text_en) || (currentLang === 'ar' ? 'Ù†Øµ Ø§Ù„Ø¨Ù†Ø± Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠ' : 'Sample Banner Text')}</span>
+                <span class="prev-banner-text" style="font-size: 1.1rem; font-weight: bold;">${(currentLang === 'ar' ? banner.text_ar : banner.text_en) || (currentLang === 'ar' ? 'نص البنر التجريبي' : 'Sample Banner Text')}</span>
               </div>
             </div>
           `).join('')}
         </div>
         <div style="text-align: start; margin-top: 15px; margin-bottom: 15px;">
           <button class="btn btn-secondary" id="add-custom-banner-btn" type="button">
-            <i class="ph ph-plus"></i> ${currentLang === 'ar' ? 'Ø¥Ø¶Ø§ÙØ© Ø¨Ù†Ø± Ø¬Ø¯ÙŠØ¯' : 'Add New Banner'}
+            <i class="ph ph-plus"></i> ${currentLang === 'ar' ? 'إضافة بنر جديد' : 'Add New Banner'}
           </button>
         </div>
       </div>
     </div>
     <div style="text-align:center;padding:20px 0">
       <button class="btn btn-primary" id="save-design-btn" style="padding:14px 40px;font-size:16px">
-        <i class="ph ph-floppy-disk"></i> ${currentLang === 'ar' ? 'Ø­ÙØ¸ Ø§Ù„ØªØµÙ…ÙŠÙ…' : 'Save Design'}
+        <i class="ph ph-floppy-disk"></i> ${currentLang === 'ar' ? 'حفظ التصميم' : 'Save Design'}
       </button>
     </div>
   `;
@@ -1780,7 +1796,7 @@ function renderSettingsPart2() {
           <div class="form-group checkbox-group" style="display:flex; align-items:center; gap:8px; grid-column: 1 / -1; margin-bottom:16px;">
             <input type="checkbox" id="set-free-shipping-active" ${settings.freeShippingActive ? 'checked' : ''} style="width:20px; height:20px; cursor:pointer;">
             <label for="set-free-shipping-active" style="font-weight:bold; cursor:pointer; font-size:15px;">
-              ${currentLang === 'ar' ? 'ØªÙØ¹ÙŠÙ„ Ø§Ù„Ø´Ø­Ù† Ø§Ù„Ù…Ø¬Ø§Ù†ÙŠ Ø¹Ù†Ø¯ Ø§Ù„ÙˆØµÙˆÙ„ Ù„Ù„Ø­Ø¯ Ø§Ù„Ø£Ø¯Ù†Ù‰' : 'Enable Free Shipping when reaching threshold'}
+              ${currentLang === 'ar' ? 'تفعيل الشحن المجاني عند الوصول للحد الأدنى' : 'Enable Free Shipping when reaching threshold'}
             </label>
           </div>
           <div class="form-group">
@@ -1794,7 +1810,7 @@ function renderSettingsPart2() {
         </div>
         
         <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
-          <h4 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); font-family:var(--font-ar-heading);">${currentLang === 'ar' ? 'Ø£Ø³Ø¹Ø§Ø± Ø§Ù„Ø´Ø­Ù† Ø§Ù„ØªÙØµÙŠÙ„ÙŠØ© Ù„Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª' : 'Detailed Shipping Rates by City'}</h4>
+          <h4 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); font-family:var(--font-ar-heading);">${currentLang === 'ar' ? 'أسعار الشحن التفصيلية للمحافظات' : 'Detailed Shipping Rates by City'}</h4>
           <div class="shipping-rates-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; max-height:280px; overflow-y:auto; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-input);">
             ${Object.entries(settings.shippingRates || {}).map(([city, rate]) => `
               <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column; gap:4px;">
@@ -1811,11 +1827,11 @@ function renderSettingsPart2() {
     <div class="settings-section">
       <div class="settings-section-header">
         <span class="section-icon"><i class="ph ph-envelope-simple"></i></span>
-        <span>${currentLang === 'ar' ? 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø¨Ø±ÙŠØ¯ (EmailJS)' : 'Email Settings (EmailJS)'}</span>
+        <span>${currentLang === 'ar' ? 'إعدادات البريد (EmailJS)' : 'Email Settings (EmailJS)'}</span>
       </div>
       <div class="settings-section-body">
         <p class="text-muted" style="margin-bottom:16px;font-size:14px">
-          ${currentLang === 'ar' ? 'Ù‚Ù… Ø¨Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ ÙÙŠ emailjs.com Ù…Ø¬Ø§Ù†Ø§Ù‹ Ù„Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø¥Ù„Ù‰ Ø¨Ø±ÙŠØ¯Ùƒ.' : 'Create a free account at emailjs.com to receive order emails.'}
+          ${currentLang === 'ar' ? 'قم بإنشاء حساب في emailjs.com مجاناً لإرسال الطلبات إلى بريدك.' : 'Create a free account at emailjs.com to receive order emails.'}
         </p>
         <div class="form-row">
           <div class="form-group">
@@ -1916,7 +1932,7 @@ function attachSettingsListeners() {
         settingsHistoryIndex--;
         const prevSettings = settingsHistory[settingsHistoryIndex];
         Store.saveSettings(prevSettings);
-        showToast(currentLang === 'ar' ? 'ØªÙ… Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ø§Ù„ØªØ¹Ø¯ÙŠÙ„' : 'Undo successful', 'info');
+        showToast(currentLang === 'ar' ? 'تم التراجع عن التعديل' : 'Undo successful', 'info');
         renderContentArea('settings');
       }
     });
@@ -1928,7 +1944,7 @@ function attachSettingsListeners() {
         settingsHistoryIndex++;
         const nextSettings = settingsHistory[settingsHistoryIndex];
         Store.saveSettings(nextSettings);
-        showToast(currentLang === 'ar' ? 'ØªÙ… Ø¥Ø¹Ø§Ø¯Ø© ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„' : 'Redo successful', 'info');
+        showToast(currentLang === 'ar' ? 'تم إعادة تطبيق التعديل' : 'Redo successful', 'info');
         renderContentArea('settings');
       }
     });
@@ -1999,13 +2015,13 @@ function attachDesignListeners() {
         img.src = e.target.value;
       }
       if (e.target.classList.contains('slide-title-ar') && currentLang === 'ar' && title) {
-        title.textContent = e.target.value || 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠ';
+        title.textContent = e.target.value || 'العنوان التجريبي';
       }
       if (e.target.classList.contains('slide-title-en') && currentLang === 'en' && title) {
         title.textContent = e.target.value || 'Sample Title';
       }
       if (e.target.classList.contains('slide-sub-ar') && currentLang === 'ar' && sub) {
-        sub.textContent = e.target.value || 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠ';
+        sub.textContent = e.target.value || 'النص الفرعي التجريبي';
       }
       if (e.target.classList.contains('slide-sub-en') && currentLang === 'en' && sub) {
         sub.textContent = e.target.value || 'Sample Subtitle';
@@ -2037,7 +2053,7 @@ function attachDesignListeners() {
       if (!previewBox || !previewText) return;
       
       if (e.target.classList.contains('banner-text-ar') && currentLang === 'ar') {
-        previewText.textContent = e.target.value || 'Ù†Øµ Ø§Ù„Ø¨Ù†Ø± Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠ';
+        previewText.textContent = e.target.value || 'نص البنر التجريبي';
       }
       if (e.target.classList.contains('banner-text-en') && currentLang === 'en') {
         previewText.textContent = e.target.value || 'Sample Banner Text';
@@ -2067,7 +2083,7 @@ function attachDesignListeners() {
           title_en: item.querySelector('.slide-title-en').value,
           subtitle_ar: item.querySelector('.slide-sub-ar').value,
           subtitle_en: item.querySelector('.slide-sub-en').value,
-          buttonText_ar: 'ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù†',
+          buttonText_ar: 'تسوق الآن',
           buttonText_en: 'Shop Now',
           buttonLink: '#/products',
           textColor: item.querySelector('.slide-text-color')?.value || '#c9a04e',
@@ -2148,7 +2164,7 @@ function attachDesignListeners() {
       settingsHistoryIndex = settingsHistory.length - 1;
 
       Store.saveSettings(newSettings);
-      showToast(currentLang === 'ar' ? 'ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªØµÙ…ÙŠÙ…' : 'Design saved', 'success');
+      showToast(currentLang === 'ar' ? 'تم حفظ التصميم' : 'Design saved', 'success');
       renderContentArea('design');
     });
   }
@@ -2163,7 +2179,7 @@ function attachDesignListeners() {
         settingsHistoryIndex--;
         const prevSettings = settingsHistory[settingsHistoryIndex];
         Store.saveSettings(prevSettings);
-        showToast(currentLang === 'ar' ? 'ØªÙ… Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ø§Ù„ØªØ¹Ø¯ÙŠÙ„' : 'Undo successful', 'info');
+        showToast(currentLang === 'ar' ? 'تم التراجع عن التعديل' : 'Undo successful', 'info');
         renderContentArea('design');
       }
     });
@@ -2175,7 +2191,7 @@ function attachDesignListeners() {
         settingsHistoryIndex++;
         const nextSettings = settingsHistory[settingsHistoryIndex];
         Store.saveSettings(nextSettings);
-        showToast(currentLang === 'ar' ? 'ØªÙ… Ø¥Ø¹Ø§Ø¯Ø© ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„' : 'Redo successful', 'info');
+        showToast(currentLang === 'ar' ? 'تم إعادة تطبيق التعديل' : 'Redo successful', 'info');
         renderContentArea('design');
       }
     });
@@ -2190,53 +2206,53 @@ function attachDesignListeners() {
       const slideHTML = `
         <div class="slide-setting-item" style="border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; border-radius: 8px; position:relative;">
           <h5 style="margin-bottom: 10px;">Slide ${slideIndex}</h5>
-          <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">${currentLang === 'ar' ? 'Ø­Ø°Ù' : 'Delete'}</button>
+          <button class="btn btn-danger btn-sm" style="position:absolute; top:15px; inset-inline-end:15px; padding:6px 12px;" type="button" data-action="delete-slide">${currentLang === 'ar' ? 'حذف' : 'Delete'}</button>
           <div class="admin-form">
             <div class="form-group full-width">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„ØµÙˆØ±Ø© (URL)' : 'Image (URL)'}</label>
+              <label>${currentLang === 'ar' ? 'الصورة (URL)' : 'Image (URL)'}</label>
               <input type="text" class="slide-img" value="">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¹Ø±Ø¨ÙŠ)' : 'Title (Arabic)'}</label>
+              <label>${currentLang === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}</label>
               <input type="text" class="slide-title-ar" value="">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Title (English)'}</label>
+              <label>${currentLang === 'ar' ? 'العنوان (إنجليزي)' : 'Title (English)'}</label>
               <input type="text" class="slide-title-en" value="">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¹Ø±Ø¨ÙŠ)' : 'Subtitle (Arabic)'}</label>
+              <label>${currentLang === 'ar' ? 'النص الفرعي (عربي)' : 'Subtitle (Arabic)'}</label>
               <input type="text" class="slide-sub-ar" value="">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Subtitle (English)'}</label>
+              <label>${currentLang === 'ar' ? 'النص الفرعي (إنجليزي)' : 'Subtitle (English)'}</label>
               <input type="text" class="slide-sub-en" value="">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ø¹Ù†ÙˆØ§Ù†' : 'Title Color'}</label>
+              <label>${currentLang === 'ar' ? 'لون العنوان' : 'Title Color'}</label>
               <input type="color" class="slide-text-color" value="#c9a04e" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ' : 'Subtitle Color'}</label>
+              <label>${currentLang === 'ar' ? 'لون النص الفرعي' : 'Subtitle Color'}</label>
               <input type="color" class="slide-subtitle-color" value="#ffffff" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø®Ù„ÙÙŠØ© Ø§Ù„Ø²Ø±' : 'Button Background'}</label>
+              <label>${currentLang === 'ar' ? 'لون خلفية الزر' : 'Button Background'}</label>
               <input type="color" class="slide-btn-bg" value="#c9a04e" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ù†Øµ Ø§Ù„Ø²Ø±' : 'Button Text Color'}</label>
+              <label>${currentLang === 'ar' ? 'لون نص الزر' : 'Button Text Color'}</label>
               <input type="color" class="slide-btn-text" value="#0a0a0f" style="height:40px;padding:2px;">
             </div>
           </div>
           
-          <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø³Ù„Ø§ÙŠØ¯Ø±:' : 'Slide Preview:'}</h6>
+          <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة السلايدر:' : 'Slide Preview:'}</h6>
           <div class="slide-preview-box" style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; background: #000;">
             <img src="" class="prev-slide-img" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
             <div style="position: relative; z-index: 1; text-align: center; padding: 20px;">
-              <h3 class="prev-slide-title" style="color:#c9a04e; margin-bottom: 5px; font-size: 1.5rem; margin-top: 0;">${currentLang === 'ar' ? 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†' : 'Title'}</h3>
-              <p class="prev-slide-sub" style="color:#ffffff; margin-bottom: 15px; font-size: 1rem;">${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ' : 'Subtitle'}</p>
-              <button class="prev-slide-btn" style="background:#c9a04e; color:#0a0a0f; border:none; padding:8px 20px; border-radius:6px; font-weight:bold;">${currentLang === 'ar' ? 'ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù†' : 'Shop Now'}</button>
+              <h3 class="prev-slide-title" style="color:#c9a04e; margin-bottom: 5px; font-size: 1.5rem; margin-top: 0;">${currentLang === 'ar' ? 'العنوان' : 'Title'}</h3>
+              <p class="prev-slide-sub" style="color:#ffffff; margin-bottom: 15px; font-size: 1rem;">${currentLang === 'ar' ? 'النص الفرعي' : 'Subtitle'}</p>
+              <button class="prev-slide-btn" style="background:#c9a04e; color:#0a0a0f; border:none; padding:8px 20px; border-radius:6px; font-weight:bold;">${currentLang === 'ar' ? 'تسوق الآن' : 'Shop Now'}</button>
             </div>
           </div>
         </div>
@@ -2256,63 +2272,63 @@ function attachDesignListeners() {
       const bannerHTML = `
         <div class="banner-setting-item admin-form" style="padding:16px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-            <h5 style="margin:0">${currentLang === 'ar' ? 'Ø¨Ù†Ø±' : 'Banner'} ${bannerIndex}</h5>
+            <h5 style="margin:0">${currentLang === 'ar' ? 'بنر' : 'Banner'} ${bannerIndex}</h5>
             <button class="btn-icon btn-danger btn-sm" data-action="delete-custom-banner" type="button"><i class="ph ph-trash"></i></button>
           </div>
           <div class="form-row">
             <div class="form-group checkbox-group" style="display:flex; align-items:center; gap:8px;">
               <input type="checkbox" class="banner-active" checked>
-              <label>${currentLang === 'ar' ? 'ØªÙØ¹ÙŠÙ„' : 'Active'}</label>
+              <label>${currentLang === 'ar' ? 'تفعيل' : 'Active'}</label>
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ø­Ø¬Ù…' : 'Size'}</label>
+              <label>${currentLang === 'ar' ? 'الحجم' : 'Size'}</label>
               <select class="banner-size">
-                <option value="small">${currentLang === 'ar' ? 'ØµØºÙŠØ±' : 'Small'}</option>
-                <option value="medium" selected>${currentLang === 'ar' ? 'Ù…ØªÙˆØ³Ø·' : 'Medium'}</option>
-                <option value="large">${currentLang === 'ar' ? 'ÙƒØ¨ÙŠØ±' : 'Large'}</option>
+                <option value="small">${currentLang === 'ar' ? 'صغير' : 'Small'}</option>
+                <option value="medium" selected>${currentLang === 'ar' ? 'متوسط' : 'Medium'}</option>
+                <option value="large">${currentLang === 'ar' ? 'كبير' : 'Large'}</option>
               </select>
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ù…Ø­Ø§Ø°Ø§Ø©' : 'Alignment'}</label>
+              <label>${currentLang === 'ar' ? 'المحاذاة' : 'Alignment'}</label>
               <select class="banner-align">
-                <option value="center" selected>${currentLang === 'ar' ? 'ÙˆØ³Ø·' : 'Center'}</option>
-                <option value="right">${currentLang === 'ar' ? 'ÙŠÙ…ÙŠÙ†' : 'Right'}</option>
-                <option value="left">${currentLang === 'ar' ? 'ÙŠØ³Ø§Ø±' : 'Left'}</option>
+                <option value="center" selected>${currentLang === 'ar' ? 'وسط' : 'Center'}</option>
+                <option value="right">${currentLang === 'ar' ? 'يمين' : 'Right'}</option>
+                <option value="left">${currentLang === 'ar' ? 'يسار' : 'Left'}</option>
               </select>
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ù…ÙƒØ§Ù† Ø§Ù„Ø¸Ù‡ÙˆØ±' : 'Position'}</label>
+              <label>${currentLang === 'ar' ? 'مكان الظهور' : 'Position'}</label>
               <select class="banner-position">
-                <option value="top" selected>${currentLang === 'ar' ? 'Ø£Ø¹Ù„Ù‰ Ø§Ù„ØµÙØ­Ø© (ØªØ­Øª Ø§Ù„Ø³Ù„Ø§ÙŠØ¯Ø±)' : 'Top (Below Slider)'}</option>
-                <option value="middle">${currentLang === 'ar' ? 'ÙˆØ³Ø· Ø§Ù„ØµÙØ­Ø© (ÙÙˆÙ‚ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª)' : 'Middle (Above Products)'}</option>
-                <option value="bottom">${currentLang === 'ar' ? 'Ø£Ø³ÙÙ„ Ø§Ù„ØµÙØ­Ø© (ÙÙˆÙ‚ Ø§Ù„ÙÙˆØªØ±)' : 'Bottom (Above Footer)'}</option>
+                <option value="top" selected>${currentLang === 'ar' ? 'أعلى الصفحة (تحت السلايدر)' : 'Top (Below Slider)'}</option>
+                <option value="middle">${currentLang === 'ar' ? 'وسط الصفحة (فوق المنتجات)' : 'Middle (Above Products)'}</option>
+                <option value="bottom">${currentLang === 'ar' ? 'أسفل الصفحة (فوق الفوتر)' : 'Bottom (Above Footer)'}</option>
               </select>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ (Ø¹Ø±Ø¨ÙŠ)' : 'Text (Arabic)'}</label>
+              <label>${currentLang === 'ar' ? 'النص (عربي)' : 'Text (Arabic)'}</label>
               <textarea class="banner-text-ar" rows="2"></textarea>
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ø§Ù„Ù†Øµ (Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ)' : 'Text (English)'}</label>
+              <label>${currentLang === 'ar' ? 'النص (إنجليزي)' : 'Text (English)'}</label>
               <textarea class="banner-text-en" rows="2"></textarea>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ø®Ù„ÙÙŠØ©' : 'Background Color'}</label>
+              <label>${currentLang === 'ar' ? 'لون الخلفية' : 'Background Color'}</label>
               <input type="color" class="banner-bg-color" value="#1a1a2e" style="height:40px;padding:2px;">
             </div>
             <div class="form-group">
-              <label>${currentLang === 'ar' ? 'Ù„ÙˆÙ† Ø§Ù„Ù†Øµ' : 'Text Color'}</label>
+              <label>${currentLang === 'ar' ? 'لون النص' : 'Text Color'}</label>
               <input type="color" class="banner-text-color" value="#f0f0f5" style="height:40px;padding:2px;">
             </div>
           </div>
           
-          <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø¨Ù†Ø±:' : 'Banner Preview:'}</h6>
+          <h6 style="margin-top: 15px; margin-bottom: 5px; color: var(--text-secondary);">${currentLang === 'ar' ? 'معاينة البنر:' : 'Banner Preview:'}</h6>
           <div class="banner-preview-box" style="padding: 20px; text-align: center; background:#1a1a2e; color:#f0f0f5; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2);">
-            <span class="prev-banner-text" style="font-size: 1.1rem; font-weight: bold;">${currentLang === 'ar' ? 'Ù†Øµ Ø§Ù„Ø¨Ù†Ø±' : 'Banner Text'}</span>
+            <span class="prev-banner-text" style="font-size: 1.1rem; font-weight: bold;">${currentLang === 'ar' ? 'نص البنر' : 'Banner Text'}</span>
           </div>
         </div>
       `;
@@ -2332,9 +2348,9 @@ function attachDesignListeners() {
       const slideItem = target.closest('.slide-setting-item');
       if (slideItem) {
         if (target.classList.contains('slide-img')) slideItem.querySelector('.prev-slide-img').src = target.value;
-        if (target.classList.contains('slide-title-ar') && currentLang === 'ar') slideItem.querySelector('.prev-slide-title').textContent = target.value || 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†';
+        if (target.classList.contains('slide-title-ar') && currentLang === 'ar') slideItem.querySelector('.prev-slide-title').textContent = target.value || 'العنوان';
         if (target.classList.contains('slide-title-en') && currentLang === 'en') slideItem.querySelector('.prev-slide-title').textContent = target.value || 'Title';
-        if (target.classList.contains('slide-sub-ar') && currentLang === 'ar') slideItem.querySelector('.prev-slide-sub').textContent = target.value || 'Ø§Ù„Ù†Øµ Ø§Ù„ÙØ±Ø¹ÙŠ';
+        if (target.classList.contains('slide-sub-ar') && currentLang === 'ar') slideItem.querySelector('.prev-slide-sub').textContent = target.value || 'النص الفرعي';
         if (target.classList.contains('slide-sub-en') && currentLang === 'en') slideItem.querySelector('.prev-slide-sub').textContent = target.value || 'Subtitle';
         if (target.classList.contains('slide-text-color')) slideItem.querySelector('.prev-slide-title').style.color = target.value;
         if (target.classList.contains('slide-subtitle-color')) slideItem.querySelector('.prev-slide-sub').style.color = target.value;
@@ -2349,7 +2365,7 @@ function attachDesignListeners() {
         if (target.classList.contains('banner-align')) previewBox.style.textAlign = target.value;
         if (target.classList.contains('banner-bg-color')) previewBox.style.background = target.value;
         if (target.classList.contains('banner-text-color')) previewBox.style.color = target.value;
-        if (target.classList.contains('banner-text-ar') && currentLang === 'ar') bannerItem.querySelector('.prev-banner-text').textContent = target.value || 'Ù†Øµ Ø§Ù„Ø¨Ù†Ø±';
+        if (target.classList.contains('banner-text-ar') && currentLang === 'ar') bannerItem.querySelector('.prev-banner-text').textContent = target.value || 'نص البنر';
         if (target.classList.contains('banner-text-en') && currentLang === 'en') bannerItem.querySelector('.prev-banner-text').textContent = target.value || 'Banner Text';
       }
     });
@@ -2416,14 +2432,14 @@ document.addEventListener('click', (e) => {
 
     case 'undo':
       if (Store.storeUndo()) {
-        showToast(currentLang === 'ar' ? 'ØªÙ… Ø§Ù„ØªØ±Ø§Ø¬Ø¹' : 'Undo successful', 'info');
+        showToast(currentLang === 'ar' ? 'تم التراجع' : 'Undo successful', 'info');
         renderContentArea(getRoute());
       }
       break;
 
     case 'redo':
       if (Store.storeRedo()) {
-        showToast(currentLang === 'ar' ? 'ØªÙ… Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„ØªØ·Ø¨ÙŠÙ‚' : 'Redo successful', 'info');
+        showToast(currentLang === 'ar' ? 'تم إعادة التطبيق' : 'Redo successful', 'info');
         renderContentArea(getRoute());
       }
       break;
@@ -2481,7 +2497,7 @@ document.addEventListener('click', (e) => {
         if (bannerContainer) {
           bannerContainer.querySelectorAll('.banner-setting-item').forEach((b, i) => {
             const h5 = b.querySelector('h5');
-            if (h5) h5.textContent = (currentLang === 'ar' ? 'Ø¨Ù†Ø± ' : 'Banner ') + (i + 1);
+            if (h5) h5.textContent = (currentLang === 'ar' ? 'بنر ' : 'Banner ') + (i + 1);
           });
         }
       }
@@ -2617,7 +2633,7 @@ window.addEventListener('hashchange', () => {
   }
 });
 
-// Store events â€” auto-refresh
+// Store events — auto-refresh
 Store.on('products-updated', () => {
   if (getRoute() === 'products' || getRoute() === 'dashboard') {
     renderContentArea(getRoute());
@@ -2660,6 +2676,7 @@ function init() {
   applyLanguage(currentLang);
   
   let currentSettings = Store.getSettings();
+  document.title = `${currentSettings.storeName || 'Medix'} - Admin Panel | لوحة التحكم`;
   
   // Initialize settings history
   settingsHistory = [JSON.parse(JSON.stringify(currentSettings))];
@@ -2674,4 +2691,3 @@ function init() {
 }
 
 init();
-

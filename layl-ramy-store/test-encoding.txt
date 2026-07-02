@@ -1,0 +1,9 @@
+﻿?// ============================================
+// Medix Storefront - Main Application
+// ============================================
+const Store = window.Store;
+if (!Store) {
+  console.error('❌ Store module failed to load. Check store.js for errors.');
+}
+
+// ==============================

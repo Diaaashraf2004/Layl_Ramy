@@ -1,9 +1,9 @@
-﻿// ============================================
+// ============================================
 // Medix Storefront - Main Application
 // ============================================
 const Store = window.Store;
 if (!Store) {
-  console.error('âŒ Store module failed to load. Check store.js for errors.');
+  console.error('❌ Store module failed to load. Check store.js for errors.');
 }
 
 // ============================================
@@ -11,106 +11,106 @@ if (!Store) {
 // ============================================
 const translations = {
   ar: {
-    nav: { home: 'Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©', products: 'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª', cart: 'Ø§Ù„Ø³Ù„Ø©', search: 'Ø¨Ø­Ø«', wishlist: 'Ø§Ù„Ù…ÙØ¶Ù„Ø©' },
-    hero: { subtitle: 'ØªØ³ÙˆÙ‚ Ø¨Ø£Ù†Ø§Ù‚Ø© ÙˆØ±Ø§Ø­Ø©', shopNow: 'ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù†' },
+    nav: { home: 'الرئيسية', products: 'المنتجات', cart: 'السلة', search: 'بحث', wishlist: 'المفضلة' },
+    hero: { subtitle: 'تسوق بأناقة وراحة', shopNow: 'تسوق الآن' },
     home: {
-      featured: 'Ù…Ù†ØªØ¬Ø§Øª Ù…Ù…ÙŠØ²Ø©', offers: 'Ø¹Ø±ÙˆØ¶ ÙˆØ®ØµÙˆÙ…Ø§Øª', categories: 'Ø§Ù„ØªØµÙ†ÙŠÙØ§Øª',
-      seeAll: 'Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„', shopNow: 'ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù†', offersBanner: 'Ø¹Ø±ÙˆØ¶ Ø­ØµØ±ÙŠØ©',
-      offersBannerSub: 'Ø®ØµÙˆÙ…Ø§Øª ØªØµÙ„ Ø¥Ù„Ù‰ 30% Ø¹Ù„Ù‰ Ù…Ù†ØªØ¬Ø§Øª Ù…Ø®ØªØ§Ø±Ø©'
+      featured: 'منتجات مميزة', offers: 'عروض وخصومات', categories: 'التصنيفات',
+      seeAll: 'عرض الكل', shopNow: 'تسوق الآن', offersBanner: 'عروض حصرية',
+      offersBannerSub: 'خصومات تصل إلى 30% على منتجات مختارة'
     },
     products: {
-      title: 'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª', filter: 'ØªØµÙÙŠØ©', sort: 'ØªØ±ØªÙŠØ¨ Ø­Ø³Ø¨', sortNewest: 'Ø§Ù„Ø£Ø­Ø¯Ø«',
-      sortPriceLow: 'Ø§Ù„Ø³Ø¹Ø±: Ø§Ù„Ø£Ù‚Ù„', sortPriceHigh: 'Ø§Ù„Ø³Ø¹Ø±: Ø§Ù„Ø£Ø¹Ù„Ù‰', sortRating: 'Ø§Ù„ØªÙ‚ÙŠÙŠÙ…',
-      noResults: 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†ØªØ¬Ø§Øª', searchPlaceholder: 'Ø§Ø¨Ø­Ø« Ø¹Ù† Ù…Ù†ØªØ¬...', allCategories: 'Ø§Ù„ÙƒÙ„',
-      results: 'Ù†ØªÙŠØ¬Ø©', noResultsMessage: 'Ø¬Ø±Ø¨ Ø§Ù„Ø¨Ø­Ø« Ø¨ÙƒÙ„Ù…Ø§Øª Ø£Ø®Ø±Ù‰'
+      title: 'المنتجات', filter: 'تصفية', sort: 'ترتيب حسب', sortNewest: 'الأحدث',
+      sortPriceLow: 'السعر: الأقل', sortPriceHigh: 'السعر: الأعلى', sortRating: 'التقييم',
+      noResults: 'لا توجد منتجات', searchPlaceholder: 'ابحث عن منتج...', allCategories: 'الكل',
+      results: 'نتيجة', noResultsMessage: 'جرب البحث بكلمات أخرى'
     },
     product: {
-      addToCart: 'Ø£Ø¶Ù Ù„Ù„Ø³Ù„Ø©', outOfStock: 'Ù†ÙØ°Øª Ø§Ù„ÙƒÙ…ÙŠØ©', description: 'Ø§Ù„ÙˆØµÙ',
-      reviews: 'Ø§Ù„ØªÙ‚ÙŠÙŠÙ…Ø§Øª', noReviews: 'Ù„Ø§ ØªÙˆØ¬Ø¯ ØªÙ‚ÙŠÙŠÙ…Ø§Øª Ø¨Ø¹Ø¯', writeReview: 'Ø§ÙƒØªØ¨ ØªÙ‚ÙŠÙŠÙ…',
-      relatedProducts: 'Ù…Ù†ØªØ¬Ø§Øª Ù…Ø´Ø§Ø¨Ù‡Ø©', quantity: 'Ø§Ù„ÙƒÙ…ÙŠØ©', added: 'ØªÙ…Øª Ø§Ù„Ø¥Ø¶Ø§ÙØ© Ù„Ù„Ø³Ù„Ø©',
-      backToProducts: 'Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ù…Ù†ØªØ¬Ø§Øª'
+      addToCart: 'أضف للسلة', outOfStock: 'نفذت الكمية', description: 'الوصف',
+      reviews: 'التقييمات', noReviews: 'لا توجد تقييمات بعد', writeReview: 'اكتب تقييم',
+      relatedProducts: 'منتجات مشابهة', quantity: 'الكمية', added: 'تمت الإضافة للسلة',
+      backToProducts: 'العودة للمنتجات'
     },
     cart: {
-      title: 'Ø³Ù„Ø© Ø§Ù„ØªØ³ÙˆÙ‚', empty: 'Ø§Ù„Ø³Ù„Ø© ÙØ§Ø±ØºØ©', emptyMessage: 'Ù„Ù… ØªÙ‚Ù… Ø¨Ø¥Ø¶Ø§ÙØ© Ø£ÙŠ Ù…Ù†ØªØ¬Ø§Øª Ø¨Ø¹Ø¯',
-      continueShopping: 'ØªØ§Ø¨Ø¹ Ø§Ù„ØªØ³ÙˆÙ‚', subtotal: 'Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„ÙØ±Ø¹ÙŠ', shipping: 'Ø§Ù„Ø´Ø­Ù†',
-      freeShipping: 'Ù…Ø¬Ø§Ù†ÙŠ', total: 'Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ', checkout: 'Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ø·Ù„Ø¨',
-      remove: 'Ø­Ø°Ù', clear: 'ØªÙØ±ÙŠØº Ø§Ù„Ø³Ù„Ø©', items: 'Ù…Ù†ØªØ¬Ø§Øª'
+      title: 'سلة التسوق', empty: 'السلة فارغة', emptyMessage: 'لم تقم بإضافة أي منتجات بعد',
+      continueShopping: 'تابع التسوق', subtotal: 'المجموع الفرعي', shipping: 'الشحن',
+      freeShipping: 'مجاني', total: 'الإجمالي', checkout: 'إتمام الطلب',
+      remove: 'حذف', clear: 'تفريغ السلة', items: 'منتجات'
     },
     checkout: {
-      title: 'Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ø·Ù„Ø¨', name: 'Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„', phone: 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ', email: 'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ',
-      address: 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø¨Ø§Ù„ØªÙØµÙŠÙ„', city: 'Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©', notes: 'Ù…Ù„Ø§Ø­Ø¸Ø§Øª', placeOrder: 'ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø·Ù„Ø¨',
-      orderSummary: 'Ù…Ù„Ø®Øµ Ø§Ù„Ø·Ù„Ø¨', paymentMethod: 'Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø¯ÙØ¹', cod: 'Ø§Ù„Ø¯ÙØ¹ Ø¹Ù†Ø¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…',
-      codNote: 'Ø§Ø¯ÙØ¹ Ù†Ù‚Ø¯Ø§Ù‹ Ø¹Ù†Ø¯ Ø§Ø³ØªÙ„Ø§Ù… Ø·Ù„Ø¨Ùƒ', success: 'ØªÙ… ØªØ£ÙƒÙŠØ¯ Ø·Ù„Ø¨Ùƒ Ø¨Ù†Ø¬Ø§Ø­! ðŸŽ‰',
-      orderNumber: 'Ø±Ù‚Ù… Ø§Ù„Ø·Ù„Ø¨', trackOrder: 'ØªØªØ¨Ø¹ Ø§Ù„Ø·Ù„Ø¨', backToHome: 'Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ø±Ø¦ÙŠØ³ÙŠØ©',
-      successMessage: 'Ø³Ù†ØªÙˆØ§ØµÙ„ Ù…Ø¹Ùƒ Ù‚Ø±ÙŠØ¨Ø§Ù‹ Ù„ØªØ£ÙƒÙŠØ¯ Ø§Ù„ØªÙØ§ØµÙŠÙ„', required: 'Ù‡Ø°Ø§ Ø§Ù„Ø­Ù‚Ù„ Ù…Ø·Ù„ÙˆØ¨',
-      invalidPhone: 'Ø±Ù‚Ù… Ù‡Ø§ØªÙ ØºÙŠØ± ØµØ­ÙŠØ­', emptyCart: 'Ø§Ù„Ø³Ù„Ø© ÙØ§Ø±ØºØ©',
-      selectCity: 'Ø§Ø®ØªØ± Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©', customerInfo: 'Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¹Ù…ÙŠÙ„', shippingInfo: 'Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø­Ù†',
-      discount: 'Ø§Ù„Ø®ØµÙ…', couponCode: 'ÙƒÙˆØ¯ Ø§Ù„Ø®ØµÙ…', applyCoupon: 'ØªØ·Ø¨ÙŠÙ‚',
-      couponApplied: 'ØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„Ø®ØµÙ…', invalidCoupon: 'ÙƒÙˆØ¯ Ø§Ù„Ø®ØµÙ… ØºÙŠØ± ØµØ­ÙŠØ­ Ø£Ùˆ Ù…Ù†ØªÙ‡ÙŠ'
+      title: 'إتمام الطلب', name: 'الاسم الكامل', phone: 'رقم الهاتف', email: 'البريد الإلكتروني',
+      address: 'العنوان بالتفصيل', city: 'المدينة', notes: 'ملاحظات', placeOrder: 'تأكيد الطلب',
+      orderSummary: 'ملخص الطلب', paymentMethod: 'طريقة الدفع', cod: 'الدفع عند الاستلام',
+      codNote: 'ادفع نقداً عند استلام طلبك', success: 'تم تأكيد طلبك بنجاح! 🎉',
+      orderNumber: 'رقم الطلب', trackOrder: 'تتبع الطلب', backToHome: 'العودة للرئيسية',
+      successMessage: 'سنتواصل معك قريباً لتأكيد التفاصيل', required: 'هذا الحقل مطلوب',
+      invalidPhone: 'رقم هاتف غير صحيح', emptyCart: 'السلة فارغة',
+      selectCity: 'اختر المدينة', customerInfo: 'معلومات العميل', shippingInfo: 'معلومات الشحن',
+      discount: 'الخصم', couponCode: 'كود الخصم', applyCoupon: 'تطبيق',
+      couponApplied: 'تم تطبيق الخصم', invalidCoupon: 'كود الخصم غير صحيح أو منتهي'
     },
     track: {
-      title: 'ØªØªØ¨Ø¹ Ø§Ù„Ø·Ù„Ø¨', enterOrder: 'Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… Ø§Ù„Ø·Ù„Ø¨', placeholder: 'Ù…Ø«Ø§Ù„: LR-78432',
-      search: 'Ø¨Ø­Ø«', orderDetails: 'ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø·Ù„Ø¨', notFound: 'Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨',
-      notFoundMessage: 'ØªØ£ÙƒØ¯ Ù…Ù† Ø±Ù‚Ù… Ø§Ù„Ø·Ù„Ø¨ ÙˆØ­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰', orderItems: 'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª',
-      customerInfo: 'Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¹Ù…ÙŠÙ„', orderSummary: 'Ù…Ù„Ø®Øµ Ø§Ù„Ø·Ù„Ø¨'
+      title: 'تتبع الطلب', enterOrder: 'أدخل رقم الطلب', placeholder: 'مثال: LR-78432',
+      search: 'بحث', orderDetails: 'تفاصيل الطلب', notFound: 'لم يتم العثور على الطلب',
+      notFoundMessage: 'تأكد من رقم الطلب وحاول مرة أخرى', orderItems: 'المنتجات',
+      customerInfo: 'معلومات العميل', orderSummary: 'ملخص الطلب'
     },
     auth: {
-      login: 'ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„', register: 'Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ø¬Ø¯ÙŠØ¯', profile: 'Ø­Ø³Ø§Ø¨ÙŠ', logout: 'ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬',
-      email: 'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ', password: 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±', name: 'Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„', phone: 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ',
-      noAccount: 'Ù„ÙŠØ³ Ù„Ø¯ÙŠÙƒ Ø­Ø³Ø§Ø¨ØŸ', haveAccount: 'Ù„Ø¯ÙŠÙƒ Ø­Ø³Ø§Ø¨ Ø¨Ø§Ù„ÙØ¹Ù„ØŸ',
-      createAccount: 'Ø³Ø¬Ù„ Ø§Ù„Ø¢Ù†', loginNow: 'Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ',
-      loginSuccess: 'ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ø¨Ù†Ø¬Ø§Ø­', registerSuccess: 'ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨ Ø¨Ù†Ø¬Ø§Ø­',
-      invalidCredentials: 'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ Ø£Ùˆ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙŠØ± ØµØ­ÙŠØ­Ø©', emailExists: 'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ Ù…Ø³Ø¬Ù„ Ù…Ø³Ø¨Ù‚Ø§Ù‹',
-      ordersHistory: 'Ø³Ø¬Ù„ Ø§Ù„Ø·Ù„Ø¨Ø§Øª', noOrders: 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª Ø³Ø§Ø¨Ù‚Ø©',
-      personalInfo: 'Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ©',
-      guestCheckout: 'Ø§Ù„Ø´Ø±Ø§Ø¡ ÙƒØ²Ø§Ø¦Ø±', guestCheckoutDesc: 'ÙŠÙ…ÙƒÙ†Ùƒ Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ø·Ù„Ø¨ ÙˆØªØªØ¨Ø¹Ù‡ Ù„Ø§Ø­Ù‚Ø§Ù‹ Ø¨Ø±Ù‚Ù… Ø§Ù„Ø·Ù„Ø¨'
+      login: 'تسجيل الدخول', register: 'إنشاء حساب جديد', profile: 'حسابي', logout: 'تسجيل الخروج',
+      email: 'البريد الإلكتروني', password: 'كلمة المرور', name: 'الاسم الكامل', phone: 'رقم الهاتف',
+      noAccount: 'ليس لديك حساب؟', haveAccount: 'لديك حساب بالفعل؟',
+      createAccount: 'سجل الآن', loginNow: 'سجل دخولك',
+      loginSuccess: 'تم تسجيل الدخول بنجاح', registerSuccess: 'تم إنشاء الحساب بنجاح',
+      invalidCredentials: 'البريد الإلكتروني أو كلمة المرور غير صحيحة', emailExists: 'البريد الإلكتروني مسجل مسبقاً',
+      ordersHistory: 'سجل الطلبات', noOrders: 'لا توجد طلبات سابقة',
+      personalInfo: 'المعلومات الشخصية',
+      guestCheckout: 'الشراء كزائر', guestCheckoutDesc: 'يمكنك إتمام الطلب وتتبعه لاحقاً برقم الطلب'
     },
     status: {
-      new: 'Ø¬Ø¯ÙŠØ¯', confirmed: 'Ù…Ø¤ÙƒØ¯', preparing: 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ø¶ÙŠØ±',
-      shipping: 'Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø´Ø­Ù†', delivered: 'ØªÙ… Ø§Ù„ØªÙˆØµÙŠÙ„', cancelled: 'Ù…Ù„ØºÙŠ'
+      new: 'جديد', confirmed: 'مؤكد', preparing: 'جاري التحضير',
+      shipping: 'جاري الشحن', delivered: 'تم التوصيل', cancelled: 'ملغي'
     },
     review: {
-      name: 'Ø§Ø³Ù…Ùƒ', comment: 'ØªØ¹Ù„ÙŠÙ‚Ùƒ', rating: 'Ø§Ù„ØªÙ‚ÙŠÙŠÙ…', submit: 'Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„ØªÙ‚ÙŠÙŠÙ…',
-      thankYou: 'Ø´ÙƒØ±Ø§Ù‹ Ù„ØªÙ‚ÙŠÙŠÙ…Ùƒ! Ø³ÙŠØ¸Ù‡Ø± Ø¨Ø¹Ø¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©.', nameRequired: 'ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù…Ùƒ',
-      ratingRequired: 'ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± ØªÙ‚ÙŠÙŠÙ…', commentRequired: 'ÙŠØ±Ø¬Ù‰ ÙƒØªØ§Ø¨Ø© ØªØ¹Ù„ÙŠÙ‚'
+      name: 'اسمك', comment: 'تعليقك', rating: 'التقييم', submit: 'إرسال التقييم',
+      thankYou: 'شكراً لتقييمك! سيظهر بعد المراجعة.', nameRequired: 'يرجى إدخال اسمك',
+      ratingRequired: 'يرجى اختيار تقييم', commentRequired: 'يرجى كتابة تعليق'
     },
     footer: {
-      about: 'Ø¹Ù† Ø§Ù„Ù…ØªØ¬Ø±', quickLinks: 'Ø±ÙˆØ§Ø¨Ø· Ø³Ø±ÙŠØ¹Ø©', contact: 'ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§',
-      rights: 'Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ‚ Ù…Ø­ÙÙˆØ¸Ø©', phone: 'Ø§Ù„Ù‡Ø§ØªÙ', email: 'Ø§Ù„Ø¨Ø±ÙŠØ¯', address: 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†',
-      categoriesTitle: 'Ø§Ù„ØªØµÙ†ÙŠÙØ§Øª'
+      about: 'عن المتجر', quickLinks: 'روابط سريعة', contact: 'تواصل معنا',
+      rights: 'جميع الحقوق محفوظة', phone: 'الهاتف', email: 'البريد', address: 'العنوان',
+      categoriesTitle: 'التصنيفات'
     },
     wishlist: {
-      title: 'Ø§Ù„Ù…ÙØ¶Ù„Ø©',
-      empty: 'Ø§Ù„Ù…ÙØ¶Ù„Ø© ÙØ§Ø±ØºØ©',
-      emptyMessage: 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†ØªØ¬Ø§Øª ÙÙŠ Ø§Ù„Ù…ÙØ¶Ù„Ø© Ø­Ø§Ù„ÙŠØ§Ù‹',
-      addToWishlist: 'Ø¥Ø¶Ø§ÙØ© Ù„Ù„Ù…ÙØ¶Ù„Ø©',
-      removeFromWishlist: 'Ø¥Ø²Ø§Ù„Ø© Ù…Ù† Ø§Ù„Ù…ÙØ¶Ù„Ø©'
+      title: 'المفضلة',
+      empty: 'المفضلة فارغة',
+      emptyMessage: 'لا توجد منتجات في المفضلة حالياً',
+      addToWishlist: 'إضافة للمفضلة',
+      removeFromWishlist: 'إزالة من المفضلة'
     },
     recentViewed: {
-      title: 'Ø´Ø§Ù‡Ø¯ØªÙ‡Ø§ Ù…Ø¤Ø®Ø±Ø§Ù‹'
+      title: 'شاهدتها مؤخراً'
     },
     linked: {
-      title: 'Ø£ÙƒÙ…Ù„ Ø¥Ø·Ù„Ø§Ù„ØªÙƒ',
-      buyTogether: 'Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø­Ø²Ù…Ø© Ù„Ù„Ø³Ù„Ø© Ù…Ø¹Ø§Ù‹',
-      totalSelected: 'Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø®ØªØ§Ø±:'
+      title: 'أكمل إطلالتك',
+      buyTogether: 'إضافة الحزمة للسلة معاً',
+      totalSelected: 'السعر الإجمالي المختار:'
     },
     whyUs: {
-      title: 'Ù„Ù…Ø§Ø°Ø§ ØªØ®ØªØ§Ø±Ù†Ø§ØŸ',
-      fastShipping: 'Ø´Ø­Ù† Ø³Ø±ÙŠØ¹',
-      fastShippingDesc: 'ØªÙˆØµÙŠÙ„ Ø¢Ù…Ù† ÙˆØ³Ø±ÙŠØ¹ Ù„Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª Ø®Ù„Ø§Ù„ 3 Ø¥Ù„Ù‰ 5 Ø£ÙŠØ§Ù… Ø¹Ù…Ù„.',
-      quality: 'Ø¬ÙˆØ¯Ø© Ù…Ù…ØªØ§Ø²Ø©',
-      qualityDesc: 'Ù†Ø³ØªØ®Ø¯Ù… Ø£ÙØ¶Ù„ Ø®Ø§Ù…Ø§Øª Ø§Ù„Ø·Ø¨Ø§Ø¹Ø© ÙˆØ§Ù„Ø¥Ø·Ø§Ø±Ø§Øª Ù„Ø¶Ù…Ø§Ù† Ø´ÙƒÙ„ Ø£Ù†ÙŠÙ‚ ÙŠØ¯ÙˆÙ… Ø·ÙˆÙŠÙ„Ø§Ù‹.',
-      support: 'Ø¯Ø¹Ù… Ù…ØªÙˆØ§ØµÙ„',
-      supportDesc: 'ÙØ±ÙŠÙ‚ Ø®Ø¯Ù…Ø© Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ Ù…ØªÙˆØ§Ø¬Ø¯ Ø¯Ø§Ø¦Ù…Ø§Ù‹ Ù„Ù„Ø±Ø¯ Ø¹Ù„Ù‰ Ø§Ø³ØªÙØ³Ø§Ø±Ø§ØªÙƒ ÙˆØªÙ„Ø¨ÙŠØ© Ø·Ù„Ø¨Ø§ØªÙƒ.'
+      title: 'لماذا تختارنا؟',
+      fastShipping: 'شحن سريع',
+      fastShippingDesc: 'توصيل آمن وسريع لجميع المحافظات خلال 3 إلى 5 أيام عمل.',
+      quality: 'جودة ممتازة',
+      qualityDesc: 'نستخدم أفضل خامات الطباعة والإطارات لضمان شكل أنيق يدوم طويلاً.',
+      support: 'دعم متواصل',
+      supportDesc: 'فريق خدمة العملاء متواجد دائماً للرد على استفساراتك وتلبية طلباتك.'
     },
     common: {
-      egp: 'Ø¬.Ù…', off: 'Ø®ØµÙ…', loading: 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„...', close: 'Ø¥ØºÙ„Ø§Ù‚', save: 'Ø­ÙØ¸',
-      cancel: 'Ø¥Ù„ØºØ§Ø¡', delete: 'Ø­Ø°Ù', edit: 'ØªØ¹Ø¯ÙŠÙ„', add: 'Ø¥Ø¶Ø§ÙØ©', noData: 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª',
-      product: 'Ù…Ù†ØªØ¬', products: 'Ù…Ù†ØªØ¬Ø§Øª'
+      egp: 'ج.م', off: 'خصم', loading: 'جاري التحميل...', close: 'إغلاق', save: 'حفظ',
+      cancel: 'إلغاء', delete: 'حذف', edit: 'تعديل', add: 'إضافة', noData: 'لا توجد بيانات',
+      product: 'منتج', products: 'منتجات'
     },
-    theme: { dark: 'Ø§Ù„ÙˆØ¶Ø¹ Ø§Ù„Ø¯Ø§ÙƒÙ†', light: 'Ø§Ù„ÙˆØ¶Ø¹ Ø§Ù„ÙØ§ØªØ­' },
-    lang: { switch: 'EN', current: 'Ø¹Ø±Ø¨ÙŠ' },
-    cities: ['Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©', 'Ø§Ù„Ø¬ÙŠØ²Ø©', 'Ø§Ù„Ø¥Ø³ÙƒÙ†Ø¯Ø±ÙŠØ©', 'Ø§Ù„Ù…Ù†ØµÙˆØ±Ø©', 'Ø·Ù†Ø·Ø§', 'Ø§Ù„Ø²Ù‚Ø§Ø²ÙŠÙ‚', 'Ø£Ø³ÙŠÙˆØ·', 'Ø³ÙˆÙ‡Ø§Ø¬', 'Ø§Ù„Ù…Ù†ÙŠØ§', 'Ø¨ÙˆØ±Ø³Ø¹ÙŠØ¯', 'Ø§Ù„Ø³ÙˆÙŠØ³', 'Ø§Ù„Ø¥Ø³Ù…Ø§Ø¹ÙŠÙ„ÙŠØ©', 'Ø¯Ù…ÙŠØ§Ø·', 'Ø§Ù„ÙÙŠÙˆÙ…', 'Ø¨Ù†ÙŠ Ø³ÙˆÙŠÙ']
+    theme: { dark: 'الوضع الداكن', light: 'الوضع الفاتح' },
+    lang: { switch: 'EN', current: 'عربي' },
+    cities: ['القاهرة', 'الجيزة', 'الإسكندرية', 'المنصورة', 'طنطا', 'الزقازيق', 'أسيوط', 'سوهاج', 'المنيا', 'بورسعيد', 'السويس', 'الإسماعيلية', 'دمياط', 'الفيوم', 'بني سويف']
   },
   en: {
     nav: { home: 'Home', products: 'Products', cart: 'Cart', search: 'Search', wishlist: 'Wishlist' },
@@ -142,7 +142,7 @@ const translations = {
       title: 'Checkout', name: 'Full Name', phone: 'Phone Number', email: 'Email',
       address: 'Delivery Address', city: 'City', notes: 'Notes', placeOrder: 'Place Order',
       orderSummary: 'Order Summary', paymentMethod: 'Payment Method', cod: 'Cash on Delivery',
-      codNote: 'Pay cash when you receive your order', success: 'Order confirmed! ðŸŽ‰',
+      codNote: 'Pay cash when you receive your order', success: 'Order confirmed! 🎉',
       orderNumber: 'Order Number', trackOrder: 'Track Order', backToHome: 'Back to Home',
       successMessage: "We'll contact you soon to confirm details", required: 'This field is required',
       invalidPhone: 'Invalid phone number', emptyCart: 'Cart is empty',
@@ -196,7 +196,7 @@ const translations = {
       product: 'product', products: 'products'
     },
     theme: { dark: 'Dark Mode', light: 'Light Mode' },
-    lang: { switch: 'Ø¹Ø±Ø¨ÙŠ', current: 'EN' },
+    lang: { switch: 'عربي', current: 'EN' },
     wishlist: {
       title: 'Wishlist',
       empty: 'Wishlist is empty',
@@ -426,7 +426,10 @@ function renderNavbar() {
   const storeName = settings.storeName || 'Medix';
   const nameParts = storeName.split(' ');
   const firstName = nameParts[0] || 'ميدكس';
-  const lastName = nameParts.slice(1).join(' ') || 'Medix';
+  const lastName = nameParts.slice(1).join(' '); // No fallback for single-word names
+  
+  document.title = `${storeName} | ${lang === 'ar' ? 'مرحباً بك' : 'Welcome'}`;
+  
   const currentCustomer = Store.getCurrentCustomer();
 
   let bannerHtml = '';
@@ -446,7 +449,7 @@ function renderNavbar() {
             <strong>${escapeHtml(title)}</strong> ${desc ? `- ${escapeHtml(desc)}` : ''}
           </div>
           ${coupon ? `
-            <div class="banner-coupon" data-action="copy-welcome-coupon" data-code="${escapeHtml(coupon)}" title="${lang === 'ar' ? 'Ù†Ø³Ø® Ø§Ù„ÙƒÙˆØ¯' : 'Copy Code'}" style="color: ${settings.welcomePopupTextColor || '#f0f0f5'}; border-color: ${settings.welcomePopupTextColor || '#f0f0f5'};">
+            <div class="banner-coupon" data-action="copy-welcome-coupon" data-code="${escapeHtml(coupon)}" title="${lang === 'ar' ? 'نسخ الكود' : 'Copy Code'}" style="color: ${settings.welcomePopupTextColor || '#f0f0f5'}; border-color: ${settings.welcomePopupTextColor || '#f0f0f5'};">
               <strong>${escapeHtml(coupon)}</strong>
               <i class="ph ph-copy"></i>
             </div>
@@ -464,7 +467,7 @@ function renderNavbar() {
         <a href="#/" class="navbar-logo" id="navbar-logo">
           <span class="logo-regular">${escapeHtml(firstName)}</span>
           <span class="logo-bold">${escapeHtml(lastName)}</span>
-          <span class="logo-moon">ðŸŒ™</span>
+          <span class="logo-moon">✨</span>
         </a>
         <div class="navbar-links" id="navbar-links">
           <a href="#/" class="navbar-link" id="nav-home">${t('nav.home')}</a>
@@ -514,7 +517,7 @@ function renderFooter() {
   const storeName = settings.storeName || 'Medix';
   const nameParts = storeName.split(' ');
   const firstName = nameParts[0] || 'ميدكس';
-  const lastName = nameParts.slice(1).join(' ') || 'Medix';
+  const lastName = nameParts.slice(1).join(' ');
   const aboutText = lang === 'ar' ? settings.aboutText_ar : settings.aboutText_en;
   const address = lang === 'ar' ? settings.address_ar : settings.address_en;
 
@@ -526,7 +529,7 @@ function renderFooter() {
             <div class="footer-logo">
               <span class="logo-regular">${escapeHtml(firstName)}</span>
               <span class="logo-bold">${escapeHtml(lastName)}</span>
-              <span>ðŸŒ™</span>
+              <span>✨</span>
             </div>
             <p class="footer-text">${escapeHtml(aboutText)}</p>
             <div class="footer-social">
@@ -560,7 +563,7 @@ function renderFooter() {
         </div>
       </div>
     </footer>
-    <a href="https://wa.me/${(settings.contactWhatsapp || '201234567890').replace(/[^0-9]/g, '')}" class="floating-wa" target="_blank" title="ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§ Ø¹Ù„Ù‰ ÙˆØ§ØªØ³Ø§Ø¨">
+    <a href="https://wa.me/${(settings.contactWhatsapp || '201234567890').replace(/[^0-9]/g, '')}" class="floating-wa" target="_blank" title="تواصل معنا على واتساب">
       <i class="ph ph-whatsapp-logo"></i>
     </a>
   `;
@@ -609,7 +612,7 @@ function renderCartSidebar() {
   }
 
   const shippingText = (cartTotal.shipping === 0 && cartTotal.subtotal > 0 && settings.freeShippingActive)
-    ? `<span class="free-shipping">${t('cart.freeShipping')} âœ“</span>`
+    ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
     : formatPrice(cartTotal.shipping);
 
   document.getElementById('cart-sidebar-container').innerHTML = `
@@ -751,6 +754,7 @@ function renderProductCard(product) {
   const category = Store.getCategory(product.categoryId);
   const discountedPrice = Store.getProductPrice(product);
   const lang = getLang();
+  const settings = Store.getSettings();
   const hasDiscount = product.discountPercentage > 0;
   const outOfStock = product.stock <= 0;
 
@@ -779,17 +783,25 @@ function renderProductCard(product) {
         ${(product.showScarcityBadge !== false && product.stock > 0 && product.stock <= (product.scarcityThreshold ?? 5)) ? `
           <div class="scarcity-badge">
             <i class="ph-fill ph-fire"></i>
-            ${lang === 'ar' ? `Ø³Ø§Ø±Ø¹ Ø¨Ø§Ù„Ø´Ø±Ø§Ø¡! Ù…ØªØ¨Ù‚ÙŠ ${product.stock} ÙÙ‚Ø·` : `Hurry up! Only ${product.stock} left`}
+            ${lang === 'ar' ? `سارع بالشراء! متبقي ${product.stock} فقط` : `Hurry up! Only ${product.stock} left`}
           </div>
         ` : ''}
-        <div class="product-card-footer">
+        <div class="product-card-footer" style="flex-direction: column; align-items: stretch; gap: 8px;">
           <div class="price-group ${hasDiscount ? 'has-discount' : ''}">
             <span class="price-current">${formatPrice(discountedPrice)}</span>
             ${hasDiscount ? `<span class="price-original">${formatPrice(product.price)}</span>` : ''}
           </div>
-          <button class="btn btn-primary btn-sm" data-action="add-to-cart" data-product-id="${product.id}" ${outOfStock ? 'disabled' : ''}>
-            ${outOfStock ? t('product.outOfStock') : t('product.addToCart')}
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-primary btn-sm" style="flex: 1; padding: 6px;" data-action="buy-now" data-product-id="${product.id}" ${outOfStock ? 'disabled' : ''}>
+               ${outOfStock ? t('product.outOfStock') : (lang === 'ar' ? 'شراء سريع' : 'Buy Now')}
+            </button>
+            <button class="btn btn-secondary btn-sm" style="padding: 6px 10px;" data-action="add-to-cart" data-product-id="${product.id}" ${outOfStock ? 'disabled' : ''} title="${t('product.addToCart')}">
+              <i class="ph ph-shopping-cart"></i>
+            </button>
+            <a href="https://wa.me/${(settings.contactWhatsapp || '').replace(/\D/g, '')}?text=${encodeURIComponent('أريد الاستفسار عن المنتج: ' + getProductName(product))}" target="_blank" class="btn btn-sm" style="background-color: #25D366; color: white; border: none; padding: 6px 10px;" title="WhatsApp" onclick="event.stopPropagation();">
+              <i class="ph ph-whatsapp-logo"></i>
+            </a>
+          </div>
         </div>
       </div>
     </article>
@@ -811,7 +823,7 @@ function renderHomePage() {
   const storeName = settings.storeName || 'Medix';
   const nameParts = storeName.split(' ');
   const firstName = nameParts[0] || 'ميدكس';
-  const lastName = nameParts.slice(1).join(' ') || 'Medix';
+  const lastName = nameParts.slice(1).join(' ');
 
   const renderBannersForPosition = (pos) => {
     return (settings.customBanners || [])
@@ -858,7 +870,7 @@ function renderHomePage() {
       <div class="categories-scroll">
         ${categories.map(cat => `
           <a href="#/category/${cat.id}" class="cat-circle-wrap">
-            ${cat.image ? `<div class="cat-circle" style="background-image: url('${cat.image}');"></div>` : `<div class="cat-circle" style="font-size:30px;">${cat.icon || 'ðŸ“¦'}</div>`}
+            ${cat.image ? `<div class="cat-circle" style="background-image: url('${cat.image}');"></div>` : `<div class="cat-circle" style="font-size:30px;">${cat.icon || '📦'}</div>`}
             <span>${escapeHtml(getCategoryName(cat))}</span>
           </a>
         `).join('')}
@@ -895,7 +907,7 @@ function renderHomePage() {
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">${t('home.featured')}</h2>
-          <a href="#/products" class="section-link">${t('home.seeAll')} â†’</a>
+          <a href="#/products" class="section-link">${t('home.seeAll')} →</a>
         </div>
         <div class="products-grid">
           ${featured.map(p => renderProductCard(p)).join('')}
@@ -909,7 +921,7 @@ function renderHomePage() {
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">${t('home.offers')}</h2>
-            <a href="#/products" class="section-link">${t('home.seeAll')} â†’</a>
+            <a href="#/products" class="section-link">${t('home.seeAll')} →</a>
           </div>
           <div class="products-grid">
             ${offers.map(p => renderProductCard(p)).join('')}
@@ -1046,6 +1058,7 @@ function renderProductDetailPage(productId) {
   const reviews = Store.getApprovedReviews(product.id);
   const related = Store.getProductsByCategory(product.categoryId).filter(p => p.id !== product.id).slice(0, 4);
   const lang = getLang();
+  const settings = Store.getSettings();
 
   const discountLabel = lang === 'ar'
     ? `${t('common.off')} ${product.discountPercentage}%`
@@ -1118,7 +1131,7 @@ function renderProductDetailPage(productId) {
             ${(product.showScarcityBadge !== false && product.stock > 0 && product.stock <= (product.scarcityThreshold ?? 5)) ? `
               <div class="scarcity-badge" style="margin-bottom: 20px; display: inline-flex;">
                 <i class="ph-fill ph-fire"></i>
-                ${lang === 'ar' ? `Ø³Ø§Ø±Ø¹ Ø¨Ø§Ù„Ø´Ø±Ø§Ø¡! Ù…ØªØ¨Ù‚ÙŠ ${product.stock} ÙÙ‚Ø·` : `Hurry up! Only ${product.stock} left`}
+                ${lang === 'ar' ? `سارع بالشراء! متبقي ${product.stock} فقط` : `Hurry up! Only ${product.stock} left`}
               </div>
             ` : ''}
 
@@ -1130,10 +1143,17 @@ function renderProductDetailPage(productId) {
                 <span class="qty-value" id="detail-qty-value">1</span>
                 <button class="qty-btn" data-action="detail-qty-increase" id="detail-qty-plus"><i class="ph ph-plus"></i></button>
               </div>
-              <button class="btn btn-primary btn-lg" data-action="detail-add-to-cart" data-product-id="${product.id}" id="btn-add-to-cart" ${outOfStock ? 'disabled' : ''}>
-                ${outOfStock ? t('product.outOfStock') : t('product.addToCart')}
-              </button>
-            </div>
+              <div style="display: flex; gap: 12px; flex: 1;">
+                <button class="btn btn-primary btn-lg" style="flex: 1;" data-action="detail-buy-now" data-product-id="${product.id}" ${outOfStock ? 'disabled' : ''}>
+                  ${outOfStock ? t('product.outOfStock') : (lang === 'ar' ? 'شراء سريع' : 'Buy Now')}
+                </button>
+                <button class="btn btn-secondary btn-lg" data-action="detail-add-to-cart" data-product-id="${product.id}" id="btn-add-to-cart" ${outOfStock ? 'disabled' : ''} title="${t('product.addToCart')}">
+                  <i class="ph ph-shopping-cart"></i>
+                </button>
+                <a href="https://wa.me/${(settings.contactWhatsapp || '').replace(/\D/g, '')}?text=${encodeURIComponent('أريد الاستفسار عن المنتج: ' + getProductName(product))}" target="_blank" class="btn btn-lg" style="background-color: #25D366; color: white; border: none;" title="WhatsApp">
+                  <i class="ph ph-whatsapp-logo"></i>
+                </a>
+              </div>
 
             ${outOfStock ? `<p style="color:var(--danger);font-weight:600;">${t('product.outOfStock')}</p>` : ''}
           </div>
@@ -1270,7 +1290,7 @@ function renderCheckoutPage() {
     `;
   }
 
-  const shippingText = 'Ã¢â‚¬â€';
+  const shippingText = 'â€”';
 
   let discountRow = '';
   let finalTotal = cartTotal.subtotal;
@@ -1445,7 +1465,7 @@ function updateCheckoutSummary() {
   }
 
   const shippingText = (cartTotal.shipping === 0 && settings.freeShippingActive)
-    ? `<span class="free-shipping">${t('cart.freeShipping')} âœ“</span>`
+    ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
     : formatPrice(cartTotal.shipping);
 
   summaryContainer.innerHTML = `
@@ -1477,7 +1497,7 @@ function updateCheckoutSummary() {
     ${discountRow}
     <div class="cart-summary-row">
       <span>${t('cart.shipping')}</span>
-      <span id="checkout-shipping-display">${selectedCity ? shippingText : 'â€”'}</span>
+      <span id="checkout-shipping-display">${selectedCity ? shippingText : '—'}</span>
     </div>
     <div class="cart-summary-row total">
       <span>${t('cart.total')}</span>
@@ -1556,7 +1576,7 @@ function renderOrderDetails(order) {
 
   const trackSettings = Store.getSettings();
   const shippingText = (order.shipping === 0 && trackSettings.freeShippingActive)
-    ? `<span class="free-shipping">${t('cart.freeShipping')} âœ“</span>`
+    ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
     : formatPrice(order.shipping);
 
   return `
@@ -1579,7 +1599,7 @@ function renderOrderDetails(order) {
             return `
               <div class="timeline-step">
                 <div class="timeline-dot ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}">
-                  ${isCompleted ? 'âœ“' : isActive ? 'â—' : ''}
+                  ${isCompleted ? '✓' : isActive ? '●' : ''}
                 </div>
                 ${!isLast ? `<div class="timeline-line ${isCompleted ? 'completed' : ''}"></div>` : ''}
                 <div class="timeline-info">
@@ -1601,7 +1621,7 @@ function renderOrderDetails(order) {
             <img src="${item.image || 'https://picsum.photos/seed/placeholder/100/100'}" alt="" class="order-item-image" loading="lazy">
             <div class="order-item-info">
               <div class="order-item-name">${escapeHtml(lang === 'ar' ? item.name_ar : item.name_en)}</div>
-              <div class="order-item-qty">Ã— ${item.quantity}</div>
+              <div class="order-item-qty">× ${item.quantity}</div>
             </div>
             <div class="order-item-price">${formatPrice(item.discountedPrice * item.quantity)}</div>
           </div>
@@ -1993,9 +2013,9 @@ document.addEventListener('click', (e) => {
     case 'copy-welcome-coupon': {
       const code = target.dataset.code;
       navigator.clipboard.writeText(code).then(() => {
-        showToast(getLang() === 'ar' ? 'ØªÙ… Ù†Ø³Ø® Ø§Ù„ÙƒÙˆØ¯!' : 'Coupon copied!', 'success');
+        showToast(getLang() === 'ar' ? 'تم نسخ الكود!' : 'Coupon copied!', 'success');
         const originalHTML = target.innerHTML;
-        target.innerHTML = getLang() === 'ar' ? '<i class="ph ph-check"></i> ØªÙ… Ø§Ù„Ù†Ø³Ø®' : '<i class="ph ph-check"></i> Copied';
+        target.innerHTML = getLang() === 'ar' ? '<i class="ph ph-check"></i> تم النسخ' : '<i class="ph ph-check"></i> Copied';
         target.style.background = 'var(--success)';
         target.style.color = '#fff';
         setTimeout(() => {
@@ -2014,6 +2034,14 @@ document.addEventListener('click', (e) => {
       break;
 
     // Cart
+    case 'buy-now':
+      e.preventDefault();
+      e.stopPropagation();
+      if (Store.addToCart(productId)) {
+        window.location.hash = '/checkout';
+      }
+      break;
+
     case 'add-to-cart':
       e.preventDefault();
       e.stopPropagation();
@@ -2071,6 +2099,15 @@ document.addEventListener('click', (e) => {
       if (el) {
         let val = parseInt(el.textContent) || 1;
         if (val > 1) el.textContent = val - 1;
+      }
+      break;
+    }
+
+    case 'detail-buy-now': {
+      const qty = parseInt(document.getElementById('detail-qty-value')?.textContent) || 1;
+      if (Store.addToCart(productId, qty)) {
+        document.getElementById('modal-overlay')?.classList.remove('open');
+        window.location.hash = '/checkout';
       }
       break;
     }
@@ -2199,7 +2236,7 @@ document.addEventListener('click', (e) => {
       if (item && item.quantity > 1) {
         Store.updateCartQuantity(productId, item.quantity - 1);
       } else if (item && item.quantity <= 1) {
-        const confirmMsg = getLang() === 'ar' ? 'Ù‡Ù„ ØªØ±ÙŠØ¯ Ø¥Ø²Ø§Ù„Ø© Ù‡Ø°Ø§ Ø§Ù„Ù…Ù†ØªØ¬ Ù…Ù† Ø§Ù„Ø·Ù„Ø¨ØŸ' : 'Remove this item from order?';
+        const confirmMsg = getLang() === 'ar' ? 'هل تريد إزالة هذا المنتج من الطلب؟' : 'Remove this item from order?';
         if (confirm(confirmMsg)) {
           Store.removeFromCart(productId);
         }
@@ -2300,7 +2337,7 @@ function updateCheckoutShipping(city) {
   const totalDisplay = document.getElementById('checkout-total-display');
 
   if (!city) {
-    if (shippingDisplay) shippingDisplay.textContent = 'Ã¢â‚¬â€';
+    if (shippingDisplay) shippingDisplay.textContent = 'â€”';
     const cartTotal = Store.getCartTotal('');
     let finalTotal = cartTotal.subtotal;
     if (currentCouponCode) {
@@ -2325,7 +2362,7 @@ function updateCheckoutShipping(city) {
   if (shippingDisplay) {
     const settings = Store.getSettings();
     shippingDisplay.innerHTML = (cartTotal.shipping === 0 && settings.freeShippingActive)
-      ? `<span class="free-shipping">${t('cart.freeShipping')} âœ“</span>`
+      ? `<span class="free-shipping">${t('cart.freeShipping')} ✓</span>`
       : formatPrice(cartTotal.shipping);
   }
   if (totalDisplay) {
@@ -2395,25 +2432,25 @@ function handlePlaceOrder() {
     const settings = Store.getSettings();
     if (window.emailjs && settings.emailjs_service_id && settings.emailjs_template_id && settings.emailjs_public_key) {
       const emailParams = {
-        // Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø·Ù„Ø¨
+        // معلومات الطلب
         order_number:   order.orderNumber,
 
-        // Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¹Ù…ÙŠÙ„ - Ø¨Ù†ÙØ³ Ø£Ø³Ù…Ø§Ø¡ Ø§Ù„Ù…ØªØºÙŠØ±Ø§Øª ÙÙŠ Ø§Ù„Ù‚Ø§Ù„Ø¨
+        // بيانات العميل - بنفس أسماء المتغيرات في القالب
         customer_name:    order.customerName,
         customer_region:  order.city,
         customer_phone1:  order.customerPhone,
-        customer_phone2:  order.customerEmail || 'â€”',
+        customer_phone2:  order.customerEmail || '—',
         customer_address: order.customerAddress,
 
-        // ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª
+        // تفاصيل المنتجات
         order_details: order.items.map(item =>
-          `${item.quantity} Ã— ${item.name_ar || item.name_en}  â€”  ${Store.formatPrice(item.discountedPrice * item.quantity, 'ar')}`
+          `${item.quantity} × ${item.name_ar || item.name_en}  —  ${Store.formatPrice(item.discountedPrice * item.quantity, 'ar')}`
         ).join('\n'),
 
-        // Ù…Ù„Ø®Øµ Ø§Ù„Ø­Ø³Ø§Ø¨
+        // ملخص الحساب
         subtotal:      Store.formatPrice(order.subtotal, 'ar'),
-        shipping_fee:  (order.shipping === 0 && Store.getSettings().freeShippingActive) ? 'Ù…Ø¬Ø§Ù†ÙŠ ðŸŽ' : Store.formatPrice(order.shipping, 'ar'),
-        delivery_time: '3 - 5 Ø£ÙŠØ§Ù… Ø¹Ù…Ù„',
+        shipping_fee:  (order.shipping === 0 && Store.getSettings().freeShippingActive) ? 'مجاني 🎁' : Store.formatPrice(order.shipping, 'ar'),
+        delivery_time: '3 - 5 أيام عمل',
         total_price:   Store.formatPrice(order.total, 'ar'),
       };
       
@@ -2486,7 +2523,7 @@ Store.on('settings-updated', (settings) => {
   if (settings.textColor) {
     document.documentElement.style.setProperty('--text-primary', settings.textColor);
   }
-  // applyDynamicStyles removed â€” styles are managed via CSS custom properties above
+  // applyDynamicStyles removed — styles are managed via CSS custom properties above
   renderNavbar();
   renderFooter();
   renderCartSidebar();
@@ -2589,7 +2626,7 @@ function init() {
   }
   handleRoute();
 
-  console.log('ðŸŒ™ Medix Storefront initialized!');
+  console.log('✨ Medix Storefront initialized!');
 }
 
 // applyDynamicStyles removed as per user request for fixed professional palette
@@ -2609,4 +2646,3 @@ window.addEventListener('storage', (e) => {
 
 // Start
 init();
-

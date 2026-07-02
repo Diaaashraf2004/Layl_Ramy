@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // Medix Store - State Management
 // ============================================
 // Uses localStorage for persistence
@@ -54,7 +54,7 @@ try {
   localStorage.removeItem(testKey);
 } catch (e) {
   _useLocalStorage = false;
-  console.warn('âš ï¸ localStorage unavailable â€” using in-memory storage. Data will NOT persist after refresh.');
+  console.warn('⚠️ localStorage unavailable — using in-memory storage. Data will NOT persist after refresh.');
 }
 
 function getFromStorage(key) {
@@ -81,8 +81,10 @@ function saveToStorage(key, data) {
     _memoryStore[key] = JSON.parse(JSON.stringify(data));
   }
 
+let isFirebaseSyncing = false;
+
 // Background Firebase Sync
-  if (window.FirebaseDB && window.FirebaseDB.db) {
+  if (window.FirebaseDB && window.FirebaseDB.db && !isFirebaseSyncing) {
     // Only sync if it's not the 'currentCustomer' or 'cart' (those are per-user session)
     if (key !== STORAGE_KEYS.currentCustomer && key !== STORAGE_KEYS.cart) {
       try {
@@ -163,7 +165,7 @@ function storeRedo() {
 // ===== SETTINGS =====
 const DEFAULT_SETTINGS = {
   storeName: 'Medix',
-  subtitle_ar: 'ØªØ³ÙˆÙ‚ Ø¨Ø£Ù†Ø§Ù‚Ø© ÙˆØ±Ø§Ø­Ø©',
+  subtitle_ar: 'تسوق بأناقة وراحة',
   subtitle_en: 'Shop with Elegance & Comfort',
   fontHeading: 'Playfair Display',
   fontBody: 'Inter',
@@ -171,9 +173,9 @@ const DEFAULT_SETTINGS = {
   fontArabicBody: 'Cairo',
   accentColor: '#000000',
   welcomePopupActive: false,
-  welcomePopupTitle_ar: 'Ø£Ù‡Ù„Ø§Ù‹ Ø¨Ùƒ ÙÙŠ Ù„ÙŠÙ„ Ø±Ø§Ù…ÙŠ! ðŸŒ™',
-  welcomePopupTitle_en: 'Welcome to Medix! ðŸŒ™',
-  welcomePopupSubtitle_ar: 'Ø§Ø³ØªØ®Ø¯Ù… ÙƒÙˆØ¯ Ø§Ù„Ø®ØµÙ… WELCOME10 Ù„Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø®ØµÙ… 10% Ø¹Ù„Ù‰ Ø·Ù„Ø¨Ùƒ Ø§Ù„Ø£ÙˆÙ„!',
+  welcomePopupTitle_ar: 'أهلاً بك في ميدكس! ✨',
+  welcomePopupTitle_en: 'Welcome to Medix! ✨',
+  welcomePopupSubtitle_ar: 'استخدم كود الخصم WELCOME10 للحصول على خصم 10% على طلبك الأول!',
   welcomePopupSubtitle_en: 'Use coupon code WELCOME10 to get 10% off on your first order!',
   welcomePopupCoupon: 'WELCOME10',
   welcomePopupImage: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop',
@@ -184,39 +186,39 @@ const DEFAULT_SETTINGS = {
   freeShippingActive: true,
   freeShippingThreshold: 500,
   shippingRates: {
-    'Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©': 150,
-    'Ø§Ù„Ø¬ÙŠØ²Ø©': 150,
-    'Ø§Ù„Ø¥Ø³ÙƒÙ†Ø¯Ø±ÙŠØ©': 150,
-    'Ø§Ù„Ù‚Ù„ÙŠÙˆØ¨ÙŠØ©': 150,
-    'Ø§Ù„ØºØ±Ø¨ÙŠØ©': 65,
-    'Ø§Ù„Ù…Ù†ÙˆÙÙŠØ©': 150,
-    'Ø§Ù„Ø¯Ù‚Ù‡Ù„ÙŠØ©': 150,
-    'Ø§Ù„Ø´Ø±Ù‚ÙŠØ©': 150,
-    'Ø§Ù„Ø¨Ø­ÙŠØ±Ø©': 150,
-    'Ø¯Ù…ÙŠØ§Ø·': 150,
-    'ÙƒÙØ± Ø§Ù„Ø´ÙŠØ®': 150,
-    'Ø¨ÙˆØ±Ø³Ø¹ÙŠØ¯': 150,
-    'Ø§Ù„Ø³ÙˆÙŠØ³': 150,
-    'Ø§Ù„Ø¥Ø³Ù…Ø§Ø¹ÙŠÙ„ÙŠØ©': 150,
-    'Ø§Ù„ÙÙŠÙˆÙ…': 175,
-    'Ø¨Ù†ÙŠ Ø³ÙˆÙŠÙ': 175,
-    'Ø§Ù„Ù…Ù†ÙŠØ§': 175,
-    'Ø£Ø³ÙŠÙˆØ·': 175,
-    'Ø³ÙˆÙ‡Ø§Ø¬': 175,
-    'Ù‚Ù†Ø§': 175,
-    'Ø§Ù„Ø£Ù‚ØµØ±': 175,
-    'Ø£Ø³ÙˆØ§Ù†': 175,
-    'Ø§Ù„Ø¨Ø­Ø± Ø§Ù„Ø£Ø­Ù…Ø±': 175,
-    'Ø§Ù„ÙˆØ§Ø¯ÙŠ Ø§Ù„Ø¬Ø¯ÙŠØ¯': 175,
-    'Ù…Ø·Ø±ÙˆØ­': 185,
-    'Ø´Ù…Ø§Ù„ Ø³ÙŠÙ†Ø§Ø¡': 175,
-    'Ø¬Ù†ÙˆØ¨ Ø³ÙŠÙ†Ø§Ø¡': 175
+    'القاهرة': 150,
+    'الجيزة': 150,
+    'الإسكندرية': 150,
+    'القليوبية': 150,
+    'الغربية': 65,
+    'المنوفية': 150,
+    'الدقهلية': 150,
+    'الشرقية': 150,
+    'البحيرة': 150,
+    'دمياط': 150,
+    'كفر الشيخ': 150,
+    'بورسعيد': 150,
+    'السويس': 150,
+    'الإسماعيلية': 150,
+    'الفيوم': 175,
+    'بني سويف': 175,
+    'المنيا': 175,
+    'أسيوط': 175,
+    'سوهاج': 175,
+    'قنا': 175,
+    'الأقصر': 175,
+    'أسوان': 175,
+    'البحر الأحمر': 175,
+    'الوادي الجديد': 175,
+    'مطروح': 185,
+    'شمال سيناء': 175,
+    'جنوب سيناء': 175
   },
-  aboutText_ar: 'Ù„ÙŠÙ„ Ø±Ø§Ù…ÙŠ - Ù…ØªØ¬Ø±Ùƒ Ø§Ù„Ù…ÙØ¶Ù„ Ù„Ù„ØªØ³ÙˆÙ‚ Ø£ÙˆÙ†Ù„Ø§ÙŠÙ†. Ù†Ù‚Ø¯Ù… Ù„Ùƒ Ø£ÙØ¶Ù„ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª Ø¨Ø£Ø¹Ù„Ù‰ Ø¬ÙˆØ¯Ø© ÙˆØ£ÙØ¶Ù„ Ø§Ù„Ø£Ø³Ø¹Ø§Ø± Ù…Ø¹ ØªÙˆØµÙŠÙ„ Ø³Ø±ÙŠØ¹ Ù„Ø¬Ù…ÙŠØ¹ Ø£Ù†Ø­Ø§Ø¡ Ù…ØµØ±.',
+  aboutText_ar: 'ميدكس - متجرك المفضل للتسوق أونلاين. نقدم لك أفضل المنتجات بأعلى جودة وأفضل الأسعار مع توصيل سريع لجميع أنحاء مصر.',
   aboutText_en: 'Medix - Your favorite online shopping destination. We offer the best products with highest quality and best prices with fast delivery across Egypt.',
-  address_ar: 'Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©ØŒ Ù…ØµØ±',
+  address_ar: 'القاهرة، مصر',
   address_en: 'Cairo, Egypt',
-  currency_ar: 'Ø¬.Ù…',
+  currency_ar: 'ج.م',
   currency_en: 'EGP',
   emailjs_service_id: '',
   emailjs_template_id: '',
@@ -225,21 +227,21 @@ const DEFAULT_SETTINGS = {
   heroSlider: [
     {
       image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop',
-      title_ar: 'Ø¥Ø·Ø§Ø±Ø§Øª ÙÙ†ÙŠØ© Ù…Ø°Ù‡Ù„Ø©',
+      title_ar: 'إطارات فنية مذهلة',
       title_en: 'Stunning Art Frames',
-      subtitle_ar: 'Ø§ÙƒØªØ´Ù ØªØ´ÙƒÙŠÙ„ØªÙ†Ø§ Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© Ù…Ù† Ù„ÙˆØ­Ø§Øª Ø§Ù„Ø­Ø§Ø¦Ø·',
+      subtitle_ar: 'اكتشف تشكيلتنا الجديدة من لوحات الحائط',
       subtitle_en: 'Discover our new wall art collection',
-      buttonText_ar: 'ØªØ³ÙˆÙ‚ Ø§Ù„Ø¢Ù†',
+      buttonText_ar: 'تسوق الآن',
       buttonText_en: 'Shop Now',
       buttonLink: '#/products'
     },
     {
       image: 'https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=2030&auto=format&fit=crop',
-      title_ar: 'Ø®ØµÙˆÙ…Ø§Øª Ù…Ù…ÙŠØ²Ø©',
+      title_ar: 'خصومات مميزة',
       title_en: 'Special Discounts',
-      subtitle_ar: 'ØªØµÙØ­ Ø£ÙØ¶Ù„ Ø§Ù„Ø¥Ø·Ø§Ø±Ø§Øª Ø¨Ø£Ø³Ø¹Ø§Ø± ØªÙ†Ø§ÙØ³ÙŠØ©',
+      subtitle_ar: 'تصفح أفضل الإطارات بأسعار تنافسية',
       subtitle_en: 'Browse the best frames at competitive prices',
-      buttonText_ar: 'Ø´Ø§Ù‡Ø¯ Ø§Ù„Ø¹Ø±ÙˆØ¶',
+      buttonText_ar: 'شاهد العروض',
       buttonText_en: 'View Offers',
       buttonLink: '#/products'
     }
@@ -951,17 +953,65 @@ function seedData() {
   saveToStorage(STORAGE_KEYS.coupons, []);
 
   saveToStorage(STORAGE_KEYS.seeded, true);
-  console.log('ðŸŒ™ Medix: Store initialized with empty data!');
+  console.log('✨ Medix: Store initialized with empty data!');
 }
 
 // ===== RESET DATA (for testing) =====
 function resetAllData() {
-  Object.values(STORAGE_KEYS).forEach(key => {
-    try { if (_useLocalStorage) localStorage.removeItem(key); } catch(e) {}
-    delete _memoryStore[key];
-  });
+  if (!_useLocalStorage) {
+    Object.keys(_memoryStore).forEach(k => delete _memoryStore[k]);
+  } else {
+    Object.keys(STORAGE_KEYS).forEach(k => {
+      localStorage.removeItem(STORAGE_KEYS[k]);
+    });
+  }
+  historyStack = [];
+  historyIndex = -1;
   seedData();
 }
+
+// ===== FIREBASE REAL-TIME SYNC =====
+function initFirebaseSync() {
+  if (!window.FirebaseDB || !window.FirebaseDB.db) return;
+  const { db, doc, onSnapshot } = window.FirebaseDB;
+
+  const keysToSync = [
+    STORAGE_KEYS.products, 
+    STORAGE_KEYS.categories, 
+    STORAGE_KEYS.settings, 
+    STORAGE_KEYS.orders,
+    STORAGE_KEYS.coupons,
+    STORAGE_KEYS.reviews,
+    STORAGE_KEYS.customers
+  ];
+
+  keysToSync.forEach(key => {
+    onSnapshot(doc(db, "store_data", key), (docSnap) => {
+      if (docSnap.exists()) {
+        const payload = docSnap.data().data;
+        if (payload) {
+          isFirebaseSyncing = true;
+          // Direct write to avoid triggering another Firebase write!
+          if (_useLocalStorage) {
+            localStorage.setItem(key, JSON.stringify(payload));
+          } else {
+            _memoryStore[key] = JSON.parse(JSON.stringify(payload));
+          }
+          isFirebaseSyncing = false;
+          
+          // Trigger a global event to refresh the UI immediately
+          window.dispatchEvent(new StorageEvent('storage', { key: key }));
+        }
+      }
+    });
+  });
+}
+
+window.addEventListener('firebase-ready', initFirebaseSync);
+if (window.FirebaseDB) initFirebaseSync();
+
+// Initialize
+seedData();
 
 // ===== FORMAT HELPERS =====
 function formatPrice(price, lang = 'ar') {
@@ -1007,10 +1057,9 @@ function getStatusIcon(status) {
     delivered: '<i class="ph ph-check-square"></i>',
     cancelled: '<i class="ph ph-x-circle"></i>'
   };
-  return icons[status] || 'â€¢';
+  return icons[status] || '•';
 }
 
 window.Store = {
   on, off, emit, getSettings, saveSettings, getProducts, getActiveProducts, getProduct, saveProduct, deleteProduct, getFeaturedProducts, getProductsByCategory, searchProducts, getDiscountedProducts, getProductPrice, getCategories, getActiveCategories, getCategory, saveCategory, deleteCategory, getCategoryProductCount, getCart, addToCart, removeFromCart, updateCartQuantity, clearCart, getCartTotal, getCartWithProducts, getOrders, getOrder, getOrderByNumber, createOrder, updateOrderStatus, deleteOrder, getOrderStats, getReviews, getApprovedReviews, getAllReviews, addReview, approveReview, deleteReview, adminLogin, isAdminLoggedIn, adminLogout, changeAdminPassword, getCoupons, getCoupon, saveCoupon, deleteCoupon, validateCoupon, seedData, resetAllData, formatPrice, formatDate, formatDateTime, getStatusColor, getStatusIcon, getCustomers, getCurrentCustomer, registerCustomer, loginCustomer, loginWithGoogle, logoutCustomer, getCustomerOrders, storeUndo, storeRedo, getWishlist, toggleWishlist, isInWishlist, getRecentlyViewed, addRecentlyViewed, getShippingCost
 };
-
