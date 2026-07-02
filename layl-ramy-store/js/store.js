@@ -760,6 +760,12 @@ async function loginWithGoogle() {
   if (!window.FirebaseAuth) {
     return { success: false, message: 'firebase_not_loaded' };
   }
+  
+  if (window.location.protocol === 'file:') {
+    alert("تنبيه: تسجيل الدخول بواسطة جوجل (Google Sign-In) لا يعمل عند فتح الملف محلياً من الجهاز (file://) بسبب حماية جوجل. يرجى تجربة هذه الميزة بعد رفع الموقع على السحابة (GitHub).");
+    return { success: false, message: 'unsupported_environment' };
+  }
+  
   try {
     const result = await window.FirebaseAuth.signInWithPopup(window.FirebaseAuth.auth, window.FirebaseAuth.provider);
     const user = result.user;
@@ -983,20 +989,33 @@ function initFirebaseSync() {
       if (exists) {
         const payload = docSnap.data().data;
         if (payload) {
-          isFirebaseSyncing = true;
-          // Direct write to avoid triggering another Firebase write!
-          if (_useLocalStorage) {
-            localStorage.setItem(key, JSON.stringify(payload));
-          } else {
-            _memoryStore[key] = JSON.parse(JSON.stringify(payload));
-          }
-          isFirebaseSyncing = false;
+          const newPayloadStr = JSON.stringify(payload);
+          let isDifferent = true;
           
-          // Trigger a global event to refresh the UI immediately (using CustomEvent to avoid StorageEvent strict CORS/Tracking blocks)
-          try {
-            window.dispatchEvent(new StorageEvent('storage', { key: key }));
-          } catch(e) {}
-          window.dispatchEvent(new CustomEvent('firebase-data-synced', { detail: { key: key } }));
+          if (_useLocalStorage) {
+            if (localStorage.getItem(key) === newPayloadStr) {
+              isDifferent = false;
+            } else {
+              localStorage.setItem(key, newPayloadStr);
+            }
+          } else {
+            if (JSON.stringify(_memoryStore[key]) === newPayloadStr) {
+              isDifferent = false;
+            } else {
+              _memoryStore[key] = JSON.parse(newPayloadStr);
+            }
+          }
+
+          if (isDifferent) {
+            isFirebaseSyncing = true;
+            isFirebaseSyncing = false; // Reset immediately
+            
+            // Trigger a global event to refresh the UI immediately
+            try {
+              window.dispatchEvent(new StorageEvent('storage', { key: key }));
+            } catch(e) {}
+            window.dispatchEvent(new CustomEvent('firebase-data-synced', { detail: { key: key } }));
+          }
         }
       }
     });
