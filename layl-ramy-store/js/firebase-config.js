@@ -21,6 +21,7 @@ try {
     auth: auth, 
     provider: provider, 
     signInWithPopup: (authInstance, prov) => authInstance.signInWithPopup(prov), 
+    signInWithEmailAndPassword: (authInstance, email, pass) => authInstance.signInWithEmailAndPassword(email, pass),
     onAuthStateChanged: (authInstance, callback) => authInstance.onAuthStateChanged(callback), 
     signOut: (authInstance) => authInstance.signOut()
   };

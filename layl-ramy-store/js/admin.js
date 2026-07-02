@@ -464,8 +464,12 @@ function renderLoginPage() {
         </div>
         <form class="login-form" id="login-form">
           <div class="input-group">
+            <label for="login-email">البريد الإلكتروني (الإيميل)</label>
+            <input type="email" id="login-email" placeholder="admin@example.com" autocomplete="email" autofocus>
+          </div>
+          <div class="input-group">
             <label for="login-password">${t('admin.password')}</label>
-            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" autofocus>
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
           </div>
           <div class="login-error" id="login-error">${t('admin.wrongPassword')}</div>
           <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;">${t('admin.loginBtn')}</button>
@@ -2585,15 +2589,29 @@ document.addEventListener('click', (e) => {
 document.addEventListener('submit', (e) => {
   if (e.target.id === 'login-form') {
     e.preventDefault();
+    const emailInput = document.getElementById('login-email');
+    const email = emailInput ? emailInput.value.trim() : '';
     const password = document.getElementById('login-password').value;
-    if (Store.adminLogin(password)) {
-      navigate('dashboard');
-      renderCurrentPage();
-    } else {
-      const errorEl = document.getElementById('login-error');
-      errorEl.classList.add('visible');
-      setTimeout(() => errorEl.classList.remove('visible'), 3000);
-    }
+    const errorEl = document.getElementById('login-error');
+    const btn = document.querySelector('#login-form button');
+    
+    errorEl.classList.remove('visible');
+    const originalText = btn.textContent;
+    btn.textContent = 'جاري تسجيل الدخول...';
+    btn.disabled = true;
+
+    Store.adminLogin(email, password).then(result => {
+      if (result === true) {
+        navigate('dashboard');
+        renderCurrentPage();
+      } else {
+        errorEl.textContent = "خطأ: " + (result || "بيانات الدخول خاطئة");
+        errorEl.classList.add('visible');
+        btn.textContent = originalText;
+        btn.disabled = false;
+        setTimeout(() => errorEl.classList.remove('visible'), 5000);
+      }
+    });
   }
 });
 

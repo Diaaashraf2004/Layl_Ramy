@@ -706,15 +706,24 @@ function addRecentlyViewed(productId) {
   emit('recent-updated', recent);
 }
 
-// ===== ADMIN AUTH (Simple - will be replaced with Firebase Auth) =====
-const ADMIN_PASSWORD = 'admin123';
-
-function adminLogin(password) {
-  if (password === ADMIN_PASSWORD) {
-    try { localStorage.setItem('lr_admin', 'true'); } catch(e) { _memoryStore['_admin'] = true; }
-    return true;
-  }
-  return false;
+// ===== ADMIN AUTH (Firebase Auth Integrated) =====
+function adminLogin(email, password) {
+  if (!window.FirebaseAuth) return Promise.resolve(false);
+  
+  return window.FirebaseAuth.signInWithEmailAndPassword(window.FirebaseAuth.auth, email, password)
+    .then((userCredential) => {
+      // Set a local flag so the synchronous UI knows to show the dashboard
+      try { localStorage.setItem('lr_admin', 'true'); } catch(e) { _memoryStore['_admin'] = true; }
+      return true;
+    })
+    .catch((error) => {
+      console.error("Admin Login failed:", error.message);
+      let errorMsg = error.message;
+      if (error.code === 'auth/invalid-email') errorMsg = "صيغة الإيميل خاطئة.";
+      else if (error.code === 'auth/user-not-found') errorMsg = "هذا الإيميل غير مسجل كأدمن.";
+      else if (error.code === 'auth/wrong-password') errorMsg = "كلمة المرور خاطئة.";
+      return errorMsg;
+    });
 }
 
 function isAdminLoggedIn() {
@@ -722,14 +731,17 @@ function isAdminLoggedIn() {
 }
 
 function adminLogout() {
+  if (window.FirebaseAuth) {
+    window.FirebaseAuth.signOut(window.FirebaseAuth.auth).catch(e => console.error("Logout error", e));
+  }
   try { localStorage.removeItem('lr_admin'); } catch(e) {}
   _memoryStore['_admin'] = false;
 }
 
 function changeAdminPassword(oldPassword, newPassword) {
-  // In localStorage version, we just validate the old one
-  // Firebase version will handle this properly
-  return oldPassword === ADMIN_PASSWORD;
+  // Passwords are now managed in the Firebase Console
+  alert("عذراً، يجب تغيير كلمة المرور من داخل لوحة تحكم Firebase (Authentication) لضمان أقصى درجات الأمان.");
+  return false;
 }
 
 // ===== CUSTOMERS & AUTH =====
