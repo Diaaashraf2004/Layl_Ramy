@@ -9,43 +9,44 @@ const firebaseConfig = {
   appId: "1:941311565102:web:ca188dcf2e8acd46d2eebf"
 };
 
-// Initialize Firebase Compat
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
-const db = firebase.firestore();
+try {
+  // Initialize Firebase Compat
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  const db = firebase.firestore();
 
-// Create wrapper to perfectly mimic the Modular API that store.js expects
-window.FirebaseAuth = { 
-  auth: auth, 
-  provider: provider, 
-  signInWithPopup: (authInstance, prov) => authInstance.signInWithPopup(prov), 
-  onAuthStateChanged: (authInstance, callback) => authInstance.onAuthStateChanged(callback), 
-  signOut: (authInstance) => authInstance.signOut()
-};
+  // Create wrapper to perfectly mimic the Modular API that store.js expects
+  window.FirebaseAuth = { 
+    auth: auth, 
+    provider: provider, 
+    signInWithPopup: (authInstance, prov) => authInstance.signInWithPopup(prov), 
+    onAuthStateChanged: (authInstance, callback) => authInstance.onAuthStateChanged(callback), 
+    signOut: (authInstance) => authInstance.signOut()
+  };
 
-window.FirebaseDB = { 
-  db: db, 
-  collection: (dbInstance, path) => dbInstance.collection(path), 
-  doc: (dbInstanceOrCollection, pathOrId, optionalId) => {
-    // If it's a Firestore instance (db, "store_data", "key")
-    if (optionalId) {
-      return dbInstanceOrCollection.collection(pathOrId).doc(optionalId);
-    }
-    // If it's a collection ref (collection, "key")
-    if (dbInstanceOrCollection.doc) {
+  window.FirebaseDB = { 
+    db: db, 
+    collection: (dbInstance, path) => dbInstance.collection(path), 
+    doc: (dbInstanceOrCollection, pathOrId, optionalId) => {
+      if (optionalId) return dbInstanceOrCollection.collection(pathOrId).doc(optionalId);
+      if (dbInstanceOrCollection.doc) return dbInstanceOrCollection.doc(pathOrId);
       return dbInstanceOrCollection.doc(pathOrId);
-    }
-    // If it's just (db, "store_data")
-    return dbInstanceOrCollection.doc(pathOrId);
-  }, 
-  getDocs: (query) => query.get(), 
-  getDoc: (docRef) => docRef.get(), 
-  setDoc: (docRef, data, options) => docRef.set(data, options), 
-  updateDoc: (docRef, data) => docRef.update(data), 
-  deleteDoc: (docRef) => docRef.delete(), 
-  onSnapshot: (ref, callback) => ref.onSnapshot(callback)
-};
+    }, 
+    getDocs: (query) => query.get(), 
+    getDoc: (docRef) => docRef.get(), 
+    setDoc: (docRef, data, options) => docRef.set(data, options), 
+    updateDoc: (docRef, data) => docRef.update(data), 
+    deleteDoc: (docRef) => docRef.delete(), 
+    onSnapshot: (ref, callback) => ref.onSnapshot(callback)
+  };
 
-// Notify the app that Firebase is ready
-window.dispatchEvent(new Event('firebase-ready'));
+  // Notify the app that Firebase is ready
+  window.dispatchEvent(new Event('firebase-ready'));
+} catch (error) {
+  console.error("FIREBASE INIT ERROR:", error);
+  // Visually alert the user so we know exactly why it fails locally
+  setTimeout(() => {
+    alert("Firebase failed to initialize locally! Error: " + error.message);
+  }, 1000);
+}

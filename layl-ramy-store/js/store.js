@@ -69,6 +69,8 @@ function getFromStorage(key) {
   }
 }
 
+let isFirebaseSyncing = false;
+
 function saveToStorage(key, data) {
   try {
     if (_useLocalStorage) {
@@ -81,16 +83,19 @@ function saveToStorage(key, data) {
     _memoryStore[key] = JSON.parse(JSON.stringify(data));
   }
 
-let isFirebaseSyncing = false;
-
-// Background Firebase Sync
+  // Background Firebase Sync
   if (window.FirebaseDB && window.FirebaseDB.db && !isFirebaseSyncing) {
-    // Only sync if it's not the 'currentCustomer' or 'cart' (those are per-user session)
     if (key !== STORAGE_KEYS.currentCustomer && key !== STORAGE_KEYS.cart) {
       try {
         const { doc, setDoc } = window.FirebaseDB;
         setDoc(doc(window.FirebaseDB.db, "store_data", key), { data: data })
-          .catch(e => console.error("Firebase write error for " + key + ":", e));
+          .then(() => {
+             console.log("☁️ Saved to Cloud: " + key);
+          })
+          .catch(e => {
+             console.error("Firebase write error for " + key + ":", e);
+             alert("⚠️ فشل الحفظ على السحابة! راجع اتصال الإنترنت. خطأ: " + e.message);
+          });
       } catch (e) {}
     }
   }
